@@ -60,7 +60,7 @@ export default class ListTasksCommand extends Command {
         const options = interaction.options as CommandInteractionOptionResolver;
         const limit = options.getInteger('limit') ?? 10;
         const showCompleted = options.getBoolean('completed') ?? false;
-        const user = await UserManager.getInstance().getByDiscordID(Number(interaction.user.id));
+        const user = await UserManager.getInstance().getByDiscordID(interaction.user.id);
 
         if (!user) {
             await interaction.reply({ content: 'You need to set up your user profile first', ephemeral: true });

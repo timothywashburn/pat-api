@@ -8,9 +8,10 @@ export default class MongoManager {
 
     async init(): Promise<void> {
         if (this.initialized) return;
+        console.log("connecting to mongodb server");
 
         try {
-            await mongoose.connect('mongodb://localhost:27017/planner-and-tracker');
+            await mongoose.connect(process.env.MONGODB_URI!);
             console.log('Connected to MongoDB');
 
             mongoose.connection.on('error', err => {

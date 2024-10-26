@@ -15,6 +15,7 @@ import ListTasksCommand from "./commands/list-tasks-command";
 import dotenv from 'dotenv';
 import CreateUserCommand from "./commands/create-user-command";
 import CompleteTaskCommand from "./commands/complete-task-command";
+import UpdateCommand from "./commands/update-command";
 
 export default class Bot {
     private client: Client;
@@ -25,8 +26,6 @@ export default class Bot {
     private readonly guildId: string;
 
     constructor() {
-        this.validateEnvironmentVariables();
-
         this.token = process.env.DISCORD_TOKEN!;
         this.clientId = process.env.DISCORD_CLIENT_ID!;
         this.guildId = process.env.DISCORD_GUILD_ID!;
@@ -42,21 +41,12 @@ export default class Bot {
         this.start();
     }
 
-    private validateEnvironmentVariables() {
-        const required = ['DISCORD_TOKEN', 'DISCORD_CLIENT_ID', 'DISCORD_GUILD_ID'];
-        const missing = required.filter(key => !process.env[key]);
-
-        if (missing.length > 0) {
-            throw new Error(`Missing required environment variables: ${missing.join(', ')}`);
-        }
-    }
-
     async start() {
         try {
             await this.loadCommands();
 
             this.client.once('ready', () => {
-                console.log(`Logged in as ${this.client.user?.tag}`);
+                console.log(`logged in as ${this.client.user?.tag}`);
             });
 
             this.client.on('interactionCreate', async (interaction: Interaction) => {
@@ -67,7 +57,7 @@ export default class Bot {
                     try {
                         await command.autocomplete(interaction);
                     } catch (error) {
-                        console.error('Error handling autocomplete:', error);
+                        console.error('error handling autocomplete:', error);
                     }
                     return;
                 }
@@ -80,7 +70,7 @@ export default class Bot {
                 try {
                     await command.execute(interaction);
                 } catch (error) {
-                    console.error('Error executing command:', error);
+                    console.error('error executing command:', error);
                     if (!interaction.replied) {
                         await interaction.reply({
                             content: 'There was an error while executing this command!',
@@ -92,7 +82,7 @@ export default class Bot {
 
             await this.client.login(this.token);
         } catch (error) {
-            console.error('Error starting bot:', error);
+            console.error('error starting bot:', error);
             process.exit(1);
         }
     }
@@ -104,6 +94,7 @@ export default class Bot {
             new DeleteTaskCommand(),
             new ListTasksCommand(),
             new CreateUserCommand(),
+            new UpdateCommand(),
             new PingCommand()
         ];
 
@@ -112,16 +103,16 @@ export default class Bot {
         try {
             const commandData = this.commands.map(command => command.data.toJSON());
 
-            console.log(`Started refreshing ${commandData.length} application (/) commands.`);
+            console.log(`refreshing ${commandData.length} application commands`);
 
             const data = await rest.put(
                 Routes.applicationGuildCommands(this.clientId, this.guildId),
                 { body: commandData },
             ) as APIApplicationCommand[];
 
-            console.log(`Successfully reloaded ${data.length} application (/) commands.`);
+            console.log(`successfully reloaded ${data.length} application commands`);
         } catch (error) {
-            console.error('Error reloading commands:', error);
+            console.error('error reloading commands:', error);
             throw error;
         }
     }
