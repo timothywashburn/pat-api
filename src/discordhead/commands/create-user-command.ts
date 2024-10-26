@@ -35,7 +35,7 @@ export default class CreateUserCommand extends Command {
         const targetUser = options.getUser('user', true);
         const username = options.getString('username', true);
 
-        const exists = await UserManager.getInstance().exists(Number(targetUser.id));
+        const exists = await UserManager.getInstance().exists(targetUser.id);
         if (exists) {
             await interaction.reply({
                 content: 'A user profile already exists for this Discord user',
@@ -47,7 +47,7 @@ export default class CreateUserCommand extends Command {
         try {
             const user = await UserManager.getInstance().create(
                 username,
-                Number(targetUser.id)
+                targetUser.id
             );
 
             await interaction.reply({

@@ -5,7 +5,7 @@ export default class UserManager {
 
     private constructor() {}
 
-    create(username: string, discordID: number): Promise<UserConfig> {
+    create(username: string, discordID: string): Promise<UserConfig> {
         const userConfig = new UserConfigModel({
             username,
             discordID
@@ -13,11 +13,11 @@ export default class UserManager {
         return userConfig.save();
     }
 
-    getByDiscordID(discordID: number): Promise<UserConfig | null> {
+    getByDiscordID(discordID: string): Promise<UserConfig | null> {
         return UserConfigModel.findOne({ discordID });
     }
 
-    update(discordID: number, updates: Partial<UserConfig>): Promise<UserConfig | null> {
+    update(discordID: string, updates: Partial<UserConfig>): Promise<UserConfig | null> {
         return UserConfigModel.findOneAndUpdate(
             { discordID },
             { $set: updates },
@@ -25,12 +25,12 @@ export default class UserManager {
         );
     }
 
-    delete(discordID: number): Promise<boolean> {
+    delete(discordID: string): Promise<boolean> {
         return UserConfigModel.deleteOne({ discordID })
             .then(result => result.deletedCount > 0);
     }
 
-    exists(discordID: number): Promise<boolean> {
+    exists(discordID: string): Promise<boolean> {
         return UserConfigModel.exists({ discordID })
             .then(result => result !== null);
     }

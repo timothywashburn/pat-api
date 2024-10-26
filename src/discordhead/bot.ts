@@ -14,6 +14,7 @@ import DeleteTaskCommand from "./commands/delete-task-command";
 import ListTasksCommand from "./commands/list-tasks-command";
 import dotenv from 'dotenv';
 import CreateUserCommand from "./commands/create-user-command";
+import CompleteTaskCommand from "./commands/complete-task-command";
 
 export default class Bot {
     private client: Client;
@@ -99,6 +100,7 @@ export default class Bot {
     private async loadCommands() {
         this.commands = [
             new CreateTaskCommand(),
+            new CompleteTaskCommand(),
             new DeleteTaskCommand(),
             new ListTasksCommand(),
             new CreateUserCommand(),

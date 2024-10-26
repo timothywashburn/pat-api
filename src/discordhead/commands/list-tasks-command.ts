@@ -21,12 +21,45 @@ export default class ListTasksCommand extends Command {
                     .setRequired(false)
                     .setMinValue(1)
                     .setMaxValue(25)
+            )
+            .addBooleanOption(option =>
+                option
+                    .setName('completed')
+                    .setDescription('Show completed tasks instead of pending tasks')
+                    .setRequired(false)
             );
+    }
+
+    private formatCompletedTasks(tasks: TaskData[], limit: number): string {
+        const sortedTasks = [...tasks]
+            .sort((a, b) => b.updatedAt.getTime() - a.updatedAt.getTime())
+            .slice(0, limit);
+
+        if (sortedTasks.length === 0) {
+            return 'No completed tasks found';
+        }
+
+        const taskList = sortedTasks
+            .map((task, index) => {
+                const completedTimestamp = Math.floor(task.updatedAt.getTime() / 1000);
+                let taskString = `${index + 1}. ${task.name} (completed <t:${completedTimestamp}:R>)`;
+
+                if (task.dueDate) {
+                    const wasOverdue = task.dueDate < task.updatedAt;
+                    taskString += wasOverdue ? ' ⏰' : ' ✅';
+                }
+
+                return taskString;
+            })
+            .join('\n');
+
+        return `**Recently Completed Tasks:**\n${taskList}`;
     }
 
     async execute(interaction: CommandInteraction): Promise<void> {
         const options = interaction.options as CommandInteractionOptionResolver;
         const limit = options.getInteger('limit') ?? 10;
+        const showCompleted = options.getBoolean('completed') ?? false;
         const user = await UserManager.getInstance().getByDiscordID(Number(interaction.user.id));
 
         if (!user) {
@@ -35,6 +68,13 @@ export default class ListTasksCommand extends Command {
         }
 
         const tasks = await TaskManager.getInstance().getAllByUser(user._id);
+
+        if (showCompleted) {
+            const completedTasks = tasks.filter(task => task.completed);
+            await interaction.reply(this.formatCompletedTasks(completedTasks, limit));
+            return;
+        }
+
         const now = new Date();
 
         const categorizedTasks = tasks

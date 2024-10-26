@@ -69,7 +69,7 @@ export default class CreateTaskCommand extends Command {
         const dueString = options.getString('due');
         const notes = options.getString('notes') ?? undefined;
 
-        const user = await UserManager.getInstance().getByDiscordID(Number(interaction.user.id));
+        const user = await UserManager.getInstance().getByDiscordID(interaction.user.id);
         if (!user) {
             await interaction.reply({ content: 'You need to set up your user profile first', ephemeral: true });
             return;
@@ -83,14 +83,15 @@ export default class CreateTaskCommand extends Command {
 
         let dueDate: Date | undefined;
         if (dueString) {
-            dueDate = this.parseDueDate(dueString);
-            if (!dueDate) {
+            const parsedDate = this.parseDueDate(dueString);
+            if (!parsedDate) {
                 await interaction.reply({
                     content: 'Invalid date format. Please use MM/DD or MM/DD/YY (e.g., 1/5, 01/05, 12/25, 1/5/24)',
                     ephemeral: true
                 });
                 return;
             }
+            dueDate = parsedDate;
         }
 
         const task = await TaskManager.getInstance().create(user._id, {

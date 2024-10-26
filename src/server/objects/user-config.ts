@@ -4,7 +4,7 @@ interface UserConfig {
     _id: Types.ObjectId;
 
     username: string;
-    discordID: number;
+    discordID: string;
 
     createdAt: Date;
     updatedAt: Date;
@@ -16,7 +16,7 @@ const userConfigSchema = new Schema<UserConfig>({
         index: true
     },
     discordID: {
-        type: Number,
+        type: String,
         index: true
     }
 }, {

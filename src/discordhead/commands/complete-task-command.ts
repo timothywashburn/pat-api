@@ -1,16 +1,16 @@
-import { AutocompleteFocusedOption, AutocompleteInteraction, CommandInteraction, CommandInteractionOptionResolver } from 'discord.js';
+import { AutocompleteInteraction, CommandInteraction, CommandInteractionOptionResolver } from 'discord.js';
 import Command from "../objects/command";
 import TaskManager from "../../server/controllers/task-manager";
 import UserManager from "../../server/controllers/user-manager";
 
-export default class DeleteTaskCommand extends Command {
+export default class CompleteTaskCommand extends Command {
     constructor() {
-        super('delete', 'Delete a task');
+        super('complete', 'Mark a task as completed');
         this.data
             .addStringOption(option =>
                 option
                     .setName('name')
-                    .setDescription('The name of the task to delete')
+                    .setDescription('The name of the task to mark as completed')
                     .setRequired(true)
                     .setAutocomplete(true)
             );
@@ -28,6 +28,7 @@ export default class DeleteTaskCommand extends Command {
         const tasks = await TaskManager.getInstance().getAllByUser(user._id);
         const filtered = tasks
             .filter(task =>
+                !task.completed && // Only show incomplete tasks
                 task.name.toLowerCase().includes(focusedOption.value.toLowerCase())
             )
             .slice(0, 25)
@@ -50,14 +51,36 @@ export default class DeleteTaskCommand extends Command {
         }
 
         const tasks = await TaskManager.getInstance().getAllByUser(user._id);
-        const taskToDelete = tasks.find(task => task.name.toLowerCase() === taskName.toLowerCase());
+        const taskToComplete = tasks.find(task =>
+            task.name.toLowerCase() === taskName.toLowerCase() && !task.completed
+        );
 
-        if (!taskToDelete) {
-            await interaction.reply({ content: 'Task not found', ephemeral: true });
+        if (!taskToComplete) {
+            await interaction.reply({
+                content: 'Task not found or already completed',
+                ephemeral: true
+            });
             return;
         }
 
-        await TaskManager.getInstance().delete(taskToDelete._id);
-        await interaction.reply(`Task "${taskName}" deleted successfully`);
+        const updatedTask = await TaskManager.getInstance().toggleComplete(taskToComplete._id);
+
+        if (!updatedTask) {
+            await interaction.reply({
+                content: 'An error occurred while completing the task',
+                ephemeral: true
+            });
+            return;
+        }
+
+        await interaction.reply(
+            `✅ Task "${taskName}" marked as complete${
+                taskToComplete.dueDate
+                    ? taskToComplete.dueDate < new Date()
+                        ? ' (completed overdue)'
+                        : ' (completed on time)'
+                    : ''
+            }`
+        );
     }
 }
