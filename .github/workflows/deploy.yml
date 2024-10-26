@@ -1,9 +1,8 @@
 name: Deploy PAT Server
-
 on:
-  push:
-    branches:
-      - main
+  #  push:
+  #    branches:
+  #      - main
   workflow_dispatch:
 
 env:
@@ -35,15 +34,14 @@ jobs:
           wget -q https://github.com/cloudflare/cloudflared/releases/latest/download/cloudflared-linux-amd64.deb
           sudo dpkg -i cloudflared-linux-amd64.deb
 
-      - name: Deploy via Cloudflared
-        env:
-          CLOUDFLARED_TOKEN: ${{ secrets.CLOUDFLARED_TOKEN }}
+      - name: Setup Cloudflared directory
         run: |
-          # Authenticate with Cloudflared
-          echo "$CLOUDFLARED_TOKEN" > ~/.cloudflared/cert.json
-          
-          # Run deployment commands through Cloudflared
-          cloudflared access ssh --hostname <your-tunnel-hostname> -- powershell -Command "
+          mkdir -p ~/.cloudflared
+          echo "${{ secrets.CLOUDFLARED_TOKEN }}" > ~/.cloudflared/cert.json
+
+      - name: Deploy via Cloudflared
+        run: |
+          cloudflared access ssh --hostname ${{ secrets.TUNNEL_HOSTNAME }} -- powershell -Command "
             Set-Location C:\Users\timothy\Desktop\pat-server
             docker-compose pull pat-server
             docker-compose up -d --force-recreate pat-server
