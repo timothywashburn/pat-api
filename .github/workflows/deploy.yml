@@ -42,8 +42,8 @@ jobs:
       - name: Deploy via Cloudflared
         run: |
           cloudflared access ssh --hostname ${{ secrets.TUNNEL_HOSTNAME }} -- powershell -Command "
-            Set-Location C:\Users\timothy\Desktop\pat-server
-            docker-compose pull pat-server
-            docker-compose up -d --force-recreate pat-server
-            docker image prune -f
+            Invoke-Expression 'Set-Location C:\Users\timothy\Desktop\pat-server';
+            Invoke-Expression 'docker-compose pull pat-server';
+            Invoke-Expression 'docker-compose up -d --force-recreate pat-server';
+            Invoke-Expression 'docker image prune -f'
           "
