@@ -1,4 +1,4 @@
-import { SlashCommandBuilder, CommandInteraction } from 'discord.js';
+import {SlashCommandBuilder, CommandInteraction, AutocompleteInteraction} from 'discord.js';
 
 export default abstract class Command {
     public name: string;
@@ -12,4 +12,8 @@ export default abstract class Command {
     }
 
     abstract execute(interaction: CommandInteraction): Promise<void>;
+
+    autocomplete(interaction: AutocompleteInteraction): Promise<void> {
+        return Promise.resolve();
+    };
 }

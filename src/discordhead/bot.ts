@@ -4,7 +4,7 @@ import {
     REST,
     CommandInteraction,
     Interaction,
-    GatewayIntentBits
+    GatewayIntentBits, AutocompleteInteraction
 } from 'discord.js';
 import { Routes } from 'discord-api-types/v10';
 import Command from "./objects/command";
@@ -59,6 +59,18 @@ export default class Bot {
             });
 
             this.client.on('interactionCreate', async (interaction: Interaction) => {
+                if (interaction instanceof AutocompleteInteraction) {
+                    const command = this.commands.find(cmd => cmd.name === interaction.commandName);
+                    if (!command) return;
+
+                    try {
+                        await command.autocomplete(interaction);
+                    } catch (error) {
+                        console.error('Error handling autocomplete:', error);
+                    }
+                    return;
+                }
+
                 if (!(interaction instanceof CommandInteraction)) return;
 
                 const command = this.commands.find(cmd => cmd.name === interaction.commandName);
