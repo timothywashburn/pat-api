@@ -41,7 +41,7 @@ jobs:
 
       - name: Deploy via Cloudflared
         run: |
-          cloudflared access ssh --hostname ${{ secrets.TUNNEL_HOSTNAME }} --port 22 -- powershell -Command "
+          cloudflared access ssh --hostname ${{ secrets.TUNNEL_HOSTNAME }} -- powershell -Command "
             Set-Location C:\Users\timothy\Desktop\pat-server
             docker-compose pull pat-server
             docker-compose up -d --force-recreate pat-server
