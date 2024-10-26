@@ -15,7 +15,6 @@ import ListTasksCommand from "./commands/list-tasks-command";
 import dotenv from 'dotenv';
 import CreateUserCommand from "./commands/create-user-command";
 import CompleteTaskCommand from "./commands/complete-task-command";
-import UpdateCommand from "./commands/update-command";
 
 export default class Bot {
     private client: Client;
@@ -94,7 +93,6 @@ export default class Bot {
             new DeleteTaskCommand(),
             new ListTasksCommand(),
             new CreateUserCommand(),
-            new UpdateCommand(),
             new PingCommand()
         ];
 

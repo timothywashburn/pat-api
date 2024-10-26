@@ -1,25 +1,39 @@
 services:
-  server:
-    build: .
-    container_name: planner-and-tracker-server
+  pat-server:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: kyrokrypt/pat-server:latest
+    container_name: pat-server
     restart: unless-stopped
     environment:
       - DISCORD_TOKEN=${DISCORD_TOKEN}
       - DISCORD_CLIENT_ID=${DISCORD_CLIENT_ID}
       - DISCORD_GUILD_ID=${DISCORD_GUILD_ID}
-      - MONGODB_URI=mongodb://mongodb:27017/planner-and-tracker
+      - MONGODB_URI=mongodb://root:example@mongodb:27017/planner-and-tracker?authSource=admin
     depends_on:
       - mongodb
     volumes:
-      - .:/app
-      - /app/node_modules
+      - .:/app:delegated
+      - node_modules:/app/node_modules
 
   mongodb:
     image: mongo:latest
-    container_name: planner-and-tracker-mongodb
+    container_name: pat-mongodb
     restart: unless-stopped
+    ports:
+      - "27017:27017"
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: root
+      MONGO_INITDB_ROOT_PASSWORD: example
     volumes:
       - mongodb_data:/data/db
+      - mongodb_config:/data/configdb
 
 volumes:
   mongodb_data:
+    name: pat-mongodb-data
+  mongodb_config:
+    name: pat-mongodb-config
+  node_modules:
+    name: pat-node-modules
