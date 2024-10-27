@@ -15,6 +15,7 @@ services:
     image: mongo:latest
     container_name: pat-mongodb
     restart: unless-stopped
+    user: mongodb
     command:
       - mongod
       - --tlsMode
@@ -31,7 +32,7 @@ services:
     volumes:
       - mongodb_data:/data/db
       - mongodb_config:/data/configdb
-      - ./certs:/etc/mongodb
+      - ./certs:/etc/mongodb:ro
 
 volumes:
   mongodb_data:
