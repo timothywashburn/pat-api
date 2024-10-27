@@ -17,6 +17,7 @@ services:
     image: mongo:latest
     container_name: pat-mongodb
     restart: unless-stopped
+    user: "999:999"
     command:
       - mongod
       - --tlsMode
