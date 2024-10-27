@@ -12,23 +12,15 @@ import PingCommand from "./commands/ping";
 import CreateTaskCommand from "./commands/create-task-command";
 import DeleteTaskCommand from "./commands/delete-task-command";
 import ListTasksCommand from "./commands/list-tasks-command";
-import dotenv from 'dotenv';
 import CreateUserCommand from "./commands/create-user-command";
 import CompleteTaskCommand from "./commands/complete-task-command";
+import ConfigManager from "../server/controllers/config-manager";
 
 export default class Bot {
     private client: Client;
     private commands: Command[] = [];
 
-    private readonly token: string;
-    private readonly clientId: string;
-    private readonly guildId: string;
-
     constructor() {
-        this.token = process.env.DISCORD_TOKEN!;
-        this.clientId = process.env.DISCORD_CLIENT_ID!;
-        this.guildId = process.env.DISCORD_GUILD_ID!;
-
         this.client = new Client({
             intents: [
                 GatewayIntentBits.Guilds,
@@ -44,9 +36,8 @@ export default class Bot {
         try {
             await this.loadCommands();
 
-            this.client.once('ready', () => {
-                console.log(`logged in as ${this.client.user?.tag}`);
-            });
+            await this.client.login(ConfigManager.getConfig().discord.token);
+            console.log(`logged in as ${this.client.user?.tag}`);
 
             this.client.on('interactionCreate', async (interaction: Interaction) => {
                 if (interaction instanceof AutocompleteInteraction) {
@@ -78,8 +69,6 @@ export default class Bot {
                     }
                 }
             });
-
-            await this.client.login(this.token);
         } catch (error) {
             console.error('error starting bot:', error);
             process.exit(1);
@@ -96,7 +85,9 @@ export default class Bot {
             new PingCommand()
         ];
 
-        const rest = new REST({ version: '10' }).setToken(this.token);
+        let discordConfig = ConfigManager.getConfig().discord;
+
+        const rest = new REST({ version: '10' }).setToken(discordConfig.token);
 
         try {
             const commandData = this.commands.map(command => command.data.toJSON());
@@ -104,7 +95,7 @@ export default class Bot {
             console.log(`refreshing ${commandData.length} application commands`);
 
             const data = await rest.put(
-                Routes.applicationGuildCommands(this.clientId, this.guildId),
+                Routes.applicationGuildCommands(discordConfig.clientId, discordConfig.guildId),
                 { body: commandData },
             ) as APIApplicationCommand[];
 

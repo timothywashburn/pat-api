@@ -36,9 +36,6 @@ jobs:
       - name: Create .env file
         run: |
           cat > .env << EOL
-          DISCORD_TOKEN=${{ secrets.DISCORD_TOKEN }}
-          DISCORD_CLIENT_ID=${{ secrets.DISCORD_CLIENT_ID }}
-          DISCORD_GUILD_ID=${{ secrets.DISCORD_GUILD_ID }}
           MONGODB_URI=${{ secrets.MONGODB_URI }}
           EOL
           
