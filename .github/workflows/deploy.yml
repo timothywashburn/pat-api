@@ -32,6 +32,15 @@ jobs:
       - name: Install sshpass
         run: sudo apt-get install -y sshpass
 
+      - name: Create remote directory and copy files
+        env:
+          SSH_CONNECTION: ${{ secrets.SSH_CONNECTION }}
+          SSH_PASSWORD: ${{ secrets.SSH_PASSWORD }}
+        run: |
+          sshpass -p "$SSH_PASSWORD" ssh -o StrictHostKeyChecking=no $SSH_CONNECTION "mkdir -p ~/pat-server"
+          sshpass -p "$SSH_PASSWORD" scp -o StrictHostKeyChecking=no docker-compose.yml $SSH_CONNECTION:~/pat-server/
+          sshpass -p "$SSH_PASSWORD" scp -o StrictHostKeyChecking=no .env $SSH_CONNECTION:~/pat-server/
+
       - name: Deploy to VPS
         env:
           SSH_CONNECTION: ${{ secrets.SSH_CONNECTION }}
