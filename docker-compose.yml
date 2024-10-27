@@ -13,9 +13,6 @@ services:
       - MONGODB_URI=mongodb://root:example@mongodb:27017/planner-and-tracker?authSource=admin
     depends_on:
       - mongodb
-    volumes:
-      - .:/app:delegated
-      - node_modules:/app/node_modules
 
   mongodb:
     image: mongo:latest
@@ -35,5 +32,3 @@ volumes:
     name: pat-mongodb-data
   mongodb_config:
     name: pat-mongodb-config
-  node_modules:
-    name: pat-node-modules
