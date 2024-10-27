@@ -15,6 +15,7 @@ services:
     image: mongo:latest
     container_name: pat-mongodb
     restart: unless-stopped
+    command: ["mongod", "--tlsMode", "requireTLS", "--tlsCertificateKeyFile", "/etc/mongodb/mongodb.pem"]
     ports:
       - "27017:27017"
     environment:
@@ -23,6 +24,7 @@ services:
     volumes:
       - mongodb_data:/data/db
       - mongodb_config:/data/configdb
+      - ./certs:/etc/mongodb
 
 volumes:
   mongodb_data:
