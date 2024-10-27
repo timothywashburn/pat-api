@@ -40,21 +40,19 @@ jobs:
           echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
           chmod 600 ~/.ssh/id_rsa
 
-      - name: Add Host Key to known_hosts
-        run: |
-          mkdir -p ~/.ssh
-          echo "<your_host_key>" >> ~/.ssh/known_hosts
-          chmod 644 ~/.ssh/known_hosts
-
       - name: Setup Cloudflared directory
         run: |
           mkdir -p ~/.cloudflared
           echo "${{ secrets.CLOUDFLARED_TOKEN }}" > ~/.cloudflared/cert.json
+
       - name: Deploy via Cloudflared
         run: |
-          ssh -T -o StrictHostKeyChecking=no -o ProxyCommand='cloudflared access ssh --hostname ssh.timothyrwashburn.com' timothy@localhost << 'EOF'
-            Set-Location C:\Users\timothy\Desktop\pat-server
-            docker-compose pull pat-server
-            docker-compose up -d --force-recreate pat-server
-            docker image prune -f
-          EOF
+          ssh -T -o StrictHostKeyChecking=no \
+          -o ProxyCommand='cloudflared access ssh --hostname ssh.timothyrwashburn.com --no-browser' \
+          timothy@localhost \
+          "cmd.exe /c \"
+          cd /d C:\Users\timothy\Desktop\pat-server && \
+          docker-compose -f C:\Users\timothy\Desktop\pat-server\docker-compose.yml pull pat-server && \
+          docker-compose -f C:\Users\timothy\Desktop\pat-server\docker-compose.yml up -d --force-recreate pat-server && \
+          docker image prune -f
+          \""
