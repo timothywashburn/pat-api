@@ -1,8 +1,8 @@
 name: Deploy PaT Server
 on:
-  #  push:
-  #    branches:
-  #      - main
+    push:
+      branches:
+        - main
   workflow_dispatch:
 
 env:
@@ -12,22 +12,22 @@ jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
-
-      - name: Login to Docker Hub
-        uses: docker/login-action@v3
-        with:
-          username: ${{ secrets.DOCKERHUB_USERNAME }}
-          password: ${{ secrets.DOCKERHUB_TOKEN }}
-
-      - name: Build and push
-        uses: docker/build-push-action@v5
-        with:
-          push: true
-          tags: ${{ env.DOCKER_IMAGE }}:latest
+#      - uses: actions/checkout@v4
+#
+#      - name: Set up Docker Buildx
+#        uses: docker/setup-buildx-action@v3
+#
+#      - name: Login to Docker Hub
+#        uses: docker/login-action@v3
+#        with:
+#          username: ${{ secrets.DOCKERHUB_USERNAME }}
+#          password: ${{ secrets.DOCKERHUB_TOKEN }}
+#
+#      - name: Build and push
+#        uses: docker/build-push-action@v5
+#        with:
+#          push: true
+#          tags: ${{ env.DOCKER_IMAGE }}:latest
 
       - name: Install Cloudflared
         run: |
@@ -39,20 +39,16 @@ jobs:
           mkdir -p ~/.ssh
           echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
           chmod 600 ~/.ssh/id_rsa
-          eval $(ssh-agent)
-          ssh-add ~/.ssh/id_rsa
 
       - name: Setup Cloudflared directory
         run: |
           mkdir -p ~/.cloudflared
           echo "${{ secrets.CLOUDFLARED_TOKEN }}" > ~/.cloudflared/cert.json
-
       - name: Deploy via Cloudflared
         run: |
-          ssh -vv -T \
-          -o StrictHostKeyChecking=no \
-          -o UserKnownHostsFile=/dev/null \
-          -o ServerAliveInterval=60 \
-          -o ProxyCommand="cloudflared access ssh --hostname ssh.timothyrwashburn.com" \
-          timothy@localhost \
-          "cd /d C:\Users\timothy\Desktop\pat-server && docker-compose -f C:\Users\timothy\Desktop\pat-server\docker-compose.yml pull pat-server && docker-compose -f C:\Users\timothy\Desktop\pat-server\docker-compose.yml up -d --force-recreate pat-server && docker image prune -f"
+          ssh -T -o StrictHostKeyChecking=no -o ProxyCommand='cloudflared access ssh --hostname ssh.timothyrwashburn.com' timothy@localhost << 'EOF'
+            Set-Location C:\Users\timothy\Desktop\pat-server
+            docker-compose pull pat-server
+            docker-compose up -d --force-recreate pat-server
+            docker image prune -f
+          EOF
