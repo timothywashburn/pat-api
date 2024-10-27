@@ -15,6 +15,8 @@ import ListTasksCommand from "./commands/list-tasks-command";
 import CreateUserCommand from "./commands/create-user-command";
 import CompleteTaskCommand from "./commands/complete-task-command";
 import ConfigManager from "../server/controllers/config-manager";
+import SetupCommand from "./commands/setup-command";
+import TaskListManager from "./controllers/task-list-manager";
 
 export default class Bot {
     private client: Client;
@@ -38,6 +40,9 @@ export default class Bot {
 
             await this.client.login(ConfigManager.getConfig().discord.token);
             console.log(`logged in as ${this.client.user?.tag}`);
+
+            TaskListManager.getInstance().setClient(this.client);
+            await TaskListManager.getInstance().initializeTrackers();
 
             this.client.on('interactionCreate', async (interaction: Interaction) => {
                 if (interaction instanceof AutocompleteInteraction) {
@@ -82,6 +87,7 @@ export default class Bot {
             new DeleteTaskCommand(),
             new ListTasksCommand(),
             new CreateUserCommand(),
+            new SetupCommand(),
             new PingCommand()
         ];
 

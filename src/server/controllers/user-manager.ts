@@ -35,6 +35,10 @@ export default class UserManager {
             .then(result => result !== null);
     }
 
+    getAllWithTracking(): Promise<UserConfig[]> {
+        return UserConfigModel.find({ taskListTracking: { $exists: true, $ne: null } });
+    }
+
     static getInstance(): UserManager {
         if (!UserManager.instance) UserManager.instance = new UserManager();
         return UserManager.instance;

@@ -6,6 +6,11 @@ interface UserConfig {
     username: string;
     discordID: string;
 
+    taskListTracking?: {
+        channelId: string;
+        messageId: string;
+    };
+
     createdAt: Date;
     updatedAt: Date;
 }
@@ -18,6 +23,10 @@ const userConfigSchema = new Schema<UserConfig>({
     discordID: {
         type: String,
         index: true
+    },
+    taskListTracking: {
+        channelId: String,
+        messageId: String
     }
 }, {
     timestamps: true,
