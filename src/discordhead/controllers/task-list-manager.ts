@@ -111,7 +111,7 @@ export default class TaskListManager {
 
         if (sections.length === 1) sections.push('No pending tasks');
 
-        if (autoUpdate) sections.push(`\n*Last updated: <t:${Math.floor(Date.now() / 1000)}:R>*`);
+        if (autoUpdate) sections.push(`*Last updated: <t:${Math.floor(Date.now() / 1000)}:R>*`);
 
         return sections.join('\n\n');
     }
