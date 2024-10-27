@@ -44,9 +44,13 @@ jobs:
         run: |
           mkdir -p ~/.cloudflared
           echo "${{ secrets.CLOUDFLARED_TOKEN }}" > ~/.cloudflared/cert.json
+
       - name: Deploy via Cloudflared
+        env:
+          CF_ACCESS_CLIENT_ID: ${{ secrets.CF_ACCESS_CLIENT_ID }}
+          CF_ACCESS_CLIENT_SECRET: ${{ secrets.CF_ACCESS_CLIENT_SECRET }}
         run: |
-          ssh -T -o StrictHostKeyChecking=no -o ProxyCommand='cloudflared access ssh --hostname ssh.timothyrwashburn.com' timothy@localhost << 'EOF'
+          ssh -T -o StrictHostKeyChecking=no -o ProxyCommand='cloudflared access ssh --hostname ssh.timothyrwashburn.com --header "CF-Access-Client-Id: ${CF_ACCESS_CLIENT_ID}" --header "CF-Access-Client-Secret: ${CF_ACCESS_CLIENT_SECRET}"' timothy@localhost << 'EOF'
             Set-Location C:\Users\timothy\Desktop\pat-server
             docker-compose pull pat-server
             docker-compose up -d --force-recreate pat-server
