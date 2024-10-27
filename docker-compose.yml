@@ -7,7 +7,9 @@ services:
     container_name: pat-server
     restart: unless-stopped
     environment:
-      - MONGODB_URI=${MONGODB_URI}
+      - MONGODB_URI=mongodb://root:example@mongodb:27017/?tls=true&tlsCAFile=/etc/mongodb/ca.crt&tlsCertificateKeyFile=/etc/mongodb/pat-client.pem&authSource=admin
+    volumes:
+      - ./certs:/etc/mongodb:ro
     depends_on:
       - mongodb
 
@@ -15,7 +17,6 @@ services:
     image: mongo:latest
     container_name: pat-mongodb
     restart: unless-stopped
-    user: mongodb
     command:
       - mongod
       - --tlsMode
@@ -24,6 +25,7 @@ services:
       - /etc/mongodb/mongodb.pem
       - --tlsCAFile
       - /etc/mongodb/ca.crt
+      - --tlsAllowInvalidCertificates
     ports:
       - "27017:27017"
     environment:
