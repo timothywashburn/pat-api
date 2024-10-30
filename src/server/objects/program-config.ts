@@ -5,6 +5,7 @@ export interface ProgramConfigData extends Document {
         token: string;
         clientId: string;
         guildId: string;
+        logChannelId?: string;
     };
     updatedAt: Date;
     createdAt: Date;
@@ -26,6 +27,10 @@ const programConfigSchema = new Schema<ProgramConfigData>({
             type: String,
             required: true,
             default: 'discord_guild_id'
+        },
+        logChannelId: {
+            type: String,
+            required: false
         }
     }
 }, {

@@ -18,6 +18,7 @@ import ConfigManager from "../server/controllers/config-manager";
 import SetupCommand from "./commands/setup-command";
 import TaskListManager from "./controllers/task-list-manager";
 import SetTimezoneCommand from "./commands/set-timezone-command";
+import DiscordLogger from "./controllers/discord-logger";
 
 export default class Bot {
     private client: Client;
@@ -42,6 +43,7 @@ export default class Bot {
             await this.client.login(ConfigManager.getConfig().discord.token);
             console.log(`logged in as ${this.client.user?.tag}`);
 
+            DiscordLogger.getInstance().setClient(this.client);
             TaskListManager.getInstance().setClient(this.client);
             await TaskListManager.getInstance().initializeTrackers();
 
