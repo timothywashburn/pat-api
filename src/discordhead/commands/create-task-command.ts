@@ -27,7 +27,7 @@ export default class CreateTaskCommand extends Command {
             );
     }
 
-    private parseDueDate(dateStr: string): Date | null {
+    private parseDueDate(dateStr: string, timezone: string): Date | null {
         dateStr = dateStr.trim();
 
         const dateRegex = /^(\d{1,2})\/(\d{1,2})(?:\/(\d{2}))?$/;
@@ -37,30 +37,37 @@ export default class CreateTaskCommand extends Command {
             return null;
         }
 
-        const month = parseInt(match[1], 10);
+        const month = parseInt(match[1], 10) - 1;
         const day = parseInt(match[2], 10);
-        const currentYear = new Date().getFullYear();
+        const currentDate = new Date();
 
-        let year = currentYear;
+        let year = currentDate.getFullYear();
         if (match[3]) {
             year = 2000 + parseInt(match[3], 10);
         }
 
-        if (month < 1 || month > 12 || day < 1 || day > 31 || year < currentYear || year > currentYear + 10) {
-            return null;
+        const formatter = new Intl.DateTimeFormat('en-US', {
+            timeZone: timezone,
+            year: 'numeric',
+            month: '2-digit',
+            day: '2-digit'
+        });
+
+        const targetDateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}T23:59:59`;
+        const targetDate = new Date(targetDateStr);
+
+        const userDate = new Date(formatter.format(currentDate));
+        const targetDateInTz = new Date(formatter.format(targetDate));
+
+        if (!match[3] && targetDateInTz < userDate) {
+            targetDate.setFullYear(year + 1);
         }
 
-        const dueDate = new Date(year, month - 1, day);
+        const finalDate = new Date(targetDate.toLocaleString('en-US', { timeZone: timezone }));
 
-        if (!match[3] && dueDate < new Date()) {
-            dueDate.setFullYear(currentYear + 1);
-        }
+        finalDate.setHours(23, 59, 59, 999);
 
-        if (dueDate.getMonth() !== month - 1 || dueDate.getDate() !== day) {
-            return null;
-        }
-
-        return dueDate;
+        return finalDate;
     }
 
     async execute(interaction: CommandInteraction): Promise<void> {
@@ -83,10 +90,10 @@ export default class CreateTaskCommand extends Command {
 
         let dueDate: Date | undefined;
         if (dueString) {
-            const parsedDate = this.parseDueDate(dueString);
+            const parsedDate = this.parseDueDate(dueString, user.timezone || 'UTC');
             if (!parsedDate) {
                 await interaction.reply({
-                    content: 'Invalid date format. Please use MM/DD or MM/DD/YY (e.g., 1/5, 01/05, 12/25, 1/5/24)',
+                    content: 'Invalid date format. Please use MM/DD or MM/DD/YY',
                     ephemeral: true
                 });
                 return;
@@ -100,14 +107,12 @@ export default class CreateTaskCommand extends Command {
             notes
         });
 
-        await interaction.reply(
-            `Task "${task.name}" created successfully${
-                dueDate ? ` (due: ${dueDate.toLocaleDateString('en-US', {
-                    month: 'numeric',
-                    day: 'numeric',
-                    year: '2-digit'
-                })})` : ''
-            }`
-        );
+        const response = `Task "${task.name}" created successfully${
+            dueDate
+                ? ` (due: <t:${Math.floor(dueDate.getTime() / 1000)}:f>)`
+                : ''
+        }`;
+
+        await interaction.reply(response);
     }
 }

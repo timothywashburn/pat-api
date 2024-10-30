@@ -5,6 +5,7 @@ interface UserConfig {
 
     username: string;
     discordID: string;
+    timezone: string;
 
     taskListTracking?: {
         channelId: string;
@@ -23,6 +24,21 @@ const userConfigSchema = new Schema<UserConfig>({
     discordID: {
         type: String,
         index: true
+    },
+    timezone: {
+        type: String,
+        default: 'America/Los_Angeles',
+        validate: {
+            validator: function(v: string) {
+                try {
+                    Intl.DateTimeFormat(undefined, { timeZone: v });
+                    return true;
+                } catch (e) {
+                    return false;
+                }
+            },
+            message: 'Invalid timezone'
+        }
     },
     taskListTracking: {
         channelId: String,
