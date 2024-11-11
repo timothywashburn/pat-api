@@ -1,8 +1,8 @@
 import { Client, Message, TextChannel } from 'discord.js';
-import {TaskData} from "../../server/objects/task";
+import {TaskData} from "../../server/models/task";
 import UserManager from "../../server/controllers/user-manager";
 import TaskManager from "../../server/controllers/task-manager";
-import {UserConfig} from "../../server/objects/user-config";
+import {UserConfig} from "../../server/models/user-config";
 
 interface TaskCategories {
     overdue: TaskData[];

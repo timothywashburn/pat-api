@@ -1,5 +1,5 @@
 import { CommandInteraction, CommandInteractionOptionResolver } from 'discord.js';
-import Command from "../objects/command";
+import Command from "../models/command";
 import UserManager from "../../server/controllers/user-manager";
 import TaskListManager from "../controllers/task-list-manager";
 import ConfigManager from "../../server/controllers/config-manager";

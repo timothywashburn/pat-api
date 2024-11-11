@@ -1,4 +1,4 @@
-import {UserConfig, UserConfigModel} from "../objects/user-config";
+import {UserConfig, UserConfigModel} from "../models/user-config";
 
 export default class UserManager {
     private static instance: UserManager;

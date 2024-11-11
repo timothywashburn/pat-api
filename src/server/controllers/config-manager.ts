@@ -1,4 +1,4 @@
-import {ProgramConfigData, ProgramConfigModel} from "../objects/program-config";
+import {ProgramConfigData, ProgramConfigModel} from "../models/program-config";
 
 export default class ConfigManager {
     private static configCache: ProgramConfigData | null;

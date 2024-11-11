@@ -1,5 +1,5 @@
 import { AutocompleteFocusedOption, AutocompleteInteraction, CommandInteraction, CommandInteractionOptionResolver } from 'discord.js';
-import Command from "../objects/command";
+import Command from "../models/command";
 import TaskManager from "../../server/controllers/task-manager";
 import UserManager from "../../server/controllers/user-manager";
 

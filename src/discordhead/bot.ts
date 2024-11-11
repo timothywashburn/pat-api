@@ -7,7 +7,7 @@ import {
     GatewayIntentBits, AutocompleteInteraction
 } from 'discord.js';
 import { Routes } from 'discord-api-types/v10';
-import Command from "./objects/command";
+import Command from "./models/command";
 import PingCommand from "./commands/ping";
 import CreateTaskCommand from "./commands/create-task-command";
 import DeleteTaskCommand from "./commands/delete-task-command";

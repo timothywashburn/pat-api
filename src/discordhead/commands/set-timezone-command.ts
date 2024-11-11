@@ -1,5 +1,5 @@
 import { CommandInteraction, CommandInteractionOptionResolver, AutocompleteInteraction } from 'discord.js';
-import Command from "../objects/command";
+import Command from "../models/command";
 import UserManager from "../../server/controllers/user-manager";
 
 export default class SetTimezoneCommand extends Command {

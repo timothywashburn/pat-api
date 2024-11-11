@@ -1,8 +1,8 @@
 import { CommandInteraction, CommandInteractionOptionResolver } from 'discord.js';
-import Command from "../objects/command";
+import Command from "../models/command";
 import TaskManager from "../../server/controllers/task-manager";
 import UserManager from "../../server/controllers/user-manager";
-import {TaskData} from "../../server/objects/task";
+import {TaskData} from "../../server/models/task";
 import TaskListManager from "../controllers/task-list-manager";
 
 export default class ListTasksCommand extends Command {
