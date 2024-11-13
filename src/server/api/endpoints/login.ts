@@ -1,9 +1,6 @@
-import { ApiEndpoint, ApiRequest, ApiResponse } from '../types';
+import { ApiEndpointConfig, ApiRequest, ApiResponse } from '../types';
 import AuthManager from '../../controllers/auth-manager';
 import { z } from 'zod';
-import { sign } from 'jsonwebtoken';
-
-const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key';
 
 const loginSchema = z.object({
     email: z.string().email(),
@@ -12,19 +9,20 @@ const loginSchema = z.object({
 
 type LoginRequest = z.infer<typeof loginSchema>;
 
-export const loginEndpoint: ApiEndpoint = {
+export const loginEndpoint: ApiEndpointConfig<LoginRequest, false> = {
     path: '/api/auth/login',
     method: 'post',
+    requiresAuth: false,
     handler: async (req: ApiRequest<LoginRequest>, res: ApiResponse): Promise<void> => {
         try {
             const data = loginSchema.parse(req.body);
 
-            const auth = await AuthManager.getInstance().login(
+            const result = await AuthManager.getInstance().login(
                 data.email,
                 data.password
             );
 
-            if (!auth) {
+            if (!result) {
                 res.status(401).json({
                     success: false,
                     error: 'Invalid email or password'
@@ -32,20 +30,14 @@ export const loginEndpoint: ApiEndpoint = {
                 return;
             }
 
-            const token = sign(
-                { userId: auth._id.toString() },
-                JWT_SECRET,
-                { expiresIn: '7d' }
-            );
-
             res.json({
                 success: true,
                 data: {
-                    token,
+                    token: result.token,
                     user: {
-                        id: auth._id,
-                        name: auth.name,
-                        email: auth.email
+                        id: result.auth._id,
+                        name: result.auth.name,
+                        email: result.auth.email
                     }
                 }
             });

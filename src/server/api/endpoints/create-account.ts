@@ -1,4 +1,4 @@
-import { ApiEndpoint, ApiRequest, ApiResponse } from '../types';
+import { ApiEndpointConfig, ApiRequest, ApiResponse } from '../types';
 import AuthManager from '../../controllers/auth-manager';
 import { z } from 'zod';
 
@@ -10,9 +10,10 @@ const createAccountSchema = z.object({
 
 type CreateAccountRequest = z.infer<typeof createAccountSchema>;
 
-export const createAccountEndpoint: ApiEndpoint = {
+export const createAccountEndpoint: ApiEndpointConfig<CreateAccountRequest, false> = {
     path: '/api/account/create',
     method: 'post',
+    requiresAuth: false,
     handler: async (req: ApiRequest<CreateAccountRequest>, res: ApiResponse) => {
         try {
             const data = createAccountSchema.parse(req.body);

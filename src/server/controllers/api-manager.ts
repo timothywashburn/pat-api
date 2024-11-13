@@ -1,13 +1,14 @@
-import express, { Router } from 'express';
-import { ApiEndpoint } from '../api/types';
+import express, { Router, Request, Response, NextFunction, RequestHandler } from 'express';
+import { ApiEndpointConfig, ApiRequest, ApiResponse, AuthenticatedRequest } from '../api/types';
 import { createAccountEndpoint } from '../api/endpoints/create-account';
-import {loginEndpoint} from "../api/endpoints/login";
-import {getTasksEndpoint} from "../api/endpoints/get-tasks";
+import { loginEndpoint } from "../api/endpoints/login";
+import { getTasksEndpoint } from "../api/endpoints/get-tasks";
+import AuthManager from './auth-manager';
 
 export default class ApiManager {
     private static instance: ApiManager;
     private readonly router: Router;
-    private endpoints: ApiEndpoint[] = [];
+    private endpoints: ApiEndpointConfig[] = [];
 
     private constructor() {
         this.router = express.Router();
@@ -32,16 +33,67 @@ export default class ApiManager {
         });
     }
 
-    private registerEndpoints() {
-        this.addEndpoint(createAccountEndpoint);
-        this.addEndpoint(loginEndpoint);
-        this.addEndpoint(getTasksEndpoint);
+    private handleAuth: RequestHandler = async (
+        req,
+        res,
+        next
+    ): Promise<void> => {
+        const authHeader = req.headers.authorization;
+
+        if (!authHeader?.startsWith('Bearer ')) {
+            res.status(401).json({
+                success: false,
+                error: 'No token provided'
+            });
+            return;
+        }
+
+        const token = authHeader.split(' ')[1];
+        const verified = AuthManager.getInstance().verifyToken(token);
+
+        if (!verified) {
+            res.status(401).json({
+                success: false,
+                error: 'Invalid token'
+            });
+            return;
+        }
+
+        (req as AuthenticatedRequest).userId = verified.userId;
+        next();
+    };
+
+    private wrapHandler<TRequest, TRequiresAuth extends boolean>(
+        handler: ApiEndpointConfig<TRequest, TRequiresAuth>['handler']
+    ): RequestHandler {
+        return async (req, res, next) => {
+            try {
+                await handler(req as any, res as any);
+            } catch (error) {
+                next(error);
+            }
+        };
     }
 
-    private addEndpoint(endpoint: ApiEndpoint) {
+    private addEndpoint<TRequest, TRequiresAuth extends boolean>(
+        endpoint: ApiEndpointConfig<TRequest, TRequiresAuth>
+    ) {
         this.endpoints.push(endpoint);
-        this.router[endpoint.method](endpoint.path, endpoint.handler);
+
+        const handlers: RequestHandler[] = [];
+        if (endpoint.requiresAuth) {
+            handlers.push(this.handleAuth);
+        }
+        handlers.push(this.wrapHandler(endpoint.handler));
+
+        this.router[endpoint.method](endpoint.path, ...handlers);
         console.log(`Registered API endpoint: ${endpoint.method.toUpperCase()} ${endpoint.path}`);
+    }
+
+    private registerEndpoints() {
+        this.addEndpoint(createAccountEndpoint as ApiEndpointConfig<any, false>);
+        this.addEndpoint(loginEndpoint as ApiEndpointConfig<any, false>);
+        this.addEndpoint(getTasksEndpoint as ApiEndpointConfig<any, true>);
     }
 
     getRouter(): Router {
@@ -53,7 +105,9 @@ export default class ApiManager {
     }
 
     static getInstance(): ApiManager {
-        if (!ApiManager.instance) ApiManager.instance = new ApiManager();
+        if (!ApiManager.instance) {
+            ApiManager.instance = new ApiManager();
+        }
         return ApiManager.instance;
     }
 }

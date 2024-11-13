@@ -1,6 +1,9 @@
 import { compare, hash } from 'bcrypt';
 import { AuthData, AuthDataModel } from "../models/auth-data";
 import { Types } from "mongoose";
+import { verify, sign } from 'jsonwebtoken';
+
+const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key';
 
 export default class AuthManager {
     private static instance: AuthManager;
@@ -24,14 +27,29 @@ export default class AuthManager {
         return auth.save();
     }
 
-    async login(email: string, password: string): Promise<AuthData | null> {
+    async login(email: string, password: string): Promise<{ auth: AuthData; token: string } | null> {
         const auth = await AuthDataModel.findOne({ email });
         if (!auth) return null;
 
         const isValid = await compare(password, auth.passwordHash);
         if (!isValid) return null;
 
-        return auth;
+        const token = sign(
+            { userId: auth._id.toString() },
+            JWT_SECRET,
+            { expiresIn: '7d' }
+        );
+
+        return { auth, token };
+    }
+
+    verifyToken(token: string): { userId: Types.ObjectId } | null {
+        try {
+            const decoded = verify(token, JWT_SECRET) as { userId: string };
+            return { userId: new Types.ObjectId(decoded.userId) };
+        } catch {
+            return null;
+        }
     }
 
     getById(id: Types.ObjectId): Promise<AuthData | null> {
@@ -43,8 +61,8 @@ export default class AuthManager {
     }
 
     async changePassword(email: string, oldPassword: string, newPassword: string): Promise<boolean> {
-        const auth = await this.login(email, oldPassword);
-        if (!auth) return false;
+        const authResult = await this.login(email, oldPassword);
+        if (!authResult) return false;
 
         const passwordHash = await hash(newPassword, 10);
         await AuthDataModel.updateOne({ email }, { passwordHash });

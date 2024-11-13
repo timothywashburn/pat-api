@@ -19,14 +19,13 @@ export interface ApiResponseBody<T = any> {
     error?: string;
 }
 
-export interface ApiEndpoint<TRequest = any> {
-    path: string;
-    method: 'get' | 'post' | 'put' | 'delete';
-    handler: (req: ApiRequest<TRequest>, res: ApiResponse) => Promise<void>;
-}
+type RequestType<T, Auth extends boolean> = Auth extends true
+    ? AuthenticatedRequest<T>
+    : ApiRequest<T>;
 
-export interface ProtectedApiEndpoint<TRequest = any> {
+export interface ApiEndpointConfig<TRequest = any, TRequiresAuth extends boolean = boolean> {
     path: string;
     method: 'get' | 'post' | 'put' | 'delete';
-    handler: (req: AuthenticatedRequest<TRequest>, res: ApiResponse) => Promise<void>;
+    requiresAuth: TRequiresAuth;
+    handler: (req: RequestType<TRequest, TRequiresAuth>, res: ApiResponse) => Promise<void>;
 }

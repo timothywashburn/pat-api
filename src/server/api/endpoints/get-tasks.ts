@@ -1,11 +1,11 @@
-import { ApiEndpoint, ApiResponse, AuthenticatedRequest } from '../types';
-import { createAuthMiddleware } from '../middleware/auth-middleware';
+import { ApiEndpointConfig, ApiResponse, AuthenticatedRequest } from '../types';
 import TaskManager from '../../controllers/task-manager';
 
-export const getTasksEndpoint: ApiEndpoint = {
+export const getTasksEndpoint: ApiEndpointConfig<any, true> = {
     path: '/api/tasks',
     method: 'get',
-    handler: createAuthMiddleware(async (req: AuthenticatedRequest, res: ApiResponse): Promise<void> => {
+    requiresAuth: true,
+    handler: async (req: AuthenticatedRequest, res: ApiResponse): Promise<void> => {
         try {
             const tasks = await TaskManager.getInstance().getAllByUser(req.userId);
 
@@ -19,5 +19,5 @@ export const getTasksEndpoint: ApiEndpoint = {
                 error: 'Failed to fetch tasks'
             });
         }
-    })
+    }
 };
