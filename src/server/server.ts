@@ -23,5 +23,13 @@ const app = express();
         console.log(`API server listening on port ${port}`);
     });
 
-    new Bot();
-})();
+    try {
+        const bot = new Bot();
+        await bot.start();
+    } catch (error) {
+        console.error('Failed to initialize Discord bot', error);
+    }
+})().catch(error => {
+    console.error('Fatal server error:', error);
+    process.exit(1);
+});

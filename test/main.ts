@@ -2,11 +2,10 @@ import mongoose from 'mongoose';
 import { config } from 'dotenv';
 import { resolve } from 'path';
 import chalk from 'chalk';
-import { AuthDataModel } from '../src/server/models/auth-data';
-import { TaskModel } from '../src/server/models/task';
-import { runCreateAccountTest } from './tests/create-account.test';
-import { runLoginTest } from './tests/login.test';
-import { runGetTasksTest } from './tests/get-tasks.test';
+import { runCreateAccountTest } from './tests/api/create-account.test';
+import { runLoginTest } from './tests/api/login.test';
+import { runGetTasksTest } from './tests/api/get-tasks.test';
+import {runSetupDiscordConfigTest} from "./tests/create-config";
 
 config({ path: resolve(__dirname, '../.env') });
 
@@ -16,16 +15,17 @@ export interface TestContext {
     authToken?: string;
 }
 
-const tests = [
+interface Test {
+    name: string;
+    run: (context: TestContext) => Promise<void>;
+}
+
+const tests: Test[] = [
+    { name: 'setup config', run: runSetupDiscordConfigTest },
     { name: 'create account', run: runCreateAccountTest },
     { name: 'login', run: runLoginTest },
     { name: 'get tasks', run: runGetTasksTest }
 ];
-
-async function clearDatabase() {
-    await AuthDataModel.deleteMany({});
-    await TaskModel.deleteMany({});
-}
 
 async function runTests() {
     const totalTests = tests.length;
@@ -38,7 +38,12 @@ async function runTests() {
     try {
         await mongoose.connect(process.env.MONGODB_URI!);
         console.log('connected to mongodb');
-        await clearDatabase();
+
+        const collections = await mongoose.connection.db!.collections();
+        await Promise.all(
+            collections.map(collection => collection.deleteMany({}))
+        );
+
         console.log('database cleared');
 
         console.log('\n----------------------------------------');
@@ -59,6 +64,7 @@ async function runTests() {
                     console.log(chalk.red('Error details:'));
                     console.log(chalk.red(`  Name: ${error.name}`));
                     console.log(chalk.red(`  Message: ${error.message}`));
+                    console.log(chalk.red(error));
                 } else {
                     console.log(chalk.red(error));
                 }

@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { TestContext } from '../main';
+import { TestContext } from '../../main';
 
 interface TasksResponse {
     success: boolean;

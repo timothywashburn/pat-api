@@ -32,8 +32,6 @@ export default class Bot {
                 GatewayIntentBits.DirectMessages,
             ],
         });
-
-        this.start();
     }
 
     async start() {
@@ -78,8 +76,8 @@ export default class Bot {
                 }
             });
         } catch (error) {
-            console.error('error starting bot:', error);
-            process.exit(1);
+            console.error('Failed to start Discord bot:', error);
+            throw error;
         }
     }
 
