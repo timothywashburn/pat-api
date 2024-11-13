@@ -1,6 +1,8 @@
 import express, { Router } from 'express';
 import { ApiEndpoint } from '../api/types';
 import { createAccountEndpoint } from '../api/endpoints/create-account';
+import {loginEndpoint} from "../api/endpoints/login";
+import {getTasksEndpoint} from "../api/endpoints/get-tasks";
 
 export default class ApiManager {
     private static instance: ApiManager;
@@ -32,6 +34,8 @@ export default class ApiManager {
 
     private registerEndpoints() {
         this.addEndpoint(createAccountEndpoint);
+        this.addEndpoint(loginEndpoint);
+        this.addEndpoint(getTasksEndpoint);
     }
 
     private addEndpoint(endpoint: ApiEndpoint) {
