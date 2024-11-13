@@ -2,7 +2,6 @@ import { Request, Response } from 'express';
 
 export interface ApiRequest<TReq> extends Request {
     body: TReq;
-
 }
 
 export interface ApiResponse<TReq> extends Response {
