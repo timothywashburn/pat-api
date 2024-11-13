@@ -1,4 +1,5 @@
 {
-	"watch": ["*"],
+	"watch": ["src/"],
+	"ignore": ["test/*"],
 	"exec": "npx ts-node"
 }
