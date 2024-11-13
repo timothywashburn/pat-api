@@ -1,4 +1,4 @@
-import { ApiEndpointConfig, ApiRequest, ApiResponse } from '../types';
+import { ApiEndpoint } from '../types';
 import AuthManager from '../../controllers/auth-manager';
 import { z } from 'zod';
 
@@ -7,13 +7,25 @@ const loginSchema = z.object({
     password: z.string()
 });
 
-type LoginRequest = z.infer<typeof loginSchema>;
+interface LoginRequest {
+    email: string;
+    password: string;
+}
 
-export const loginEndpoint: ApiEndpointConfig<LoginRequest, false> = {
+interface LoginResponse {
+    token: string;
+    user: {
+        id: string;
+        name: string;
+        email: string;
+    };
+}
+
+export const loginEndpoint: ApiEndpoint<LoginRequest, LoginResponse> = {
     path: '/api/auth/login',
     method: 'post',
     requiresAuth: false,
-    handler: async (req: ApiRequest<LoginRequest>, res: ApiResponse): Promise<void> => {
+    handler: async (req, res) => {
         try {
             const data = loginSchema.parse(req.body);
 
@@ -35,7 +47,7 @@ export const loginEndpoint: ApiEndpointConfig<LoginRequest, false> = {
                 data: {
                     token: result.token,
                     user: {
-                        id: result.auth._id,
+                        id: result.auth._id.toString(),
                         name: result.auth.name,
                         email: result.auth.email
                     }
@@ -54,4 +66,4 @@ export const loginEndpoint: ApiEndpointConfig<LoginRequest, false> = {
             });
         }
     }
-};
+}

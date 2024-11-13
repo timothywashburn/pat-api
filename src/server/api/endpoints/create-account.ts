@@ -1,4 +1,4 @@
-import { ApiEndpointConfig, ApiRequest, ApiResponse } from '../types';
+import { ApiEndpoint } from '../types';
 import AuthManager from '../../controllers/auth-manager';
 import { z } from 'zod';
 
@@ -8,13 +8,23 @@ const createAccountSchema = z.object({
     password: z.string().min(6)
 });
 
-type CreateAccountRequest = z.infer<typeof createAccountSchema>;
+interface CreateAccountRequest {
+    name: string;
+    email: string;
+    password: string;
+}
 
-export const createAccountEndpoint: ApiEndpointConfig<CreateAccountRequest, false> = {
+interface CreateAccountResponse {
+    id: string;
+    name: string;
+    email: string;
+}
+
+export const createAccountEndpoint: ApiEndpoint<CreateAccountRequest, CreateAccountResponse> = {
     path: '/api/account/create',
     method: 'post',
     requiresAuth: false,
-    handler: async (req: ApiRequest<CreateAccountRequest>, res: ApiResponse) => {
+    handler: async (req, res) => {
         try {
             const data = createAccountSchema.parse(req.body);
 
@@ -27,7 +37,7 @@ export const createAccountEndpoint: ApiEndpointConfig<CreateAccountRequest, fals
             res.json({
                 success: true,
                 data: {
-                    id: auth._id,
+                    id: auth._id.toString(),
                     name: auth.name,
                     email: auth.email
                 }
@@ -47,4 +57,4 @@ export const createAccountEndpoint: ApiEndpointConfig<CreateAccountRequest, fals
             });
         }
     }
-};
+}

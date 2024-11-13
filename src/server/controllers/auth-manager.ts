@@ -5,6 +5,10 @@ import { verify, sign } from 'jsonwebtoken';
 
 const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key';
 
+interface TokenPayload {
+    userId: string;
+}
+
 export default class AuthManager {
     private static instance: AuthManager;
 
@@ -34,8 +38,12 @@ export default class AuthManager {
         const isValid = await compare(password, auth.passwordHash);
         if (!isValid) return null;
 
+        const tokenPayload: TokenPayload = {
+            userId: auth._id.toString()
+        };
+
         const token = sign(
-            { userId: auth._id.toString() },
+            tokenPayload,
             JWT_SECRET,
             { expiresIn: '7d' }
         );

@@ -1,17 +1,31 @@
-import { ApiEndpointConfig, ApiResponse, AuthenticatedRequest } from '../types';
+import { ApiEndpoint } from '../types';
 import TaskManager from '../../controllers/task-manager';
+import { Types } from 'mongoose';
+import { TaskData } from '../../models/task';
 
-export const getTasksEndpoint: ApiEndpointConfig<any, true> = {
+interface GetTasksRequestRequest {
+    userId: string;
+}
+
+interface GetTasksResponse {
+    tasks: TaskData[];
+}
+
+export const getTasksEndpoint: ApiEndpoint<GetTasksRequestRequest, GetTasksResponse> = {
     path: '/api/tasks',
     method: 'get',
     requiresAuth: true,
-    handler: async (req: AuthenticatedRequest, res: ApiResponse): Promise<void> => {
+    handler: async (req, res) => {
+        const userId = new Types.ObjectId(req.body.userId);
+
         try {
-            const tasks = await TaskManager.getInstance().getAllByUser(req.userId);
+            const tasks = await TaskManager.getInstance().getAllByUser(userId);
 
             res.json({
                 success: true,
-                data: tasks
+                data: {
+                    tasks
+                }
             });
         } catch (error) {
             res.status(500).json({
