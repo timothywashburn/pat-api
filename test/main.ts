@@ -10,9 +10,14 @@ import {runSetupDiscordConfigTest} from "./tests/create-config";
 config({ path: resolve(__dirname, '../.env') });
 
 export interface TestContext {
-    baseUrl: string;
-    userId?: string;
-    authToken?: string;
+    baseUrl: string
+    userId?: string
+    authToken?: string
+    account: {
+        name: string
+        email: string
+        password: string
+    }
 }
 
 interface Test {
@@ -32,7 +37,12 @@ async function runTests() {
     console.log('\ninitializing test environment');
 
     const context: TestContext = {
-        baseUrl: 'https://mac.timothyw.dev'
+        baseUrl: 'https://mac.timothyw.dev',
+        account: {
+            name: 'Test',
+            email: 'test@test.com',
+            password: 'test'
+        }
     };
 
     try {

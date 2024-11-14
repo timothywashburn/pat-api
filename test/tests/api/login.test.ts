@@ -15,14 +15,9 @@ interface LoginResponse {
 }
 
 export async function runLoginTest(context: TestContext) {
-    const loginData = {
-        email: 'test@example.com',
-        password: 'testpassword123'
-    };
-
     const response = await axios.post<LoginResponse>(
         `${context.baseUrl}/api/auth/login`,
-        loginData
+        context.account
     );
 
     if (!response.data.success) {
