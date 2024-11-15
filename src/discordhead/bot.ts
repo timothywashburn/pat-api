@@ -17,7 +17,6 @@ import CompleteTaskCommand from "./commands/complete-task-command";
 import ConfigManager from "../server/controllers/config-manager";
 import SetupCommand from "./commands/setup-command";
 import TaskListManager from "./controllers/task-list-manager";
-import SetTimezoneCommand from "./commands/set-timezone-command";
 import DiscordLogger from "./controllers/discord-logger";
 
 export default class Bot {
@@ -86,7 +85,6 @@ export default class Bot {
             new CreateTaskCommand(),
             new CompleteTaskCommand(),
             new DeleteTaskCommand(),
-            new SetTimezoneCommand(),
             new ListTasksCommand(),
             new CreateUserCommand(),
             new SetupCommand(),

@@ -1,8 +1,9 @@
 import { Client, Message, TextChannel } from 'discord.js';
-import {TaskData} from "../../server/models/task";
+import { TaskData } from "../../server/models/task";
 import UserManager from "../../server/controllers/user-manager";
 import TaskManager from "../../server/controllers/task-manager";
-import {UserConfig} from "../../server/models/user-config";
+import { UserConfig } from "../../server/models/user-config";
+import { Types } from 'mongoose';
 
 interface TaskCategories {
     overdue: TaskData[];
@@ -10,13 +11,16 @@ interface TaskCategories {
     undated: TaskData[];
 }
 
+interface Tracker {
+    channelId: string;
+    messageId: string;
+    interval: NodeJS.Timeout;
+    discordId: string;  // Keep Discord ID for Discord-specific operations
+}
+
 export default class TaskListManager {
     private static instance: TaskListManager;
-    private activeTrackers: Map<string, {
-        channelId: string,
-        messageId: string,
-        interval: NodeJS.Timeout
-    }> = new Map();
+    private activeTrackers: Map<string, Tracker> = new Map();  // Key is userId string
     private client: Client | null = null;
 
     static getInstance(): TaskListManager {
@@ -36,7 +40,7 @@ export default class TaskListManager {
         const users = await UserManager.getInstance().getAllWithTracking();
 
         for (const user of users) {
-            if (!user.taskListTracking) continue;
+            if (!user.taskListTracking || !user.discordID) continue;
 
             try {
                 const channel = await this.client.channels.fetch(user.taskListTracking.channelId);
@@ -44,14 +48,14 @@ export default class TaskListManager {
 
                 const message = await channel.messages.fetch(user.taskListTracking.messageId).catch(() => null);
                 if (!message) {
-                    await UserManager.getInstance().update(user.discordID, { taskListTracking: undefined });
+                    await UserManager.getInstance().update(user._id, { taskListTracking: undefined });
                     continue;
                 }
 
-                await this.startTracking(user.taskListTracking.channelId, user.discordID, message);
+                await this.startTracking(user.taskListTracking.channelId, user._id.toString(), user.discordID, message);
             } catch (error) {
                 console.error('Error initializing tracker:', error);
-                await UserManager.getInstance().update(user.discordID, { taskListTracking: undefined });
+                await UserManager.getInstance().update(user._id, { taskListTracking: undefined });
             }
         }
     }
@@ -130,7 +134,7 @@ export default class TaskListManager {
                 return;
             }
 
-            const user = await UserManager.getInstance().getByDiscordID(userId);
+            const user = await UserManager.getInstance().getById(new Types.ObjectId(userId));
             if (!user) {
                 this.stopTracking(userId);
                 return;
@@ -150,7 +154,12 @@ export default class TaskListManager {
         }
     }
 
-    async startTracking(channelId: string, userId: string, existingMessage?: Message): Promise<boolean> {
+    async startTracking(
+        channelId: string,
+        userId: string,
+        discordId: string,
+        existingMessage?: Message
+    ): Promise<boolean> {
         this.stopTracking(userId);
 
         if (!this.client) throw new Error('Client not set');
@@ -158,7 +167,7 @@ export default class TaskListManager {
         const channel = await this.client.channels.fetch(channelId).catch(() => null);
         if (!channel || !(channel instanceof TextChannel)) return false;
 
-        const user = await UserManager.getInstance().getByDiscordID(userId);
+        const user = await UserManager.getInstance().getById(new Types.ObjectId(userId));
         if (!user) return false;
 
         try {
@@ -180,11 +189,12 @@ export default class TaskListManager {
             this.activeTrackers.set(userId, {
                 channelId,
                 messageId: message.id,
-                interval
+                interval,
+                discordId
             });
 
             if (!existingMessage) {
-                await UserManager.getInstance().update(userId, {
+                await UserManager.getInstance().update(user._id, {
                     taskListTracking: {
                         channelId,
                         messageId: message.id
@@ -204,7 +214,10 @@ export default class TaskListManager {
         if (tracker) {
             clearInterval(tracker.interval);
             this.activeTrackers.delete(userId);
-            UserManager.getInstance().update(userId, { taskListTracking: undefined }).catch(console.error);
+
+            UserManager.getInstance()
+                .update(new Types.ObjectId(userId), { taskListTracking: undefined })
+                .catch(console.error);
         }
     }
 

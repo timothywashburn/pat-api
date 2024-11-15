@@ -60,9 +60,10 @@ export default class SetupCommand extends Command {
             return;
         }
 
-        const isTracking = TaskListManager.getInstance().isTracking(interaction.user.id);
+        const isTracking = TaskListManager.getInstance().isTracking(user._id.toString());
         const success = await TaskListManager.getInstance().startTracking(
             interaction.channelId,
+            user._id.toString(),
             interaction.user.id
         );
 

@@ -1,6 +1,6 @@
-import { AutocompleteFocusedOption, AutocompleteInteraction, CommandInteraction, CommandInteractionOptionResolver } from 'discord.js';
-import Command from "../models/command";
 import TaskManager from "../../server/controllers/task-manager";
+import Command from "../models/command";
+import {AutocompleteInteraction, CommandInteraction, CommandInteractionOptionResolver} from "discord.js";
 import UserManager from "../../server/controllers/user-manager";
 
 export default class DeleteTaskCommand extends Command {

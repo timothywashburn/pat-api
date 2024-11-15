@@ -28,7 +28,7 @@ export const createAccountEndpoint: ApiEndpoint<CreateAccountRequest, CreateAcco
         try {
             const data = createAccountSchema.parse(req.body);
 
-            const auth = await AuthManager.getInstance().register(
+            const { user, auth } = await AuthManager.getInstance().register(
                 data.name,
                 data.email,
                 data.password
@@ -37,7 +37,7 @@ export const createAccountEndpoint: ApiEndpoint<CreateAccountRequest, CreateAcco
             res.json({
                 success: true,
                 data: {
-                    id: auth._id.toString(),
+                    id: user._id.toString(),
                     name: auth.name,
                     email: auth.email
                 }

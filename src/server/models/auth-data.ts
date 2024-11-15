@@ -2,16 +2,20 @@ import { Schema, model, Types } from 'mongoose';
 
 interface AuthData {
     _id: Types.ObjectId;
-
+    userId: Types.ObjectId;
     name: string;
     email: string;
     passwordHash: string;
-
     createdAt: Date;
     updatedAt: Date;
 }
 
 const authSchema = new Schema<AuthData>({
+    userId: {
+        type: Schema.Types.ObjectId,
+        ref: 'UserConfig',
+        required: true
+    },
     name: {
         type: String,
         required: true,

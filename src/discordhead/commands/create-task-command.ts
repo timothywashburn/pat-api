@@ -107,12 +107,12 @@ export default class CreateTaskCommand extends Command {
             notes
         });
 
-        const response = `Task "${task.name}" created successfully${
-            dueDate
-                ? ` (due: <t:${Math.floor(dueDate.getTime() / 1000)}:f>)`
-                : ''
-        }`;
-
-        await interaction.reply(response);
+        await interaction.reply(
+            `Task "${task.name}" created successfully${
+                dueDate
+                    ? ` (due: <t:${Math.floor(dueDate.getTime() / 1000)}:f>)`
+                    : ''
+            }`
+        );
     }
 }

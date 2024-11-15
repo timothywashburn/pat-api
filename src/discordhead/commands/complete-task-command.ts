@@ -28,7 +28,7 @@ export default class CompleteTaskCommand extends Command {
         const tasks = await TaskManager.getInstance().getAllByUser(user._id);
         const filtered = tasks
             .filter(task =>
-                !task.completed && // Only show incomplete tasks
+                !task.completed &&
                 task.name.toLowerCase().includes(focusedOption.value.toLowerCase())
             )
             .slice(0, 25)

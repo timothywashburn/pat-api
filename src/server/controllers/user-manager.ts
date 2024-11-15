@@ -1,3 +1,4 @@
+import {Types} from "mongoose";
 import {UserConfig, UserConfigModel} from "../models/user-config";
 
 export default class UserManager {
@@ -5,7 +6,8 @@ export default class UserManager {
 
     private constructor() {}
 
-    create(username: string, discordID: string): Promise<UserConfig> {
+    // Create base user
+    async create(username: string, discordID?: string): Promise<UserConfig> {
         const userConfig = new UserConfigModel({
             username,
             discordID
@@ -13,29 +15,38 @@ export default class UserManager {
         return userConfig.save();
     }
 
-    getByDiscordID(discordID: string): Promise<UserConfig | null> {
+    // Get user by ID (primary method)
+    async getById(userId: Types.ObjectId): Promise<UserConfig | null> {
+        return UserConfigModel.findById(userId);
+    }
+
+    // Get user by Discord ID (legacy support)
+    async getByDiscordID(discordID: string): Promise<UserConfig | null> {
         return UserConfigModel.findOne({ discordID });
     }
 
-    update(discordID: string, updates: Partial<UserConfig>): Promise<UserConfig | null> {
-        return UserConfigModel.findOneAndUpdate(
-            { discordID },
+    // Update user
+    async update(userId: Types.ObjectId, updates: Partial<Omit<UserConfig, '_id'>>): Promise<UserConfig | null> {
+        return UserConfigModel.findByIdAndUpdate(
+            userId,
             { $set: updates },
             { new: true }
         );
     }
 
-    delete(discordID: string): Promise<boolean> {
-        return UserConfigModel.deleteOne({ discordID })
+    // Delete user
+    async delete(userId: Types.ObjectId): Promise<boolean> {
+        return UserConfigModel.deleteOne({ _id: userId })
             .then(result => result.deletedCount > 0);
     }
 
-    exists(discordID: string): Promise<boolean> {
+    // Legacy support for Discord commands
+    async discordExists(discordID: string): Promise<boolean> {
         return UserConfigModel.exists({ discordID })
             .then(result => result !== null);
     }
 
-    getAllWithTracking(): Promise<UserConfig[]> {
+    async getAllWithTracking(): Promise<UserConfig[]> {
         return UserConfigModel.find({ taskListTracking: { $exists: true, $ne: null } });
     }
 
