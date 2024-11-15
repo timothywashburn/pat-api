@@ -22,14 +22,11 @@ export default class AuthManager {
             throw new Error('Email already exists');
         }
 
-        // Create user first
         const user = await UserManager.getInstance().create(name);
 
-        // Create auth data linking to user
         const passwordHash = await hash(password, 10);
         const auth = await new AuthDataModel({
             userId: user._id,
-            name,
             email,
             passwordHash
         }).save();

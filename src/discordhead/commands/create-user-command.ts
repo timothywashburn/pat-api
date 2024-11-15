@@ -16,8 +16,8 @@ export default class CreateUserCommand extends Command {
             )
             .addStringOption(option =>
                 option
-                    .setName('username')
-                    .setDescription('The username for the profile')
+                    .setName('name')
+                    .setDescription('The display name for the profile')
                     .setRequired(true)
             );
     }
@@ -33,7 +33,7 @@ export default class CreateUserCommand extends Command {
 
         const options = interaction.options as CommandInteractionOptionResolver;
         const targetUser = options.getUser('user', true);
-        const username = options.getString('username', true);
+        const name = options.getString('name', true);
 
         const exists = await UserManager.getInstance().discordExists(targetUser.id);
         if (exists) {
@@ -46,12 +46,12 @@ export default class CreateUserCommand extends Command {
 
         try {
             const user = await UserManager.getInstance().create(
-                username,
+                name,
                 targetUser.id
             );
 
             await interaction.reply({
-                content: `Successfully created user profile for ${targetUser.toString()} with username: ${user.username}`,
+                content: `Successfully created user profile for ${targetUser.toString()} with name: ${user.name}`,
                 allowedMentions: { users: [targetUser.id] }
             });
         } catch (error) {

@@ -84,7 +84,7 @@ export default class TaskListManager {
         categorizedTasks.upcoming.sort((a, b) => a.dueDate!.getTime() - b.dueDate!.getTime());
         categorizedTasks.undated.sort((a, b) => a.name.localeCompare(b.name));
 
-        const sections = [`# Task List for ${user.username}`];
+        const sections = [`# Task List for ${user.name}`];
 
         if (categorizedTasks.overdue.length > 0) {
             const overdueTasks = categorizedTasks.overdue

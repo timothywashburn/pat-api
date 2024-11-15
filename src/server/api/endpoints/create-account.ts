@@ -38,7 +38,7 @@ export const createAccountEndpoint: ApiEndpoint<CreateAccountRequest, CreateAcco
                 success: true,
                 data: {
                     id: user._id.toString(),
-                    name: auth.name,
+                    name: user.name,
                     email: auth.email
                 }
             });
@@ -57,4 +57,4 @@ export const createAccountEndpoint: ApiEndpoint<CreateAccountRequest, CreateAcco
             });
         }
     }
-}
+};

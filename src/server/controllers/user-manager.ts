@@ -6,26 +6,18 @@ export default class UserManager {
 
     private constructor() {}
 
-    // Create base user
-    async create(username: string, discordID?: string): Promise<UserConfig> {
+    async create(name: string, discordID?: string): Promise<UserConfig> {
         const userConfig = new UserConfigModel({
-            username,
+            name,
             discordID
         });
         return userConfig.save();
     }
 
-    // Get user by ID (primary method)
     async getById(userId: Types.ObjectId): Promise<UserConfig | null> {
         return UserConfigModel.findById(userId);
     }
 
-    // Get user by Discord ID (legacy support)
-    async getByDiscordID(discordID: string): Promise<UserConfig | null> {
-        return UserConfigModel.findOne({ discordID });
-    }
-
-    // Update user
     async update(userId: Types.ObjectId, updates: Partial<Omit<UserConfig, '_id'>>): Promise<UserConfig | null> {
         return UserConfigModel.findByIdAndUpdate(
             userId,
@@ -34,7 +26,6 @@ export default class UserManager {
         );
     }
 
-    // Delete user
     async delete(userId: Types.ObjectId): Promise<boolean> {
         return UserConfigModel.deleteOne({ _id: userId })
             .then(result => result.deletedCount > 0);
@@ -45,7 +36,9 @@ export default class UserManager {
         return UserConfigModel.exists({ discordID })
             .then(result => result !== null);
     }
-
+    async getByDiscordID(discordID: string): Promise<UserConfig | null> {
+        return UserConfigModel.findOne({ discordID });
+    }
     async getAllWithTracking(): Promise<UserConfig[]> {
         return UserConfigModel.find({ taskListTracking: { $exists: true, $ne: null } });
     }

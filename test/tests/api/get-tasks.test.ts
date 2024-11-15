@@ -16,10 +16,6 @@ interface TasksResponse {
 }
 
 export async function runGetTasksTest(context: TestContext) {
-    if (!context.authToken) {
-        throw new Error('no auth token available');
-    }
-
     const response = await axios.get<TasksResponse>(
         `${context.baseUrl}/api/tasks?userId=${context.userId}`,
         {
@@ -29,11 +25,10 @@ export async function runGetTasksTest(context: TestContext) {
         }
     );
 
-    if (!response.data.success) {
-        throw new Error('failed to fetch tasks');
-    }
+    if (!response.data.success) throw new Error('failed to fetch tasks');
+    if (!Array.isArray(response.data.data.tasks)) throw new Error('invalid tasks response format');
 
-    if (!Array.isArray(response.data.data.tasks)) {
-        throw new Error('invalid tasks response format');
-    }
+    console.log(context)
+    console.log(response.data.data)
+    if (response.data.data.tasks.length != 2) throw new Error(`expected 2 tasks, found ${response.data.data.tasks.length}`)
 }

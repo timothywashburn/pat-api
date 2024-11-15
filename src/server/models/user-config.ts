@@ -2,8 +2,8 @@ import {model, Schema, Types} from "mongoose";
 
 interface UserConfig {
     _id: Types.ObjectId;
-    username: string;
-    discordID?: string;  // Optional, will be deprecated
+    name: string;
+    discordID?: string;
     timezone: string;
     taskListTracking?: {
         channelId: string;
@@ -14,10 +14,10 @@ interface UserConfig {
 }
 
 const userConfigSchema = new Schema<UserConfig>({
-    username: {
+    name: {
         type: String,
         required: true,
-        index: true
+        trim: true
     },
     discordID: {
         type: String,
