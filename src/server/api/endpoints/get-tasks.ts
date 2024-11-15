@@ -16,10 +16,8 @@ export const getTasksEndpoint: ApiEndpoint<GetTasksRequestRequest, GetTasksRespo
     method: 'get',
     requiresAuth: true,
     handler: async (req, res) => {
-        const userId = new Types.ObjectId(req.body.userId);
-
         try {
-            const tasks = await TaskManager.getInstance().getAllByUser(userId);
+            const tasks = await TaskManager.getInstance().getAllByUser(req.auth!.userId!);
 
             res.json({
                 success: true,

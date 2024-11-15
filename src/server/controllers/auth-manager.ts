@@ -8,6 +8,7 @@ import {compare, hash} from "bcrypt";
 const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key';
 
 interface TokenPayload {
+    authId: string;
     userId: string;
 }
 
@@ -45,7 +46,8 @@ export default class AuthManager {
         if (!user) return null;
 
         const tokenPayload: TokenPayload = {
-            userId: auth._id.toString()
+            authId: auth._id.toString(),
+            userId: auth.userId.toString()
         };
 
         const token = sign(
@@ -57,10 +59,13 @@ export default class AuthManager {
         return { user, token };
     }
 
-    verifyToken(token: string): { userId: Types.ObjectId } | null {
+    verifyToken(token: string): { authId: Types.ObjectId; userId: Types.ObjectId } | null {
         try {
-            const decoded = verify(token, JWT_SECRET) as { userId: string };
-            return { userId: new Types.ObjectId(decoded.userId) };
+            const decoded = verify(token, JWT_SECRET) as TokenPayload;
+            return {
+                authId: new Types.ObjectId(decoded.authId),
+                userId: new Types.ObjectId(decoded.userId)
+            };
         } catch {
             return null;
         }

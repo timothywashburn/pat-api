@@ -6,6 +6,7 @@ import { getTasksEndpoint } from "../api/endpoints/get-tasks";
 import AuthManager from './auth-manager';
 import {createTaskEndpoint} from "../api/endpoints/create-task";
 import {deleteTaskEndpoint} from "../api/endpoints/delete-task";
+import {AuthDataModel} from "../models/auth-data";
 
 export default class ApiManager {
     private static instance: ApiManager;
@@ -44,8 +45,8 @@ export default class ApiManager {
     }
 
     private handleAuth: RequestHandler = async (
-        req,
-        res,
+        req: ApiRequest<any>,
+        res: ApiResponse<any>,
         next
     ): Promise<void> => {
         const authHeader = req.headers.authorization;
@@ -69,6 +70,7 @@ export default class ApiManager {
             return;
         }
 
+        req.auth = verified;
         next();
     };
 

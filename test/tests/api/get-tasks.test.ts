@@ -28,7 +28,5 @@ export async function runGetTasksTest(context: TestContext) {
     if (!response.data.success) throw new Error('failed to fetch tasks');
     if (!Array.isArray(response.data.data.tasks)) throw new Error('invalid tasks response format');
 
-    console.log(context)
-    console.log(response.data.data)
-    if (response.data.data.tasks.length != 2) throw new Error(`expected 2 tasks, found ${response.data.data.tasks.length}`)
+    if (response.data.data.tasks.length != 1) throw new Error(`expected 1 tasks, found ${response.data.data.tasks.length}`)
 }
