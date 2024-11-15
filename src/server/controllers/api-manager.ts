@@ -4,6 +4,8 @@ import { createAccountEndpoint } from '../api/endpoints/create-account';
 import { loginEndpoint } from "../api/endpoints/login";
 import { getTasksEndpoint } from "../api/endpoints/get-tasks";
 import AuthManager from './auth-manager';
+import {createTaskEndpoint} from "../api/endpoints/create-task";
+import {deleteTaskEndpoint} from "../api/endpoints/delete-task";
 
 export default class ApiManager {
     private static instance: ApiManager;
@@ -84,7 +86,10 @@ export default class ApiManager {
     private registerEndpoints() {
         this.addEndpoint(createAccountEndpoint);
         this.addEndpoint(loginEndpoint);
+
         this.addEndpoint(getTasksEndpoint);
+        this.addEndpoint(createTaskEndpoint);
+        this.addEndpoint(deleteTaskEndpoint);
     }
 
     getRouter(): Router {

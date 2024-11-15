@@ -6,18 +6,21 @@ import { runCreateAccountTest } from './tests/api/create-account.test';
 import { runLoginTest } from './tests/api/login.test';
 import { runGetTasksTest } from './tests/api/get-tasks.test';
 import {runSetupDiscordConfigTest} from "./tests/create-config";
+import {runCreateTasksTest} from "./tests/api/create-tasks.test";
+import {runDeleteTaskTest} from "./tests/api/delete-task.test";
 
 config({ path: resolve(__dirname, '../.env') });
 
 export interface TestContext {
-    baseUrl: string
-    userId?: string
-    authToken?: string
+    baseUrl: string;
+    userId?: string;
+    authToken?: string;
+    taskIds?: string[];
     account: {
-        name: string
-        email: string
-        password: string
-    }
+        name: string;
+        email: string;
+        password: string;
+    };
 }
 
 interface Test {
@@ -29,6 +32,8 @@ const tests: Test[] = [
     { name: 'setup config', run: runSetupDiscordConfigTest },
     { name: 'create account', run: runCreateAccountTest },
     { name: 'login', run: runLoginTest },
+    { name: 'create tasks', run: runCreateTasksTest },
+    { name: 'delete task', run: runDeleteTaskTest },
     { name: 'get tasks', run: runGetTasksTest }
 ];
 
@@ -70,14 +75,7 @@ async function runTests() {
                 console.log(chalk.red(`unit tester failed at: ${test.name}`));
                 console.log('----------------------------------------\n');
 
-                if (error instanceof Error) {
-                    console.log(chalk.red('Error details:'));
-                    console.log(chalk.red(`  Name: ${error.name}`));
-                    console.log(chalk.red(`  Message: ${error.message}`));
-                    console.log(chalk.red(error));
-                } else {
-                    console.log(chalk.red(error));
-                }
+                console.error(error);
                 process.exit(1);
             }
         }
