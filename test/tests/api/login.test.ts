@@ -5,6 +5,7 @@ interface LoginResponse {
     success: boolean;
     data: {
         token: string;
+        refreshToken: string;
         user: {
             id: string;
             name: string;
@@ -25,4 +26,5 @@ export async function runLoginTest(context: TestContext) {
     }
 
     context.authToken = response.data.data.token;
+    context.refreshToken = response.data.data.refreshToken;
 }

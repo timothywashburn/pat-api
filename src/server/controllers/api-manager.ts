@@ -6,7 +6,7 @@ import { getTasksEndpoint } from "../api/endpoints/get-tasks";
 import AuthManager from './auth-manager';
 import {createTaskEndpoint} from "../api/endpoints/create-task";
 import {deleteTaskEndpoint} from "../api/endpoints/delete-task";
-import {AuthDataModel} from "../models/auth-data";
+import {refreshTokenEndpoint} from "../api/endpoints/refresh-token";
 
 export default class ApiManager {
     private static instance: ApiManager;
@@ -88,6 +88,7 @@ export default class ApiManager {
     private registerEndpoints() {
         this.addEndpoint(createAccountEndpoint);
         this.addEndpoint(loginEndpoint);
+        this.addEndpoint(refreshTokenEndpoint);
 
         this.addEndpoint(getTasksEndpoint);
         this.addEndpoint(createTaskEndpoint);

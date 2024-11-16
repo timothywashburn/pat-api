@@ -2,17 +2,15 @@ import { ApiEndpoint } from '../types';
 import AuthManager from '../../controllers/auth-manager';
 import { z } from 'zod';
 
-const loginSchema = z.object({
-    email: z.string().email(),
-    password: z.string()
+const refreshTokenSchema = z.object({
+    refreshToken: z.string()
 });
 
-interface LoginRequest {
-    email: string;
-    password: string;
+interface RefreshTokenRequest {
+    refreshToken: string;
 }
 
-interface LoginResponse {
+interface RefreshTokenResponse {
     token: string;
     refreshToken: string;
     user: {
@@ -22,22 +20,19 @@ interface LoginResponse {
     };
 }
 
-export const loginEndpoint: ApiEndpoint<LoginRequest, LoginResponse> = {
-    path: '/api/auth/login',
+export const refreshTokenEndpoint: ApiEndpoint<RefreshTokenRequest, RefreshTokenResponse> = {
+    path: '/api/auth/refresh',
     method: 'post',
     requiresAuth: false,
     handler: async (req, res) => {
         try {
-            const data = loginSchema.parse(req.body);
-            const result = await AuthManager.getInstance().login(
-                data.email,
-                data.password
-            );
+            const data = refreshTokenSchema.parse(req.body);
+            const result = await AuthManager.getInstance().refreshToken(data.refreshToken);
 
             if (!result) {
                 res.status(401).json({
                     success: false,
-                    error: 'Invalid email or password'
+                    error: 'Invalid refresh token'
                 });
                 return;
             }
@@ -50,12 +45,12 @@ export const loginEndpoint: ApiEndpoint<LoginRequest, LoginResponse> = {
                     user: {
                         id: result.user._id.toString(),
                         name: result.user.name,
-                        email: data.email
+                        email: result.auth.email
                     }
                 }
             });
         } catch (error) {
-            let message = 'Login failed';
+            let message = 'Token refresh failed';
 
             if (error instanceof z.ZodError) {
                 message = error.errors[0].message;

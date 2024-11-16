@@ -8,6 +8,7 @@ import { runGetTasksTest } from './tests/api/get-tasks.test';
 import {runSetupDiscordConfigTest} from "./tests/create-config";
 import {runCreateTasksTest} from "./tests/api/create-tasks.test";
 import {runDeleteTaskTest} from "./tests/api/delete-task.test";
+import {runRefreshTokenTest} from "./tests/api/refresh-token.test";
 
 config({ path: resolve(__dirname, '../.env') });
 
@@ -15,6 +16,7 @@ export interface TestContext {
     baseUrl: string;
     userId?: string;
     authToken?: string;
+    refreshToken?: string;
     taskIds?: string[];
     account: {
         name: string;
@@ -32,6 +34,7 @@ const tests: Test[] = [
     { name: 'setup config', run: runSetupDiscordConfigTest },
     { name: 'create account', run: runCreateAccountTest },
     { name: 'login', run: runLoginTest },
+    { name: 'refresh token', run: runRefreshTokenTest },
     { name: 'create tasks', run: runCreateTasksTest },
     { name: 'delete task', run: runDeleteTaskTest },
     { name: 'get tasks', run: runGetTasksTest }
