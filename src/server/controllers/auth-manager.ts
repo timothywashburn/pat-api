@@ -37,8 +37,8 @@ export default class AuthManager {
         };
 
         return {
-            token: sign(tokenPayload, JWT_SECRET, { expiresIn: '1h' }),
-            refreshToken: sign(refreshPayload, REFRESH_SECRET, { expiresIn: '30d' })
+            token: sign(tokenPayload, JWT_SECRET, { expiresIn: '1d' }),
+            refreshToken: sign(refreshPayload, REFRESH_SECRET, { expiresIn: '7d' })
         };
     }
 
