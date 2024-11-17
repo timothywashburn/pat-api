@@ -1,4 +1,19 @@
 services:
+  nginx:
+    image: nginx:alpine
+    container_name: pat-nginx
+    restart: unless-stopped
+    ports:
+      - "443:443"
+      - "80:80"
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf:ro
+      - /etc/letsencrypt:/etc/letsencrypt:ro
+    networks:
+      - pat-network
+    depends_on:
+      - pat-server
+
   pat-server:
     build:
       context: .
@@ -6,8 +21,15 @@ services:
     image: kyrokrypt/pat-server:latest
     container_name: pat-server
     restart: unless-stopped
+    expose:
+      - "3000"
     environment:
       - MONGODB_URI=${MONGODB_URI}
+      - JWT_SECRET=${JWT_SECRET}
+      - REFRESH_SECRET=${REFRESH_SECRET}
+      - NODE_ENV=production
+    networks:
+      - pat-network
     depends_on:
       - mongodb
 
@@ -15,14 +37,21 @@ services:
     image: mongo:latest
     container_name: pat-mongodb
     restart: unless-stopped
-    ports:
-      - "27017:27017"
+    expose:
+      - "27017"
     environment:
       MONGO_INITDB_ROOT_USERNAME: root
       MONGO_INITDB_ROOT_PASSWORD: example
     volumes:
       - mongodb_data:/data/db
       - mongodb_config:/data/configdb
+    networks:
+      - pat-network
+
+networks:
+  pat-network:
+    name: pat-network
+    driver: bridge
 
 volumes:
   mongodb_data:

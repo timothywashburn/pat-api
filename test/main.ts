@@ -45,7 +45,7 @@ async function runTests() {
     console.log('\ninitializing test environment');
 
     const context: TestContext = {
-        baseUrl: 'https://mac.timothyw.dev',
+        baseUrl: 'https://pat.timothyw.dev',
         account: {
             name: 'Test',
             email: 'test@test.com',
