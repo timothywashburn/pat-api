@@ -37,6 +37,8 @@ jobs:
         run: |
           cat > .env << EOL
           MONGODB_URI=${{ secrets.MONGODB_URI }}
+          JWT_SECRET=${{ secrets.JWT_SECRET }}
+          REFRESH_SECRET=${{ secrets.REFRESH_SECRET }}
           EOL
           
           # Debug: Show file contents (excluding sensitive values)
@@ -60,6 +62,7 @@ jobs:
           SSH_PASSWORD: ${{ secrets.SSH_PASSWORD }}
         run: |
           sshpass -p "$SSH_PASSWORD" ssh -o StrictHostKeyChecking=no $SSH_CONNECTION "cd ~/pat-server && \
-          docker compose pull pat-server && \
-          docker compose up -d --force-recreate pat-server && \
-          docker compose logs pat-server"
+          docker compose down && \
+          docker compose pull && \
+          docker compose up -d && \
+          docker compose logs"
