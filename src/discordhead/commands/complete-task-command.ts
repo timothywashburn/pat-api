@@ -63,7 +63,7 @@ export default class CompleteTaskCommand extends Command {
             return;
         }
 
-        const updatedTask = await TaskManager.getInstance().toggleComplete(taskToComplete._id);
+        const updatedTask = await TaskManager.getInstance().setCompleted(taskToComplete._id, true);
 
         if (!updatedTask) {
             await interaction.reply({

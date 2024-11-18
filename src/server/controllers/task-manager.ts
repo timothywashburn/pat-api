@@ -53,12 +53,13 @@ export default class TaskManager {
         );
     }
 
-    async toggleComplete(todoId: Types.ObjectId): Promise<TaskData | null> {
-        const todo = await TaskModel.findById(todoId);
-        if (!todo) return null;
-
-        todo.completed = !todo.completed;
-        return todo.save();
+    async setCompleted(taskId: Types.ObjectId, completed: boolean) {
+        const task = await TaskModel.findByIdAndUpdate(
+            taskId,
+            { $set: { completed } },
+            { new: true }
+        );
+        return task;
     }
 
     delete(todoId: Types.ObjectId): Promise<boolean> {
