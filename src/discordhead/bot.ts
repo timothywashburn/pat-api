@@ -18,6 +18,7 @@ import ConfigManager from "../server/controllers/config-manager";
 import SetupCommand from "./commands/setup-command";
 import TaskListManager from "./controllers/task-list-manager";
 import DiscordLogger from "./controllers/discord-logger";
+import LinkAccountCommand from "./commands/link-account-command";
 
 export default class Bot {
     private client: Client;
@@ -87,6 +88,7 @@ export default class Bot {
             new DeleteTaskCommand(),
             new ListTasksCommand(),
             new CreateUserCommand(),
+            new LinkAccountCommand(),
             new SetupCommand(),
             new PingCommand(),
         ];
