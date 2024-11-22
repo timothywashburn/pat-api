@@ -29,45 +29,30 @@ export default class CreateTaskCommand extends Command {
 
     private parseDueDate(dateStr: string, timezone: string): Date | null {
         dateStr = dateStr.trim();
-
         const dateRegex = /^(\d{1,2})\/(\d{1,2})(?:\/(\d{2}))?$/;
         const match = dateStr.match(dateRegex);
 
-        if (!match) {
-            return null;
-        }
+        if (!match) return null;
 
         const month = parseInt(match[1], 10) - 1;
         const day = parseInt(match[2], 10);
-        const currentDate = new Date();
+        let year = new Date().getFullYear();
 
-        let year = currentDate.getFullYear();
         if (match[3]) {
             year = 2000 + parseInt(match[3], 10);
         }
 
-        const formatter = new Intl.DateTimeFormat('en-US', {
-            timeZone: timezone,
-            year: 'numeric',
-            month: '2-digit',
-            day: '2-digit'
-        });
+        const targetDate = new Date();
+        targetDate.toLocaleString('en-US', { timeZone: timezone });
+        targetDate.setFullYear(year, month, day);
+        targetDate.setHours(23, 59, 59, 999);
 
-        const targetDateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}T23:59:59`;
-        const targetDate = new Date(targetDateStr);
-
-        const userDate = new Date(formatter.format(currentDate));
-        const targetDateInTz = new Date(formatter.format(targetDate));
-
-        if (!match[3] && targetDateInTz < userDate) {
+        const now = new Date();
+        if (!match[3] && targetDate < now) {
             targetDate.setFullYear(year + 1);
         }
 
-        const finalDate = new Date(targetDate.toLocaleString('en-US', { timeZone: timezone }));
-
-        finalDate.setHours(23, 59, 59, 999);
-
-        return finalDate;
+        return targetDate;
     }
 
     async execute(interaction: CommandInteraction): Promise<void> {
@@ -90,7 +75,7 @@ export default class CreateTaskCommand extends Command {
 
         let dueDate: Date | undefined;
         if (dueString) {
-            const parsedDate = this.parseDueDate(dueString, user.timezone || 'UTC');
+            const parsedDate = this.parseDueDate(dueString, user.timezone);
             if (!parsedDate) {
                 await interaction.reply({
                     content: 'Invalid date format. Please use MM/DD or MM/DD/YY',
