@@ -23,26 +23,11 @@ const updateUserConfigSchema = z.object({
     }).optional()
 });
 
-interface UpdateUserConfigRequest {
-    name?: string;
-    timezone?: string;
-    discordID?: string;
-    taskListTracking?: {
-        channelId: string;
-        messageId: string;
-    };
-}
+type UpdateUserConfigRequest = z.infer<typeof updateUserConfigSchema>;
 
 export interface UpdateUserConfigResponse {
-    user: {
+    user: UpdateUserConfigRequest & {
         id: string;
-        name: string;
-        timezone: string;
-        discordID?: string;
-        taskListTracking?: {
-            channelId: string;
-            messageId: string;
-        };
     };
 }
 

@@ -11,12 +11,7 @@ const createTaskSchema = z.object({
     userId: z.string()
 });
 
-interface CreateTaskRequest {
-    name: string;
-    dueDate?: string;
-    notes?: string;
-    userId: string;
-}
+type CreateTaskRequest = z.infer<typeof createTaskSchema>;
 
 interface CreateTaskResponse {
     task: {

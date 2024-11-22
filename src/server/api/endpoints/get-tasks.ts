@@ -1,17 +1,12 @@
 import { ApiEndpoint } from '../types';
 import TaskManager from '../../controllers/task-manager';
-import { Types } from 'mongoose';
 import { TaskData } from '../../models/task';
-
-interface GetTasksRequestRequest {
-    userId: string;
-}
 
 interface GetTasksResponse {
     tasks: TaskData[];
 }
 
-export const getTasksEndpoint: ApiEndpoint<GetTasksRequestRequest, GetTasksResponse> = {
+export const getTasksEndpoint: ApiEndpoint<unknown, GetTasksResponse> = {
     path: '/api/tasks',
     method: 'get',
     requiresAuth: true,

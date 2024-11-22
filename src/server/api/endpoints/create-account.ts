@@ -8,11 +8,7 @@ const createAccountSchema = z.object({
     password: z.string().min(4)
 });
 
-interface CreateAccountRequest {
-    name: string;
-    email: string;
-    password: string;
-}
+type CreateAccountRequest = z.infer<typeof createAccountSchema>;
 
 interface CreateAccountResponse {
     id: string;

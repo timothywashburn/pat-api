@@ -7,10 +7,7 @@ const loginSchema = z.object({
     password: z.string()
 });
 
-interface LoginRequest {
-    email: string;
-    password: string;
-}
+type LoginRequest = z.infer<typeof loginSchema>;
 
 interface LoginResponse {
     token: string;

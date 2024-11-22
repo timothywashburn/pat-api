@@ -7,9 +7,7 @@ const completeTaskSchema = z.object({
     completed: z.boolean()
 });
 
-interface CompleteTaskRequest {
-    completed: boolean;
-}
+type CompleteTaskRequest = z.infer<typeof completeTaskSchema>;
 
 interface CompleteTaskResponse {
     task: {

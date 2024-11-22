@@ -6,9 +6,7 @@ const refreshTokenSchema = z.object({
     refreshToken: z.string()
 });
 
-interface RefreshTokenRequest {
-    refreshToken: string;
-}
+type RefreshTokenRequest = z.infer<typeof refreshTokenSchema>;
 
 interface RefreshTokenResponse {
     token: string;
