@@ -9,8 +9,8 @@ export interface ApiRequest<TReq> extends Request {
     };
 }
 
-export interface ApiResponse<TReq> extends Response {
-    json: (body: ApiResponseBody<TReq>) => this;
+export interface ApiResponse<TRes> extends Response {
+    json: (body: ApiResponseBody<TRes>) => this;
 }
 
 export interface ApiResponseBody<TRes> {
