@@ -1,5 +1,6 @@
 import {Types} from "mongoose";
 import {UserConfig, UserConfigModel} from "../models/user-config";
+import {UpdateUserConfigRequest} from "../api/endpoints/update-user-config";
 
 export default class UserManager {
     private static instance: UserManager;
@@ -18,7 +19,7 @@ export default class UserManager {
         return UserConfigModel.findById(userId);
     }
 
-    async update(userId: Types.ObjectId, updates: Partial<Omit<UserConfig, '_id'>>): Promise<UserConfig | null> {
+    async update(userId: Types.ObjectId, updates: UpdateUserConfigRequest): Promise<UserConfig | null> {
         return UserConfigModel.findByIdAndUpdate(
             userId,
             { $set: updates },

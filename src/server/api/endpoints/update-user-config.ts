@@ -3,7 +3,7 @@ import UserManager from '../../controllers/user-manager';
 import { z } from 'zod';
 
 const updateUserConfigSchema = z.object({
-    name: z.string().min(1).optional(),
+    name: z.string().min(1).nullish(),
     timezone: z.string()
         .refine((tz: string) => {
             try {
@@ -15,15 +15,15 @@ const updateUserConfigSchema = z.object({
         }, {
             message: "Invalid timezone"
         })
-        .optional(),
-    discordID: z.string().optional(),
+        .nullish(),
+    discordID: z.string().nullish(),
     taskListTracking: z.object({
         channelId: z.string(),
         messageId: z.string()
-    }).optional()
-});
+    }).nullish()
+}).strict();
 
-type UpdateUserConfigRequest = z.infer<typeof updateUserConfigSchema>;
+export type UpdateUserConfigRequest = z.infer<typeof updateUserConfigSchema>;
 
 export interface UpdateUserConfigResponse {
     user: UpdateUserConfigRequest & {
@@ -37,7 +37,7 @@ export const updateUserConfigEndpoint: ApiEndpoint<UpdateUserConfigRequest, Upda
     requiresAuth: true,
     handler: async (req, res) => {
         try {
-            const data = updateUserConfigSchema.parse(req.body);
+            const data: UpdateUserConfigRequest = updateUserConfigSchema.parse(req.body);
             const userId = req.auth!.userId!;
 
             const updatedUser = await UserManager.getInstance().update(userId, data);

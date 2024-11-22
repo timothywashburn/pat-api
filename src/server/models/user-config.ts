@@ -1,52 +1,35 @@
-import {model, Schema, Types} from "mongoose";
+import {model, Schema, InferSchemaType, HydratedDocument} from "mongoose";
 
-interface UserConfig {
-    _id: Types.ObjectId;
-    name: string;
-    discordID?: string;
-    timezone: string;
-    taskListTracking?: {
-        channelId: string;
-        messageId: string;
-    };
-    createdAt: Date;
-    updatedAt: Date;
-}
-
-const userConfigSchema = new Schema<UserConfig>({
+const userConfigSchema = new Schema({
     name: {
         type: String,
         required: true,
         trim: true
+    },
+    timezone: {
+        type: String,
+        default: 'America/Los_Angeles'
     },
     discordID: {
         type: String,
         sparse: true,
         index: true
     },
-    timezone: {
-        type: String,
-        default: 'America/Los_Angeles',
-        validate: {
-            validator: function(v: string) {
-                try {
-                    Intl.DateTimeFormat(undefined, { timeZone: v });
-                    return true;
-                } catch (e) {
-                    return false;
-                }
-            },
-            message: 'Invalid timezone'
-        }
-    },
     taskListTracking: {
-        channelId: String,
-        messageId: String
+        type: {
+            channelId: {
+                type: String, required: true
+            },
+            messageId: {
+                type: String, required: true
+            }
+        }
     }
 }, {
     timestamps: true,
 });
 
+type UserConfig = HydratedDocument<InferSchemaType<typeof userConfigSchema>>;
 const UserConfigModel = model<UserConfig>('UserConfig', userConfigSchema);
 
 export {
