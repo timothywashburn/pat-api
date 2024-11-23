@@ -11,6 +11,7 @@ import {runDeleteTaskTest} from "./tests/api/delete-task.test";
 import {runRefreshTokenTest} from "./tests/api/refresh-token.test";
 import {runCompleteTaskTest} from "./tests/api/complete-task.test";
 import {runUpdateUserConfigTest} from "./tests/api/update-user-config.test";
+import {runGetUserConfigTest} from "./tests/api/get-user-config.test";
 
 config({ path: resolve(__dirname, '../.env') });
 
@@ -37,6 +38,7 @@ const tests: Test[] = [
     { name: 'create account', run: runCreateAccountTest },
     { name: 'login', run: runLoginTest },
     { name: 'refresh token', run: runRefreshTokenTest },
+    { name: 'get user config', run: runGetUserConfigTest },
     { name: 'update user config', run: runUpdateUserConfigTest },
     { name: 'create tasks', run: runCreateTasksTest },
     { name: 'delete task', run: runDeleteTaskTest },
