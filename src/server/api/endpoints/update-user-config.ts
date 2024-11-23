@@ -20,6 +20,12 @@ const updateUserConfigSchema = z.object({
     taskListTracking: z.object({
         channelId: z.string(),
         messageId: z.string()
+    }).nullish(),
+    iosApp: z.object({
+        panels: z.array(z.object({
+            panel: z.enum(['agenda', 'tasks', 'inbox', 'settings']),
+            visible: z.boolean()
+        }))
     }).nullish()
 }).strict();
 

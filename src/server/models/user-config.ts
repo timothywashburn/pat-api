@@ -24,6 +24,30 @@ const userConfigSchema = new Schema({
                 type: String, required: true
             }
         }
+    },
+    iosApp: {
+        type: {
+            panels: [{
+                type: {
+                    panel: {
+                        type: String,
+                        enum: ['agenda', 'tasks', 'inbox', 'settings']
+                    },
+                    visible: {
+                        type: Boolean,
+                        default: true
+                    }
+                }
+            }]
+        },
+        default: {
+            panels: [
+                { panel: 'agenda', visible: true },
+                { panel: 'tasks', visible: true },
+                { panel: 'inbox', visible: true },
+                { panel: 'settings', visible: true }
+            ]
+        }
     }
 }, {
     timestamps: true,
