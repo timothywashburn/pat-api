@@ -32,7 +32,7 @@ export async function runGetUserConfigTest(context: TestContext) {
     }
 
     const response = await axios.get<GetUserConfigResponse>(
-        `${context.baseUrl}/api/user/config`,
+        `${context.baseUrl}/api/account/config`,
         {
             headers: {
                 Authorization: `Bearer ${context.authToken}`

@@ -1,5 +1,5 @@
-import { ApiEndpoint } from '../types';
-import UserManager from '../../controllers/user-manager';
+import { ApiEndpoint } from '../../types';
+import UserManager from '../../../controllers/user-manager';
 import { z } from 'zod';
 
 const updateUserConfigSchema = z.object({
@@ -38,7 +38,7 @@ export interface UpdateUserConfigResponse {
 }
 
 export const updateUserConfigEndpoint: ApiEndpoint<UpdateUserConfigRequest, UpdateUserConfigResponse> = {
-    path: '/api/user/config',
+    path: '/api/account/config',
     method: 'put',
     auth: 'verifiedEmail',
     handler: async (req, res) => {

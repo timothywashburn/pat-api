@@ -1,5 +1,5 @@
-import { ApiEndpoint } from '../types';
-import UserManager from '../../controllers/user-manager';
+import { ApiEndpoint } from '../../types';
+import UserManager from '../../../controllers/user-manager';
 import { Document } from 'mongoose';
 
 type PanelType = 'agenda' | 'tasks' | 'inbox' | 'settings';
@@ -37,7 +37,7 @@ const isValidPanel = (panel: string | null | undefined): panel is PanelType => {
 };
 
 export const getUserConfigEndpoint: ApiEndpoint<unknown, GetUserConfigResponse> = {
-    path: '/api/user/config',
+    path: '/api/account/config',
     method: 'get',
     auth: 'verifiedEmail',
     handler: async (req, res) => {

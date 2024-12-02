@@ -1,27 +1,27 @@
-import { ApiEndpoint } from '../types';
-import AuthManager from '../../controllers/auth-manager';
+import { ApiEndpoint } from '../../types';
+import AuthManager from '../../../controllers/auth-manager';
 import { z } from 'zod';
 
-const createAccountSchema = z.object({
+const registerSchema = z.object({
     name: z.string().min(1),
     email: z.string().email(),
     password: z.string().min(4)
 });
 
-type CreateAccountRequest = z.infer<typeof createAccountSchema>;
+type RegisterRequest = z.infer<typeof registerSchema>;
 
-interface CreateAccountResponse {
+interface RegisterResponse {
     id: string;
     name: string;
     email: string;
 }
 
-export const createAccountEndpoint: ApiEndpoint<CreateAccountRequest, CreateAccountResponse> = {
-    path: '/api/account/create',
+export const registerEndpoint: ApiEndpoint<RegisterRequest, RegisterResponse> = {
+    path: '/api/auth/register',
     method: 'post',
     handler: async (req, res) => {
         try {
-            const data = createAccountSchema.parse(req.body);
+            const data = registerSchema.parse(req.body);
 
             const { user, auth } = await AuthManager.getInstance().register(
                 data.name,

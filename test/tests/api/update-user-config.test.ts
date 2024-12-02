@@ -31,7 +31,7 @@ export async function runUpdateUserConfigTest(context: TestContext) {
     };
 
     const response = await axios.put<UpdateUserConfigResponse>(
-        `${context.baseUrl}/api/user/config`,
+        `${context.baseUrl}/api/account/config`,
         updates,
         {
             headers: {

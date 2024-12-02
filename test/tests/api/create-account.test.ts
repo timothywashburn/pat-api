@@ -13,7 +13,7 @@ interface CreateAccountResponse {
 
 export async function runCreateAccountTest(context: TestContext) {
     const response = await axios.post<CreateAccountResponse>(
-        `${context.baseUrl}/api/account/create`,
+        `${context.baseUrl}/api/auth/register`,
         context.account
     );
 

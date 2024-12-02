@@ -1,15 +1,15 @@
 import express, { Router, Request, Response, NextFunction, RequestHandler } from 'express';
 import { ApiEndpoint, ApiRequest, ApiResponse } from '../api/types';
-import { createAccountEndpoint } from '../api/endpoints/create-account';
-import { loginEndpoint } from "../api/endpoints/login";
-import { getTasksEndpoint } from "../api/endpoints/get-tasks";
+import { loginEndpoint } from "../api/endpoints/auth/login";
+import { getTasksEndpoint } from "../api/endpoints/tasks/get-tasks";
 import AuthManager from './auth-manager';
-import {createTaskEndpoint} from "../api/endpoints/create-task";
-import {deleteTaskEndpoint} from "../api/endpoints/delete-task";
-import {refreshTokenEndpoint} from "../api/endpoints/refresh-token";
-import {completeTaskEndpoint} from "../api/endpoints/complete-task";
-import {updateUserConfigEndpoint} from "../api/endpoints/update-user-config";
-import {getUserConfigEndpoint} from "../api/endpoints/get-user-config";
+import {createTaskEndpoint} from "../api/endpoints/tasks/create-task";
+import {deleteTaskEndpoint} from "../api/endpoints/tasks/delete-task";
+import {refreshTokenEndpoint} from "../api/endpoints/auth/refresh-token";
+import {completeTaskEndpoint} from "../api/endpoints/tasks/complete-task";
+import {updateUserConfigEndpoint} from "../api/endpoints/account/update-user-config";
+import {getUserConfigEndpoint} from "../api/endpoints/account/get-user-config";
+import {registerEndpoint} from "../api/endpoints/auth/register";
 
 export default class ApiManager {
     private static instance: ApiManager;
@@ -105,7 +105,7 @@ export default class ApiManager {
     }
 
     private registerEndpoints() {
-        this.addEndpoint(createAccountEndpoint);
+        this.addEndpoint(registerEndpoint);
         this.addEndpoint(loginEndpoint);
         this.addEndpoint(refreshTokenEndpoint);
         this.addEndpoint(getUserConfigEndpoint);

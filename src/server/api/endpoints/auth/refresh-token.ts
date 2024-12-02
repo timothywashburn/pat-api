@@ -1,5 +1,5 @@
-import { ApiEndpoint } from '../types';
-import AuthManager from '../../controllers/auth-manager';
+import { ApiEndpoint } from '../../types';
+import AuthManager from '../../../controllers/auth-manager';
 import { z } from 'zod';
 
 const refreshTokenSchema = z.object({

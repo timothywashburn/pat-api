@@ -1,5 +1,5 @@
-import { ApiEndpoint } from '../types';
-import TaskManager from '../../controllers/task-manager';
+import { ApiEndpoint } from '../../types';
+import TaskManager from '../../../controllers/task-manager';
 import { Types } from 'mongoose';
 
 interface DeleteTaskResponse {
