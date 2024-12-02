@@ -11,11 +11,6 @@ type RefreshTokenRequest = z.infer<typeof refreshTokenSchema>;
 interface RefreshTokenResponse {
     token: string;
     refreshToken: string;
-    user: {
-        id: string;
-        name: string;
-        email: string;
-    };
 }
 
 export const refreshTokenEndpoint: ApiEndpoint<RefreshTokenRequest, RefreshTokenResponse> = {
@@ -38,12 +33,7 @@ export const refreshTokenEndpoint: ApiEndpoint<RefreshTokenRequest, RefreshToken
                 success: true,
                 data: {
                     token: result.token,
-                    refreshToken: result.refreshToken,
-                    user: {
-                        id: result.user._id.toString(),
-                        name: result.user.name,
-                        email: result.auth.email
-                    }
+                    refreshToken: result.refreshToken
                 }
             });
         } catch (error) {
