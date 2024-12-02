@@ -1,5 +1,5 @@
 import {Types} from "mongoose";
-import {TaskData, TaskModel} from "../models/task";
+import {TaskData, TaskModel} from "../models/mongo/task";
 
 export default class TaskManager {
     private static instance: TaskManager;

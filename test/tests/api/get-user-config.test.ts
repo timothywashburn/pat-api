@@ -1,6 +1,6 @@
 import axios from 'axios';
 import { TestContext } from '../../main';
-import { UserConfigModel } from '../../../src/server/models/user-config';
+import { UserConfigModel } from '../../../src/server/models/mongo/user-config';
 import { Types } from 'mongoose';
 
 interface GetUserConfigResponse {

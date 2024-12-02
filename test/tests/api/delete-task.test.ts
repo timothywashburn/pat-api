@@ -1,7 +1,7 @@
 import axios from 'axios';
 import { TestContext } from '../../main';
 import { Types } from 'mongoose';
-import {TaskModel} from "../../../src/server/models/task";
+import {TaskModel} from "../../../src/server/models/mongo/task";
 
 interface DeleteTaskResponse {
     success: boolean;

@@ -1,6 +1,6 @@
 import axios from 'axios';
 import { TestContext } from '../../main';
-import { TaskModel } from '../../../src/server/models/task';
+import { TaskModel } from '../../../src/server/models/mongo/task';
 import { Types } from 'mongoose';
 
 interface CompleteTaskResponse {

@@ -1,5 +1,5 @@
 import {Types} from "mongoose";
-import {UserConfig, UserConfigModel} from "../models/user-config";
+import {UserConfig, UserConfigModel} from "../models/mongo/user-config";
 import {UpdateUserConfigRequest} from "../api/endpoints/update-user-config";
 
 export default class UserManager {

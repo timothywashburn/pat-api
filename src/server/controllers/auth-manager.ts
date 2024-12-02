@@ -1,8 +1,8 @@
 import { Types } from "mongoose";
-import { UserConfig } from "../models/user-config";
+import { UserConfig } from "../models/mongo/user-config";
 import { sign, verify } from "jsonwebtoken";
 import UserManager from "./user-manager";
-import { AuthData, AuthDataModel } from "../models/auth-data";
+import { AuthData, AuthDataModel } from "../models/mongo/auth-data";
 import { compare, hash } from "bcrypt";
 import { randomBytes } from 'crypto';
 

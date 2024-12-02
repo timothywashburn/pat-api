@@ -1,6 +1,6 @@
 import { ApiEndpoint } from '../types';
 import TaskManager from '../../controllers/task-manager';
-import { TaskData } from '../../models/task';
+import { TaskData } from '../../models/mongo/task';
 
 interface GetTasksResponse {
     tasks: TaskData[];
