@@ -7,8 +7,7 @@ import {shouldUseGlobalFetchAndWebSocket} from "discord.js";
 const createTaskSchema = z.object({
     name: z.string().min(1),
     dueDate: z.string().optional(),
-    notes: z.string().optional(),
-    userId: z.string()
+    notes: z.string().optional()
 });
 
 type CreateTaskRequest = z.infer<typeof createTaskSchema>;
@@ -30,7 +29,7 @@ export const createTaskEndpoint: ApiEndpoint<CreateTaskRequest, CreateTaskRespon
     handler: async (req, res) => {
         try {
             const data = createTaskSchema.parse(req.body);
-            const userId = new Types.ObjectId(data.userId);
+            const userId = new Types.ObjectId(req.auth!.userId);
 
             const task = await TaskManager.getInstance().create(userId, {
                 name: data.name,
