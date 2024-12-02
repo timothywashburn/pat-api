@@ -16,13 +16,13 @@ interface LoginResponse {
         id: string;
         name: string;
         email: string;
+        isEmailVerified: boolean;
     };
 }
 
 export const loginEndpoint: ApiEndpoint<LoginRequest, LoginResponse> = {
     path: '/api/auth/login',
     method: 'post',
-    auth: 'authenticated',
     handler: async (req, res) => {
         try {
             const data = loginSchema.parse(req.body);
@@ -47,7 +47,8 @@ export const loginEndpoint: ApiEndpoint<LoginRequest, LoginResponse> = {
                     user: {
                         id: result.user._id.toString(),
                         name: result.user.name,
-                        email: data.email
+                        email: data.email,
+                        isEmailVerified: result.emailVerified
                     }
                 }
             });

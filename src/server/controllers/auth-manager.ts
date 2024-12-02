@@ -63,9 +63,10 @@ export default class AuthManager {
         return { user, auth, token, refreshToken };
     }
 
-    async login(email: string, password: string): Promise<{ user: UserConfig; token: string; refreshToken: string } | null> {
+    async login(email: string, password: string): Promise<{ user: UserConfig; token: string; refreshToken: string, emailVerified: boolean } | null> {
         const auth = await AuthDataModel.findOne({ email });
         if (!auth) return null;
+        let emailVerified = auth.emailVerified;
 
         const isValid = await compare(password, auth.passwordHash);
         if (!isValid) return null;
@@ -74,7 +75,7 @@ export default class AuthManager {
         if (!user) return null;
 
         const { token, refreshToken } = this.generateTokens(auth, user._id);
-        return { user, token, refreshToken };
+        return { user, token, refreshToken, emailVerified };
     }
 
     async refreshToken(refreshToken: string): Promise<{ user: UserConfig; auth: AuthData; token: string; refreshToken: string } | null> {
