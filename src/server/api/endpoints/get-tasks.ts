@@ -9,7 +9,7 @@ interface GetTasksResponse {
 export const getTasksEndpoint: ApiEndpoint<unknown, GetTasksResponse> = {
     path: '/api/tasks',
     method: 'get',
-    requiresAuth: true,
+    auth: 'verifiedEmail',
     handler: async (req, res) => {
         try {
             const tasks = await TaskManager.getInstance().getAllByUser(req.auth!.userId!);

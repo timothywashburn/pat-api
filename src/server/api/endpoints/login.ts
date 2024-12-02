@@ -22,7 +22,7 @@ interface LoginResponse {
 export const loginEndpoint: ApiEndpoint<LoginRequest, LoginResponse> = {
     path: '/api/auth/login',
     method: 'post',
-    requiresAuth: false,
+    auth: 'authenticated',
     handler: async (req, res) => {
         try {
             const data = loginSchema.parse(req.body);

@@ -26,7 +26,7 @@ interface CreateTaskResponse {
 export const createTaskEndpoint: ApiEndpoint<CreateTaskRequest, CreateTaskResponse> = {
     path: '/api/tasks',
     method: 'post',
-    requiresAuth: true,
+    auth: 'verifiedEmail',
     handler: async (req, res) => {
         try {
             const data = createTaskSchema.parse(req.body);

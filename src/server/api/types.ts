@@ -6,6 +6,7 @@ export interface ApiRequest<TReq> extends Request {
     auth?: {
         authId: Types.ObjectId;
         userId?: Types.ObjectId;
+        emailVerified: boolean;
     };
 }
 
@@ -22,6 +23,6 @@ export interface ApiResponseBody<TRes> {
 export interface ApiEndpoint<TReq = unknown, TRes = unknown> {
     path: string;
     method: 'get' | 'post' | 'put' | 'delete';
-    requiresAuth: boolean;
+    auth?: 'authenticated' | 'verifiedEmail';
     handler: (req: ApiRequest<TReq>, res: ApiResponse<TRes>) => Promise<void>;
 }

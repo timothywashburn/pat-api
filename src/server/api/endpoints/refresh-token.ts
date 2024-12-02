@@ -21,7 +21,6 @@ interface RefreshTokenResponse {
 export const refreshTokenEndpoint: ApiEndpoint<RefreshTokenRequest, RefreshTokenResponse> = {
     path: '/api/auth/refresh',
     method: 'post',
-    requiresAuth: false,
     handler: async (req, res) => {
         try {
             const data = refreshTokenSchema.parse(req.body);

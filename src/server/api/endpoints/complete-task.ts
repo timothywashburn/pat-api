@@ -22,7 +22,7 @@ interface CompleteTaskResponse {
 export const completeTaskEndpoint: ApiEndpoint<CompleteTaskRequest, CompleteTaskResponse> = {
     path: '/api/tasks/:taskId/complete',
     method: 'put',
-    requiresAuth: true,
+    auth: 'verifiedEmail',
     handler: async (req, res) => {
         try {
             const data = completeTaskSchema.parse(req.body);

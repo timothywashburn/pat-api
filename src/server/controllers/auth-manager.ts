@@ -12,6 +12,7 @@ const REFRESH_SECRET = process.env.REFRESH_SECRET || 'your-refresh-secret';
 interface TokenPayload {
     authId: string;
     userId: string;
+    emailVerified: boolean;
 }
 
 interface RefreshTokenPayload extends TokenPayload {
@@ -28,7 +29,8 @@ export default class AuthManager {
 
         const tokenPayload: TokenPayload = {
             authId: auth._id.toString(),
-            userId: userId.toString()
+            userId: userId.toString(),
+            emailVerified: auth.emailVerified
         };
 
         const refreshPayload: RefreshTokenPayload = {
@@ -53,7 +55,8 @@ export default class AuthManager {
         const auth = await new AuthDataModel({
             userId: user._id,
             email,
-            passwordHash
+            passwordHash,
+            emailVerified: false
         }).save();
 
         const { token, refreshToken } = this.generateTokens(auth, user._id);
@@ -90,16 +93,26 @@ export default class AuthManager {
         }
     }
 
-    verifyToken(token: string): { authId: Types.ObjectId; userId: Types.ObjectId } | null {
+    verifyToken(token: string): { authId: Types.ObjectId; userId: Types.ObjectId; emailVerified: boolean } | null {
         try {
             const decoded = verify(token, JWT_SECRET) as TokenPayload;
             return {
                 authId: new Types.ObjectId(decoded.authId),
-                userId: new Types.ObjectId(decoded.userId)
+                userId: new Types.ObjectId(decoded.userId),
+                emailVerified: decoded.emailVerified
             };
         } catch {
             return null;
         }
+    }
+
+    async verifyEmail(authId: Types.ObjectId): Promise<boolean> {
+        const result = await AuthDataModel.findByIdAndUpdate(
+            authId,
+            { $set: { emailVerified: true } },
+            { new: true }
+        );
+        return result !== null;
     }
 
     static getInstance(): AuthManager {

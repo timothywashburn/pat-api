@@ -5,6 +5,7 @@ interface AuthData {
     userId: Types.ObjectId;
     email: string;
     passwordHash: string;
+    emailVerified: boolean;
     createdAt: Date;
     updatedAt: Date;
 }
@@ -24,6 +25,10 @@ const authSchema = new Schema<AuthData>({
     passwordHash: {
         type: String,
         required: true
+    },
+    emailVerified: {
+        type: Boolean,
+        default: false
     }
 }, {
     timestamps: true

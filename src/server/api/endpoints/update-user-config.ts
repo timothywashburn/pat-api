@@ -40,7 +40,7 @@ export interface UpdateUserConfigResponse {
 export const updateUserConfigEndpoint: ApiEndpoint<UpdateUserConfigRequest, UpdateUserConfigResponse> = {
     path: '/api/user/config',
     method: 'put',
-    requiresAuth: true,
+    auth: 'verifiedEmail',
     handler: async (req, res) => {
         try {
             const data: UpdateUserConfigRequest = updateUserConfigSchema.parse(req.body);

@@ -19,7 +19,6 @@ interface CreateAccountResponse {
 export const createAccountEndpoint: ApiEndpoint<CreateAccountRequest, CreateAccountResponse> = {
     path: '/api/account/create',
     method: 'post',
-    requiresAuth: false,
     handler: async (req, res) => {
         try {
             const data = createAccountSchema.parse(req.body);

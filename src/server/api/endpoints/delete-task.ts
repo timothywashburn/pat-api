@@ -9,7 +9,7 @@ interface DeleteTaskResponse {
 export const deleteTaskEndpoint: ApiEndpoint<unknown, DeleteTaskResponse> = {
     path: '/api/tasks/:taskId',
     method: 'delete',
-    requiresAuth: true,
+    auth: 'verifiedEmail',
     handler: async (req, res) => {
         try {
             const taskId = new Types.ObjectId(req.params.taskId);

@@ -77,15 +77,31 @@ export default class ApiManager {
         next();
     };
 
+    private handleEmailVerification: RequestHandler = async (
+        req: ApiRequest<any>,
+        res: ApiResponse<any>,
+        next
+    ): Promise<void> => {
+        if (!req.auth?.emailVerified) {
+            res.status(403).json({
+                success: false,
+                error: 'Email not verified'
+            });
+            return;
+        }
+        next();
+    };
+
     private addEndpoint<TReq, TRes>(endpoint: ApiEndpoint<TReq, TRes>) {
         this.endpoints.push(endpoint);
 
         const handlers: RequestHandler[] = [];
-        if (endpoint.requiresAuth) handlers.push(this.handleAuth);
+        if (endpoint.auth == 'authenticated' || endpoint.auth == 'verifiedEmail') handlers.push(this.handleAuth);
+        if (endpoint.auth == 'verifiedEmail') handlers.push(this.handleEmailVerification);
         handlers.push(endpoint.handler);
 
         this.router[endpoint.method](endpoint.path, ...handlers);
-        console.log(`Registered API endpoint: ${endpoint.method.toUpperCase()} ${endpoint.path}`);
+        console.log(`registered api endpoint: ${endpoint.method.toUpperCase()} ${endpoint.path}`);
     }
 
     private registerEndpoints() {

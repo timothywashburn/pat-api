@@ -39,7 +39,7 @@ const isValidPanel = (panel: string | null | undefined): panel is PanelType => {
 export const getUserConfigEndpoint: ApiEndpoint<unknown, GetUserConfigResponse> = {
     path: '/api/user/config',
     method: 'get',
-    requiresAuth: true,
+    auth: 'verifiedEmail',
     handler: async (req, res) => {
         try {
             const user = await UserManager.getInstance().getById(req.auth!.userId!);
