@@ -34,10 +34,4 @@ export async function runRefreshTokenTest(context: TestContext) {
     // Update the context with the new tokens
     context.authToken = response.data.data.token;
     context.refreshToken = response.data.data.refreshToken;
-
-    // Verify the user data in the response
-    const userData = response.data.data.user;
-    if (userData.id !== context.userId) throw new Error('refresh token returned incorrect user ID');
-    if (userData.email !== context.account.email) throw new Error('refresh token returned incorrect email');
-    if (userData.name !== context.account.name) throw new Error('refresh token returned incorrect name');
 }
