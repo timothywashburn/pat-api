@@ -1,11 +1,15 @@
-import { Schema, model, Document } from 'mongoose';
+import {Schema, Document, model} from 'mongoose';
 
-export interface ProgramConfigData extends Document {
+interface ProgramConfigData extends Document {
     discord: {
         token: string;
         clientId: string;
         guildId: string;
         logChannelId?: string;
+    };
+    mailjet: {
+        apiKey: string;
+        secretKey: string;
     };
     updatedAt: Date;
     createdAt: Date;
@@ -32,10 +36,27 @@ const programConfigSchema = new Schema<ProgramConfigData>({
             type: String,
             required: false
         }
+    },
+    mailjet: {
+        apiKey: {
+            type: String,
+            required: true,
+            default: 'mailjet_api_key'
+        },
+        secretKey: {
+            type: String,
+            required: true,
+            default: 'mailjet_secret_key'
+        }
     }
 }, {
     timestamps: true,
     collection: 'general'
 });
 
-export const ProgramConfigModel = model<ProgramConfigData>('ProgramConfig', programConfigSchema);
+const ProgramConfigModel = model<ProgramConfigData>('ProgramConfig', programConfigSchema);
+
+export {
+    ProgramConfigData,
+    ProgramConfigModel,
+};

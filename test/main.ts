@@ -12,6 +12,8 @@ import {runRefreshTokenTest} from "./tests/api/refresh-token.test";
 import {runCompleteTaskTest} from "./tests/api/complete-task.test";
 import {runUpdateUserConfigTest} from "./tests/api/update-user-config.test";
 import {runGetUserConfigTest} from "./tests/api/get-user-config.test";
+import {runResendVerificationTest} from "./tests/api/resend-verification.test";
+import {runVerifyEmailTest} from "./tests/api/verify-email.test";
 
 config({ path: resolve(__dirname, '../.env') });
 
@@ -20,6 +22,7 @@ export interface TestContext {
     userId?: string;
     authToken?: string;
     refreshToken?: string;
+    emailVerificationToken?: string;
     taskIds?: string[];
     account: {
         name: string;
@@ -37,6 +40,8 @@ const tests: Test[] = [
     { name: 'setup config', run: runSetupDiscordConfigTest },
     { name: 'create account', run: runCreateAccountTest },
     { name: 'login', run: runLoginTest },
+    // { name: 'resend verification', run: runResendVerificationTest },
+    { name: 'verify email', run: runVerifyEmailTest },
     { name: 'refresh token', run: runRefreshTokenTest },
     { name: 'get user config', run: runGetUserConfigTest },
     { name: 'update user config', run: runUpdateUserConfigTest },
@@ -54,8 +59,8 @@ async function runTests() {
         baseUrl: 'https://mac.timothyw.dev',
         account: {
             name: 'Test',
-            email: 'test@test.com',
-            password: 'test'
+            email: 'trwisinthehouse@gmail.com',
+            password: 'pass'
         }
     };
 

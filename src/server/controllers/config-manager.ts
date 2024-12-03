@@ -30,11 +30,6 @@ export default class ConfigManager {
         this.configCache = config;
     }
 
-    static getConfig(): ProgramConfigData {
-        if (!ConfigManager.configCache) throw new Error('configuration not initialized');
-        return ConfigManager.configCache;
-    }
-
     async update(updates: Partial<ProgramConfigData>): Promise<ProgramConfigData | null> {
         const existing = await ProgramConfigModel.findOne();
         if (!existing) throw new Error('configuration not initialized');
@@ -47,5 +42,10 @@ export default class ConfigManager {
 
         if (updated) ConfigManager.configCache = updated;
         return updated;
+    }
+
+    static getConfig(): ProgramConfigData {
+        if (!ConfigManager.configCache) throw new Error('configuration not initialized');
+        return ConfigManager.configCache;
     }
 }

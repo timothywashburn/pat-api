@@ -5,11 +5,12 @@ import UserManager from "./user-manager";
 import { AuthData, AuthDataModel } from "../models/mongo/auth-data";
 import { compare, hash } from "bcrypt";
 import { randomBytes } from 'crypto';
+import MailjetManager from "./mailjet-manager";
 
 const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key';
 const REFRESH_SECRET = process.env.REFRESH_SECRET || 'your-refresh-secret';
 
-interface TokenPayload {
+export interface TokenPayload {
     authId: string;
     userId: string;
     emailVerified: boolean;
@@ -114,6 +115,20 @@ export default class AuthManager {
             { new: true }
         );
         return result !== null;
+    }
+
+    async resendVerificationEmail(authId: Types.ObjectId): Promise<boolean> {
+        try {
+            const auth = await AuthDataModel.findById(authId);
+            if (!auth || auth.emailVerified) {
+                return false;
+            }
+
+            return await MailjetManager.getInstance().sendVerificationEmail(auth);
+        } catch (error) {
+            console.error('failed to resend verification email:', error);
+            return false;
+        }
     }
 
     static getInstance(): AuthManager {

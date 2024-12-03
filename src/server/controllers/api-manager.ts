@@ -10,6 +10,8 @@ import {completeTaskEndpoint} from "../api/endpoints/tasks/complete-task";
 import {updateUserConfigEndpoint} from "../api/endpoints/account/update-user-config";
 import {getUserConfigEndpoint} from "../api/endpoints/account/get-user-config";
 import {registerEndpoint} from "../api/endpoints/auth/register";
+import {resendVerificationEndpoint} from "../api/endpoints/auth/resend-verification";
+import {verifyEmailEndpoint} from "../api/endpoints/auth/verify-email";
 
 export default class ApiManager {
     private static instance: ApiManager;
@@ -105,16 +107,19 @@ export default class ApiManager {
     }
 
     private registerEndpoints() {
-        this.addEndpoint(registerEndpoint);
-        this.addEndpoint(loginEndpoint);
-        this.addEndpoint(refreshTokenEndpoint);
         this.addEndpoint(getUserConfigEndpoint);
         this.addEndpoint(updateUserConfigEndpoint);
 
-        this.addEndpoint(getTasksEndpoint);
-        this.addEndpoint(createTaskEndpoint);
+        this.addEndpoint(loginEndpoint);
+        this.addEndpoint(refreshTokenEndpoint);
+        this.addEndpoint(registerEndpoint);
+        this.addEndpoint(resendVerificationEndpoint);
+        this.addEndpoint(verifyEmailEndpoint);
+
         this.addEndpoint(completeTaskEndpoint);
+        this.addEndpoint(createTaskEndpoint);
         this.addEndpoint(deleteTaskEndpoint);
+        this.addEndpoint(getTasksEndpoint);
     }
 
     getRouter(): Router {

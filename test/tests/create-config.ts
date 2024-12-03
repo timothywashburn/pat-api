@@ -7,6 +7,10 @@ export async function runSetupDiscordConfigTest(context: TestContext) {
             token: process.env.DISCORD_TOKEN!,
             clientId: '1084621905606217778',
             guildId: '686716838973145100'
+        },
+        mailjet: {
+            apiKey: process.env.MAILJET_API_KEY,
+            secretKey: process.env.MAILJET_SECRET_KEY
         }
     });
 
