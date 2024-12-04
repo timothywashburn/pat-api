@@ -1,5 +1,6 @@
 import { ApiEndpoint } from '../../types';
 import AuthManager from '../../../controllers/auth-manager';
+import SocketManager from "../../../controllers/socket-manager";
 
 interface VerifyEmailQuery {
     token?: string;
@@ -17,18 +18,22 @@ export const verifyEmailEndpoint: ApiEndpoint<unknown, never> = {
                 return;
             }
 
-            const verified = AuthManager.getInstance().verifyToken(token);
-            if (!verified) {
+            const decoded = AuthManager.getInstance().verifyToken(token);
+            if (!decoded) {
                 res.redirect(`https://${process.env.API_URL}/verify-failed?error=invalid-token`);
                 return;
             }
 
-            const success = await AuthManager.getInstance().verifyEmail(verified.authId);
+            const success = await AuthManager.getInstance().verifyEmail(decoded.authId);
             if (!success) {
                 res.redirect(`https://${process.env.API_URL}/verify-failed?error=verification-failed`);
                 return;
             }
-            console.log(success)
+
+            SocketManager.getInstance().notifyUser(
+                decoded.userId.toString(),
+                'emailVerified'
+            );
 
             res.redirect(`https://${process.env.API_URL}/verify-success`);
         } catch (error) {

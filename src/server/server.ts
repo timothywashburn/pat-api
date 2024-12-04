@@ -5,21 +5,26 @@ import ApiManager from "./controllers/api-manager";
 import { config } from "dotenv";
 import { resolve } from "path";
 import ConfigManager from "./controllers/config-manager";
+import { createServer } from 'http';
+import SocketManager from "./controllers/socket-manager";
 
 console.log("starting server");
 
 config({ path: resolve(__dirname, '../../.env') });
 
-const app = express();
-
 (async () => {
     await MongoManager.getInstance().init();
     await ConfigManager.init();
 
+    const app = express();
+    const server = createServer(app);
+
+    SocketManager.initialize(server);
+
     app.use(ApiManager.getInstance().getRouter());
 
     const port = 3000;
-    app.listen(port, () => {
+    server.listen(port, () => {
         console.log(`API server listening on port ${port}`);
     });
 
