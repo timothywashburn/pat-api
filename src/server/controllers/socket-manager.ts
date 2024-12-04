@@ -10,72 +10,66 @@ export default class SocketManager {
     private io: Server;
 
     private constructor(server: HttpServer) {
-        console.log('initializing socket manager...');
+        console.log('[socket] initializing manager...');
 
-        // TODO
+        this.io = new Server(server, {
+            path: '/ws',
+            cors: {
+                origin: "*",
+                methods: ["GET", "POST"],
+                allowedHeaders: ["Authorization"],
+                credentials: true
+            }
+        });
 
-        console.log('socket.io server initialized');
         this.setupSocketServer();
     }
 
     private setupSocketServer() {
         this.io.use(async (socket, next) => {
             try {
-                console.log('authenticating socket connection...');
                 const token = socket.handshake.auth.token ||
+                    socket.handshake.query.token ||
                     socket.handshake.headers.authorization?.replace('Bearer ', '');
 
                 if (!token) {
-                    console.log('socket auth failed: no token provided');
+                    console.log(`[socket] auth failed for socket ${socket.id}: no token`);
                     return next(new Error('Authentication error'));
                 }
 
                 const decoded = verify(token, JWT_SECRET) as TokenPayload;
                 socket.data.userId = decoded.userId;
-                console.log('socket auth successful for user:', decoded.userId);
+                console.log(`[socket] auth success for socket ${socket.id} user ${decoded.userId}`);
                 next();
             } catch (error) {
-                console.log('socket auth failed:', error);
+                console.log(`[socket] auth failed for socket ${socket.id}:`, error);
                 next(new Error('Authentication error'));
             }
         });
 
         this.io.on('connection', (socket: Socket) => {
-            console.log('client connected:', {
-                socketId: socket.id,
-                userId: socket.data.userId
-            });
-
-            // Join user-specific room
             const userId = socket.data.userId;
+            console.log(`[socket] client connected - id: ${socket.id} user: ${userId}`);
+
             socket.join(`user:${userId}`);
 
-            // Handle client events
             socket.on('heartbeat', (data) => {
+                console.log(`[socket] heartbeat from ${socket.id}`);
                 socket.emit('heartbeat_ack', { id: data.id });
             });
 
             socket.on('disconnect', (reason) => {
-                console.log('client disconnected:', {
-                    socketId: socket.id,
-                    userId: socket.data.userId,
-                    reason
-                });
+                console.log(`[socket] client disconnected - id: ${socket.id} user: ${userId} reason: ${reason}`);
             });
         });
 
-        // Server-wide error handling
         this.io.engine.on('connection_error', (err) => {
-            console.log('socket.io connection_error:', {
-                code: err.code,
-                message: err.message,
-                context: err.context
-            });
+            console.log(`[socket] connection error - code: ${err.code} message: ${err.message}`);
         });
     }
 
     notifyUser(userId: string, event: string, data: any = {}) {
-        console.log('notifying user:', userId, 'event:', event);
+        console.log(`[socket] notifying user ${userId} event: ${event}`);
         this.io.to(`user:${userId}`).emit(event, data);
     }
 
