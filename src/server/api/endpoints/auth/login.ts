@@ -45,8 +45,8 @@ export const loginEndpoint: ApiEndpoint<LoginRequest, LoginResponse> = {
                     token: result.token,
                     refreshToken: result.refreshToken,
                     user: {
-                        id: result.user._id.toString(),
-                        name: result.user.name,
+                        id: result.userConfig._id.toString(),
+                        name: result.userConfig.name,
                         email: data.email,
                         isEmailVerified: result.emailVerified
                     }

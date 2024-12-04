@@ -12,6 +12,7 @@ import {getUserConfigEndpoint} from "../api/endpoints/account/get-user-config";
 import {registerEndpoint} from "../api/endpoints/auth/register";
 import {resendVerificationEndpoint} from "../api/endpoints/auth/resend-verification";
 import {verifyEmailEndpoint} from "../api/endpoints/auth/verify-email";
+import {AuthDataModel} from "../models/mongo/auth-data";
 
 export default class ApiManager {
     private static instance: ApiManager;
@@ -65,9 +66,9 @@ export default class ApiManager {
         }
 
         const token = authHeader.split(' ')[1];
-        const verified = AuthManager.getInstance().verifyToken(token);
+        const decoded = AuthManager.getInstance().verifyToken(token);
 
-        if (!verified) {
+        if (!decoded) {
             res.status(401).json({
                 success: false,
                 error: 'Invalid token'
@@ -75,7 +76,7 @@ export default class ApiManager {
             return;
         }
 
-        req.auth = verified;
+        req.auth = decoded;
         next();
     };
 
@@ -84,7 +85,16 @@ export default class ApiManager {
         res: ApiResponse<any>,
         next
     ): Promise<void> => {
-        if (!req.auth?.emailVerified) {
+        const auth = await AuthDataModel.findById(req.auth?.authId);
+        if (!auth) {
+            res.status(403).json({
+                success: false,
+                error: 'Could not find auth'
+            });
+            return;
+        }
+
+        if (!auth.emailVerified) {
             res.status(403).json({
                 success: false,
                 error: 'Email not verified'

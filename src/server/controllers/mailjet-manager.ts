@@ -23,8 +23,7 @@ export default class MailjetManager {
         try {
             const tokenPayload: TokenPayload = {
                 authId: auth._id.toString(),
-                userId: auth.userId.toString(),
-                emailVerified: false
+                userId: auth.userId.toString()
             };
 
             const verificationToken = sign(tokenPayload, JWT_SECRET, { expiresIn: '48h' });

@@ -6,7 +6,6 @@ export interface ApiRequest<TReq> extends Request {
     auth?: {
         authId: Types.ObjectId;
         userId?: Types.ObjectId;
-        emailVerified: boolean;
     };
 }
 

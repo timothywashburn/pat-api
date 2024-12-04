@@ -17,8 +17,7 @@ export async function runVerifyEmailTest(context: TestContext) {
 
     const tokenPayload = {
         authId: authData._id.toString(),
-        userId: authData.userId.toString(),
-        emailVerified: false
+        userId: authData.userId.toString()
     };
 
     const verificationToken = sign(tokenPayload, 'your-secret-key', { expiresIn: '48h' });
