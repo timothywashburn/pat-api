@@ -5,6 +5,12 @@ import { TokenPayload } from './auth-manager';
 
 const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key';
 
+export interface SocketMessage<T = any> {
+    type: string;
+    userId: string;
+    data: T;
+}
+
 export default class SocketManager {
     private static instance: SocketManager;
     private io: Server;
@@ -68,9 +74,10 @@ export default class SocketManager {
         });
     }
 
-    notifyUser(userId: string, event: string, data: any = {}) {
-        console.log(`[socket] notifying user ${userId} event: ${event}`);
-        this.io.to(`user:${userId}`).emit(event, data);
+    emitToUser<T extends object>(userId: string, type: string, data: T = {} as T) {
+        let message: SocketMessage<T> = {type, userId, data}
+        console.log(`[socket] sending to user ${userId}:`, message);
+        this.io.to(`user:${userId}`).emit('message', message);
     }
 
     static initialize(server: HttpServer): SocketManager {

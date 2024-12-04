@@ -1,6 +1,6 @@
 import { ApiEndpoint } from '../../types';
 import AuthManager from '../../../controllers/auth-manager';
-import SocketManager from "../../../controllers/socket-manager";
+import SocketManager, {SocketMessage} from "../../../controllers/socket-manager";
 
 interface VerifyEmailQuery {
     token?: string;
@@ -30,10 +30,7 @@ export const verifyEmailEndpoint: ApiEndpoint<unknown, never> = {
                 return;
             }
 
-            SocketManager.getInstance().notifyUser(
-                decoded.userId.toString(),
-                'emailVerified'
-            );
+            SocketManager.getInstance().emitToUser(decoded.userId.toString(), "emailVerified");
 
             res.redirect(`https://${process.env.API_URL}/verify-success`);
         } catch (error) {
