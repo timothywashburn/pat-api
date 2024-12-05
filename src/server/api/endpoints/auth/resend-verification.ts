@@ -11,7 +11,6 @@ export const resendVerificationEndpoint: ApiEndpoint<unknown, ResendVerification
     auth: 'authenticated',
     handler: async (req, res) => {
         try {
-            console.log('[email-verification] resending verification email');
             const sent = await AuthManager.getInstance().resendVerificationEmail(req.auth!.authId);
 
             if (!sent) {

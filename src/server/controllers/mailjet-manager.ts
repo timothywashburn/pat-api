@@ -27,9 +27,6 @@ export default class MailjetManager {
             const verificationToken = sign(tokenPayload, process.env.JWT_SECRET!, { expiresIn: '48h' });
             const verificationLink = `https://${process.env.API_URL}/api/auth/verify-email?token=${verificationToken}`;
 
-            console.log('[email-verification] sending verification with link:', verificationLink);
-            console.log('[email-verification] to:', auth.email);
-
             const data = {
                 Messages: [{
                     From: {
@@ -48,10 +45,7 @@ export default class MailjetManager {
                 }]
             };
 
-            console.log('[email-verification] data:', data);
-
             const result = await this.mailjet.post('send', { version: 'v3.1' }).request(data);
-            console.log('[email-verification] result:', result.body);
             return result.response.status === 200;
         } catch (error) {
             console.error('failed to send verification email:', error);
