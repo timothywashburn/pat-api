@@ -31,6 +31,8 @@ config({ path: resolve(__dirname, '../../.env') });
     try {
         const bot = new Bot();
         await bot.start();
+        console.log('printing out .env')
+        console.log(process.env);
     } catch (error) {
         console.error('Failed to initialize Discord bot', error);
     }
