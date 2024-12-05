@@ -48,6 +48,8 @@ export default class MailjetManager {
                 }]
             };
 
+            console.log('[email-verification] data:', data);
+
             const result = await this.mailjet.post('send', { version: 'v3.1' }).request(data);
             console.log('[email-verification] result:', result.body);
             return result.response.status === 200;
