@@ -115,11 +115,13 @@ export default class AuthManager {
 
     async resendVerificationEmail(authId: Types.ObjectId): Promise<boolean> {
         try {
+            console.log('[email-verification] looking up auth data');
             const auth = await AuthDataModel.findById(authId);
             if (!auth || auth.emailVerified) {
                 return false;
             }
 
+            console.log('[email-verification] found auth; sending verification email');
             return await MailjetManager.getInstance().sendVerificationEmail(auth);
         } catch (error) {
             console.error('failed to resend verification email:', error);
