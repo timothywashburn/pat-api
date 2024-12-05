@@ -39,6 +39,7 @@ jobs:
           MONGODB_URI=${{ secrets.MONGODB_URI }}
           JWT_SECRET=${{ secrets.JWT_SECRET }}
           REFRESH_SECRET=${{ secrets.REFRESH_SECRET }}
+          API_URL=${{ secrets.REFRESH_SECRET }}
           EOL
           
           # Debug: Show file contents (excluding sensitive values)
