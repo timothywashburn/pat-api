@@ -5,8 +5,6 @@ import { AuthData } from "../models/mongo/auth-data";
 import { sign } from "jsonwebtoken";
 import { TokenPayload } from "./auth-manager";
 
-const JWT_SECRET = process.env.JWT_SECRET!;
-
 export default class MailjetManager {
     private static instance: MailjetManager;
     private mailjet: MailjetService;
@@ -26,7 +24,7 @@ export default class MailjetManager {
                 userId: auth.userId.toString()
             };
 
-            const verificationToken = sign(tokenPayload, JWT_SECRET, { expiresIn: '48h' });
+            const verificationToken = sign(tokenPayload, process.env.JWT_SECRET!, { expiresIn: '48h' });
             const verificationLink = `https://${process.env.API_URL}/api/auth/verify-email?token=${verificationToken}`;
 
             console.log('[email-verification] sending verification with link:', verificationLink);

@@ -3,8 +3,6 @@ import { Server, Socket } from 'socket.io';
 import { verify } from 'jsonwebtoken';
 import { TokenPayload } from './auth-manager';
 
-const JWT_SECRET = process.env.JWT_SECRET!;
-
 export interface SocketMessage<T = any> {
     type: string;
     userId: string;
@@ -43,7 +41,7 @@ export default class SocketManager {
                     return next(new Error('Authentication error'));
                 }
 
-                const decoded = verify(token, JWT_SECRET) as TokenPayload;
+                const decoded = verify(token, process.env.JWT_SECRET!) as TokenPayload;
                 socket.data.userId = decoded.userId;
                 console.log(`[socket] auth success for socket ${socket.id} user ${decoded.userId}`);
                 next();

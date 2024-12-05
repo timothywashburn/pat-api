@@ -7,9 +7,6 @@ import { compare, hash } from "bcrypt";
 import { randomBytes } from 'crypto';
 import MailjetManager from "./mailjet-manager";
 
-const JWT_SECRET = process.env.JWT_SECRET!;
-const REFRESH_SECRET = process.env.REFRESH_SECRET!;
-
 export interface TokenPayload {
     authId: string;
     userId: string;
@@ -38,8 +35,8 @@ export default class AuthManager {
         };
 
         return {
-            token: sign(tokenPayload, JWT_SECRET, { expiresIn: '1d' }),
-            refreshToken: sign(refreshPayload, REFRESH_SECRET, { expiresIn: '7d' })
+            token: sign(tokenPayload, process.env.JWT_SECRET!, { expiresIn: '1d' }),
+            refreshToken: sign(refreshPayload, process.env.REFRESH_SECRET!, { expiresIn: '7d' })
         };
     }
 
@@ -78,7 +75,7 @@ export default class AuthManager {
 
     async refreshToken(refreshToken: string): Promise<{ user: UserConfig; auth: AuthData; token: string; refreshToken: string } | null> {
         try {
-            const decoded = verify(refreshToken, REFRESH_SECRET) as RefreshTokenPayload;
+            const decoded = verify(refreshToken, process.env.REFRESH_SECRET!) as RefreshTokenPayload;
             const auth = await AuthDataModel.findById(decoded.authId);
             if (!auth) return null;
 
@@ -94,7 +91,7 @@ export default class AuthManager {
 
     verifyToken(token: string): { authId: Types.ObjectId; userId: Types.ObjectId } | null {
         try {
-            const decoded = verify(token, JWT_SECRET) as TokenPayload;
+            const decoded = verify(token, process.env.JWT_SECRET!) as TokenPayload;
             return {
                 authId: new Types.ObjectId(decoded.authId),
                 userId: new Types.ObjectId(decoded.userId)
