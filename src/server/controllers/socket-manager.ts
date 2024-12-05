@@ -3,7 +3,7 @@ import { Server, Socket } from 'socket.io';
 import { verify } from 'jsonwebtoken';
 import { TokenPayload } from './auth-manager';
 
-const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key';
+const JWT_SECRET = process.env.JWT_SECRET!;
 
 export interface SocketMessage<T = any> {
     type: string;

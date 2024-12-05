@@ -7,8 +7,8 @@ import { compare, hash } from "bcrypt";
 import { randomBytes } from 'crypto';
 import MailjetManager from "./mailjet-manager";
 
-const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key';
-const REFRESH_SECRET = process.env.REFRESH_SECRET || 'your-refresh-secret';
+const JWT_SECRET = process.env.JWT_SECRET!;
+const REFRESH_SECRET = process.env.REFRESH_SECRET!;
 
 export interface TokenPayload {
     authId: string;

@@ -5,7 +5,7 @@ import { AuthData } from "../models/mongo/auth-data";
 import { sign } from "jsonwebtoken";
 import { TokenPayload } from "./auth-manager";
 
-const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key';
+const JWT_SECRET = process.env.JWT_SECRET!;
 
 export default class MailjetManager {
     private static instance: MailjetManager;
