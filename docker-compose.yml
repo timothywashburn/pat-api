@@ -65,6 +65,7 @@ services:
       - MONGODB_URI=${MONGODB_URI}
       - JWT_SECRET=${JWT_SECRET}
       - REFRESH_SECRET=${REFRESH_SECRET}
+      - API_URL=${API_URL}
       - NODE_ENV=production
     networks:
       - pat-network
