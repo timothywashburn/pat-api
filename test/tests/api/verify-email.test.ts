@@ -20,7 +20,7 @@ export async function runVerifyEmailTest(context: TestContext) {
         userId: authData.userId.toString()
     };
 
-    const verificationToken = sign(tokenPayload, 'your-secret-key', { expiresIn: '48h' });
+    const verificationToken = sign(tokenPayload, 'secret', { expiresIn: '48h' });
 
     await axios.get(
         `${context.baseUrl}/api/auth/verify-email?token=${verificationToken}`,
