@@ -46,9 +46,24 @@ export default class TaskManager {
         todoId: Types.ObjectId,
         updates: Partial<Omit<TaskData, '_id' | 'userId' | 'createdAt' | 'updatedAt'>>
     ): Promise<TaskData | null> {
+        const set: any = {};
+        const unset: any = {};
+
+        Object.entries(updates).forEach(([key, value]) => {
+            if (value === null) {
+                unset[key] = "";
+            } else {
+                set[key] = value;
+            }
+        });
+
+        const updateOperation: any = {};
+        if (Object.keys(set).length > 0) updateOperation.$set = set;
+        if (Object.keys(unset).length > 0) updateOperation.$unset = unset;
+
         return TaskModel.findByIdAndUpdate(
             todoId,
-            { $set: updates },
+            updateOperation,
             { new: true }
         );
     }

@@ -8,7 +8,7 @@ interface TaskData {
     updatedAt: Date;
 
     name: string;
-    dueDate: Date;
+    dueDate?: Date | null;
     notes?: string;
 
     completed: boolean;

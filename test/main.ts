@@ -14,6 +14,7 @@ import {runUpdateUserConfigTest} from "./tests/api/update-user-config.test";
 import {runGetUserConfigTest} from "./tests/api/get-user-config.test";
 import {runResendVerificationTest} from "./tests/api/resend-verification.test";
 import {runVerifyEmailTest} from "./tests/api/verify-email.test";
+import {runUpdateTaskTest} from "./tests/api/update-task.test";
 
 config({ path: resolve(__dirname, '../.env') });
 
@@ -48,6 +49,7 @@ const tests: Test[] = [
     { name: 'create tasks', run: runCreateTasksTest },
     { name: 'delete task', run: runDeleteTaskTest },
     { name: 'complete task', run: runCompleteTaskTest },
+    { name: 'update task', run: runUpdateTaskTest },
     { name: 'get tasks', run: runGetTasksTest }
 ];
 

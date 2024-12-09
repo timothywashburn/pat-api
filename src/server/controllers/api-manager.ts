@@ -13,6 +13,7 @@ import {registerEndpoint} from "../api/endpoints/auth/register";
 import {resendVerificationEndpoint} from "../api/endpoints/auth/resend-verification";
 import {verifyEmailEndpoint} from "../api/endpoints/auth/verify-email";
 import {AuthDataModel} from "../models/mongo/auth-data";
+import {updateTaskEndpoint} from "../api/endpoints/tasks/update-task";
 
 export default class ApiManager {
     private static instance: ApiManager;
@@ -23,6 +24,23 @@ export default class ApiManager {
         this.router = express.Router();
         this.setupMiddleware();
         this.registerEndpoints();
+    }
+
+    private registerEndpoints() {
+        this.addEndpoint(getUserConfigEndpoint);
+        this.addEndpoint(updateUserConfigEndpoint);
+
+        this.addEndpoint(loginEndpoint);
+        this.addEndpoint(refreshTokenEndpoint);
+        this.addEndpoint(registerEndpoint);
+        this.addEndpoint(resendVerificationEndpoint);
+        this.addEndpoint(verifyEmailEndpoint);
+
+        this.addEndpoint(completeTaskEndpoint);
+        this.addEndpoint(createTaskEndpoint);
+        this.addEndpoint(deleteTaskEndpoint);
+        this.addEndpoint(getTasksEndpoint);
+        this.addEndpoint(updateTaskEndpoint);
     }
 
     private setupMiddleware() {
@@ -114,22 +132,6 @@ export default class ApiManager {
 
         this.router[endpoint.method](endpoint.path, ...handlers);
         console.log(`registered api endpoint: ${endpoint.method.toUpperCase()} ${endpoint.path}`);
-    }
-
-    private registerEndpoints() {
-        this.addEndpoint(getUserConfigEndpoint);
-        this.addEndpoint(updateUserConfigEndpoint);
-
-        this.addEndpoint(loginEndpoint);
-        this.addEndpoint(refreshTokenEndpoint);
-        this.addEndpoint(registerEndpoint);
-        this.addEndpoint(resendVerificationEndpoint);
-        this.addEndpoint(verifyEmailEndpoint);
-
-        this.addEndpoint(completeTaskEndpoint);
-        this.addEndpoint(createTaskEndpoint);
-        this.addEndpoint(deleteTaskEndpoint);
-        this.addEndpoint(getTasksEndpoint);
     }
 
     getRouter(): Router {
