@@ -31,7 +31,6 @@ export async function runRefreshTokenTest(context: TestContext) {
         throw new Error('token refresh failed');
     }
 
-    // Update the context with the new tokens
     context.authToken = response.data.data.token;
     context.refreshToken = response.data.data.refreshToken;
 }
