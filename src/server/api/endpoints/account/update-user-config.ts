@@ -25,7 +25,9 @@ const updateUserConfigSchema = z.object({
         panels: z.array(z.object({
             panel: z.enum(['agenda', 'tasks', 'inbox', 'settings']),
             visible: z.boolean()
-        }))
+        })).optional(),
+        taskCategories: z.array(z.string()).optional(),
+        taskTypes: z.array(z.string()).optional()
     }).nullish()
 }).strict();
 
@@ -45,7 +47,6 @@ export const updateUserConfigEndpoint: ApiEndpoint<UpdateUserConfigRequest, Upda
         try {
             const data: UpdateUserConfigRequest = updateUserConfigSchema.parse(req.body);
             const userId = req.auth!.userId!;
-
             const updatedUser = await UserManager.getInstance().update(userId, data);
 
             if (!updatedUser) {
@@ -53,8 +54,17 @@ export const updateUserConfigEndpoint: ApiEndpoint<UpdateUserConfigRequest, Upda
                     success: false,
                     error: 'User not found'
                 });
-                return;
+                return
             }
+
+            const formattedIosApp = updatedUser.iosApp ? {
+                panels: updatedUser.iosApp.panels.map(p => ({
+                    panel: p.type?.panel || 'agenda',
+                    visible: p.type?.visible || false
+                })),
+                taskCategories: updatedUser.iosApp.taskCategories,
+                taskTypes: updatedUser.iosApp.taskTypes
+            } : undefined;
 
             res.json({
                 success: true,
@@ -64,7 +74,8 @@ export const updateUserConfigEndpoint: ApiEndpoint<UpdateUserConfigRequest, Upda
                         name: updatedUser.name,
                         timezone: updatedUser.timezone,
                         discordID: updatedUser.discordID,
-                        taskListTracking: updatedUser.taskListTracking
+                        taskListTracking: updatedUser.taskListTracking,
+                        iosApp: formattedIosApp
                     }
                 }
             });
@@ -72,13 +83,16 @@ export const updateUserConfigEndpoint: ApiEndpoint<UpdateUserConfigRequest, Upda
             let message = 'Failed to update user configuration';
 
             if (error instanceof z.ZodError) {
+                console.log('[config] validation error:', error.errors);
                 message = error.errors[0].message;
+            } else {
+                console.error('[config] unexpected error:', error);
             }
 
             res.status(400).json({
                 success: false,
                 error: message
-            });
+            })
         }
     }
-};
+}

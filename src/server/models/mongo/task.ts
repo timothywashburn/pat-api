@@ -10,8 +10,10 @@ interface TaskData {
     name: string;
     dueDate?: Date | null;
     notes?: string;
-
     completed: boolean;
+    urgent: boolean;
+    category?: string | null;
+    type?: string | null;
 }
 
 const taskSchema = new Schema<TaskData>({
@@ -35,6 +37,18 @@ const taskSchema = new Schema<TaskData>({
     completed: {
         type: Boolean,
         default: false,
+    },
+    urgent: {
+        type: Boolean,
+        default: false,
+    },
+    category: {
+        type: String,
+        trim: true,
+    },
+    type: {
+        type: String,
+        trim: true,
     }
 }, {
     timestamps: true,

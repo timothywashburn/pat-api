@@ -38,6 +38,14 @@ const userConfigSchema = new Schema({
                         default: true
                     }
                 }
+            }],
+            taskCategories: [{
+                type: String,
+                trim: true
+            }],
+            taskTypes: [{
+                type: String,
+                trim: true
             }]
         },
         default: {
@@ -46,7 +54,9 @@ const userConfigSchema = new Schema({
                 { panel: 'tasks', visible: true },
                 { panel: 'inbox', visible: true },
                 { panel: 'settings', visible: true }
-            ]
+            ],
+            taskCategories: ['School', 'Work', 'Personal'],
+            taskTypes: ['Assignment', 'Project']
         }
     }
 }, {

@@ -1,5 +1,5 @@
-import {Types} from "mongoose";
-import {TaskData, TaskModel} from "../models/mongo/task";
+import { Types } from "mongoose";
+import { TaskData, TaskModel } from "../models/mongo/task";
 
 export default class TaskManager {
     private static instance: TaskManager;
@@ -46,6 +46,7 @@ export default class TaskManager {
         todoId: Types.ObjectId,
         updates: Partial<Omit<TaskData, '_id' | 'userId' | 'createdAt' | 'updatedAt'>>
     ): Promise<TaskData | null> {
+
         const set: any = {};
         const unset: any = {};
 

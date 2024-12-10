@@ -20,6 +20,8 @@ interface UserConfig {
     };
     iosApp?: {
         panels: Panel[];
+        taskCategories: string[];
+        taskTypes: string[];
     };
 }
 
@@ -89,7 +91,9 @@ export const getUserConfigEndpoint: ApiEndpoint<unknown, GetUserConfigResponse> 
                     discordID: user.discordID || undefined,
                     taskListTracking: user.taskListTracking || undefined,
                     iosApp: {
-                        panels: transformedPanels
+                        panels: transformedPanels,
+                        taskCategories: user.iosApp.taskCategories,
+                        taskTypes: user.iosApp.taskTypes
                     }
                 }
             };
@@ -99,7 +103,7 @@ export const getUserConfigEndpoint: ApiEndpoint<unknown, GetUserConfigResponse> 
                 data: responseData
             });
         } catch (error) {
-            console.error('Error in getUserConfig:', error);
+            console.error('[config] Error in getUserConfig:', error);
             res.status(500).json({
                 success: false,
                 error: 'Failed to fetch user configuration'

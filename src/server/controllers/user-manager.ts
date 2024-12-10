@@ -7,6 +7,22 @@ export default class UserManager {
 
     private constructor() {}
 
+    private static flattenObject(obj: any, prefix = ''): Record<string, any> {
+        const flattened: Record<string, any> = {};
+
+        Object.entries(obj).forEach(([key, value]) => {
+            const keyPath = prefix ? `${prefix}.${key}` : key;
+
+            if (value && typeof value === 'object' && !Array.isArray(value)) {
+                Object.assign(flattened, UserManager.flattenObject(value, keyPath));
+            } else if (value !== undefined) {
+                flattened[keyPath] = value;
+            }
+        });
+
+        return flattened;
+    }
+
     async create(name: string, discordID?: string): Promise<UserConfig> {
         const userConfig = new UserConfigModel({
             name,
@@ -20,9 +36,26 @@ export default class UserManager {
     }
 
     async update(userId: Types.ObjectId, updates: UpdateUserConfigRequest): Promise<UserConfig | null> {
+        const set: Record<string, any> = {};
+        const unset: Record<string, any> = {};
+
+        const flatUpdates = UserManager.flattenObject(updates);
+
+        Object.entries(flatUpdates).forEach(([key, value]) => {
+            if (value === null) {
+                unset[key] = "";
+            } else {
+                set[key] = value;
+            }
+        });
+
+        const updateOperation: Record<string, any> = {};
+        if (Object.keys(set).length > 0) updateOperation.$set = set;
+        if (Object.keys(unset).length > 0) updateOperation.$unset = unset;
+
         return UserConfigModel.findByIdAndUpdate(
             userId,
-            { $set: updates },
+            updateOperation,
             { new: true }
         );
     }
@@ -37,9 +70,11 @@ export default class UserManager {
         return UserConfigModel.exists({ discordID })
             .then(result => result !== null);
     }
+
     async getByDiscordID(discordID: string): Promise<UserConfig | null> {
         return UserConfigModel.findOne({ discordID });
     }
+
     async getAllWithTracking(): Promise<UserConfig[]> {
         return UserConfigModel.find({ taskListTracking: { $exists: true, $ne: null } });
     }
