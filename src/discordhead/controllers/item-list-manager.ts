@@ -1,14 +1,14 @@
 import { Client, Message, TextChannel } from 'discord.js';
-import { TaskData } from "../../server/models/mongo/task";
+import { ItemData } from "../../server/models/mongo/item-data";
 import UserManager from "../../server/controllers/user-manager";
-import TaskManager from "../../server/controllers/task-manager";
+import ItemManager from "../../server/controllers/item-manager";
 import { UserConfig } from "../../server/models/mongo/user-config";
 import { Types } from 'mongoose';
 
-interface TaskCategories {
-    overdue: TaskData[];
-    upcoming: TaskData[];
-    undated: TaskData[];
+interface ItemCategories {
+    overdue: ItemData[];
+    upcoming: ItemData[];
+    undated: ItemData[];
 }
 
 interface Tracker {
@@ -18,16 +18,16 @@ interface Tracker {
     discordId: string;  // Keep Discord ID for Discord-specific operations
 }
 
-export default class TaskListManager {
-    private static instance: TaskListManager;
+export default class ItemListManager {
+    private static instance: ItemListManager;
     private activeTrackers: Map<string, Tracker> = new Map();  // Key is userId string
     private client: Client | null = null;
 
-    static getInstance(): TaskListManager {
-        if (!TaskListManager.instance) {
-            TaskListManager.instance = new TaskListManager();
+    static getInstance(): ItemListManager {
+        if (!ItemListManager.instance) {
+            ItemListManager.instance = new ItemListManager();
         }
-        return TaskListManager.instance;
+        return ItemListManager.instance;
     }
 
     setClient(client: Client) {
@@ -40,38 +40,38 @@ export default class TaskListManager {
         const users = await UserManager.getInstance().getAllWithTracking();
 
         for (const user of users) {
-            if (!user.taskListTracking || !user.discordID) continue;
+            if (!user.itemListTracking || !user.discordID) continue;
 
             try {
-                const channel = await this.client.channels.fetch(user.taskListTracking.channelId);
+                const channel = await this.client.channels.fetch(user.itemListTracking.channelId);
                 if (!(channel instanceof TextChannel)) continue;
 
-                const message = await channel.messages.fetch(user.taskListTracking.messageId).catch(() => null);
+                const message = await channel.messages.fetch(user.itemListTracking.messageId).catch(() => null);
                 if (!message) {
-                    await UserManager.getInstance().update(user._id, { taskListTracking: undefined });
+                    await UserManager.getInstance().update(user._id, { itemListTracking: undefined });
                     continue;
                 }
 
-                await this.startTracking(user.taskListTracking.channelId, user._id.toString(), user.discordID, message);
+                await this.startTracking(user.itemListTracking.channelId, user._id.toString(), user.discordID, message);
             } catch (error) {
                 console.error('Error initializing tracker:', error);
-                await UserManager.getInstance().update(user._id, { taskListTracking: undefined });
+                await UserManager.getInstance().update(user._id, { itemListTracking: undefined });
             }
         }
     }
 
-    static formatTaskList(tasks: TaskData[], user: UserConfig, autoUpdate: boolean = false): string {
+    static formatItemList(items: ItemData[], user: UserConfig, autoUpdate: boolean = false): string {
         const now = new Date();
 
-        const categorizedTasks = tasks
-            .filter(task => !task.completed)
-            .reduce<TaskCategories>((acc, task) => {
-                if (!task.dueDate) {
-                    acc.undated.push(task);
-                } else if (task.dueDate < now) {
-                    acc.overdue.push(task);
+        const categorizedItems = items
+            .filter(item => !item.completed)
+            .reduce<ItemCategories>((acc, item) => {
+                if (!item.dueDate) {
+                    acc.undated.push(item);
+                } else if (item.dueDate < now) {
+                    acc.overdue.push(item);
                 } else {
-                    acc.upcoming.push(task);
+                    acc.upcoming.push(item);
                 }
                 return acc;
             }, {
@@ -80,40 +80,40 @@ export default class TaskListManager {
                 undated: []
             });
 
-        categorizedTasks.overdue.sort((a, b) => a.dueDate!.getTime() - b.dueDate!.getTime());
-        categorizedTasks.upcoming.sort((a, b) => a.dueDate!.getTime() - b.dueDate!.getTime());
-        categorizedTasks.undated.sort((a, b) => a.name.localeCompare(b.name));
+        categorizedItems.overdue.sort((a, b) => a.dueDate!.getTime() - b.dueDate!.getTime());
+        categorizedItems.upcoming.sort((a, b) => a.dueDate!.getTime() - b.dueDate!.getTime());
+        categorizedItems.undated.sort((a, b) => a.name.localeCompare(b.name));
 
-        const sections = [`# Task List for ${user.name}`];
+        const sections = [`# Item List for ${user.name}`];
 
-        if (categorizedTasks.overdue.length > 0) {
-            const overdueTasks = categorizedTasks.overdue
-                .map((task, index) => {
-                    const timestamp = Math.floor(task.dueDate!.getTime() / 1000);
-                    return `${index + 1}. ${task.name} (<t:${timestamp}:R>)`;
+        if (categorizedItems.overdue.length > 0) {
+            const overdueItems = categorizedItems.overdue
+                .map((item, index) => {
+                    const timestamp = Math.floor(item.dueDate!.getTime() / 1000);
+                    return `${index + 1}. ${item.name} (<t:${timestamp}:R>)`;
                 })
                 .join('\n');
-            sections.push(`**Overdue:**\n${overdueTasks}`);
+            sections.push(`**Overdue:**\n${overdueItems}`);
         }
 
-        if (categorizedTasks.upcoming.length > 0) {
-            const upcomingTasks = categorizedTasks.upcoming
-                .map((task, index) => {
-                    const timestamp = Math.floor(task.dueDate!.getTime() / 1000);
-                    return `${index + 1}. ${task.name} (<t:${timestamp}:R>)`;
+        if (categorizedItems.upcoming.length > 0) {
+            const upcomingItems = categorizedItems.upcoming
+                .map((item, index) => {
+                    const timestamp = Math.floor(item.dueDate!.getTime() / 1000);
+                    return `${index + 1}. ${item.name} (<t:${timestamp}:R>)`;
                 })
                 .join('\n');
-            sections.push(`**Upcoming:**\n${upcomingTasks}`);
+            sections.push(`**Upcoming:**\n${upcomingItems}`);
         }
 
-        if (categorizedTasks.undated.length > 0) {
-            const undatedTasks = categorizedTasks.undated
-                .map((task, index) => `${index + 1}. ${task.name}`)
+        if (categorizedItems.undated.length > 0) {
+            const undatedItems = categorizedItems.undated
+                .map((item, index) => `${index + 1}. ${item.name}`)
                 .join('\n');
-            sections.push(`**Undated:**\n${undatedTasks}`);
+            sections.push(`**Undated:**\n${undatedItems}`);
         }
 
-        if (sections.length === 1) sections.push('No pending tasks');
+        if (sections.length === 1) sections.push('No pending items');
 
         if (autoUpdate) sections.push(`*Last updated: <t:${Math.floor(Date.now() / 1000)}:R>*`);
 
@@ -140,8 +140,8 @@ export default class TaskListManager {
                 return;
             }
 
-            const updatedTasks = await TaskManager.getInstance().getAllByUser(user._id);
-            const updatedList = TaskListManager.formatTaskList(updatedTasks, user, true);
+            const updatedItems = await ItemManager.getInstance().getAllByUser(user._id);
+            const updatedList = ItemListManager.formatItemList(updatedItems, user, true);
             await message.edit(updatedList);
         } catch (error: unknown) {
             if (error && typeof error === 'object' && 'code' in error) {
@@ -150,7 +150,7 @@ export default class TaskListManager {
                     return;
                 }
             }
-            console.error('Error updating task list:', error);
+            console.error('Error updating item list:', error);
         }
     }
 
@@ -177,8 +177,8 @@ export default class TaskListManager {
                 if (!messageCheck) return false;
                 message = messageCheck;
             } else {
-                const tasks = await TaskManager.getInstance().getAllByUser(user._id);
-                const formattedList = TaskListManager.formatTaskList(tasks, user, true);
+                const items = await ItemManager.getInstance().getAllByUser(user._id);
+                const formattedList = ItemListManager.formatItemList(items, user, true);
                 message = await channel.send(formattedList);
             }
 
@@ -195,7 +195,7 @@ export default class TaskListManager {
 
             if (!existingMessage) {
                 await UserManager.getInstance().update(user._id, {
-                    taskListTracking: {
+                    itemListTracking: {
                         channelId,
                         messageId: message.id
                     }
@@ -204,7 +204,7 @@ export default class TaskListManager {
 
             return true;
         } catch (error) {
-            console.error('Error starting task tracking:', error);
+            console.error('Error starting item tracking:', error);
             return false;
         }
     }
@@ -216,7 +216,7 @@ export default class TaskListManager {
             this.activeTrackers.delete(userId);
 
             UserManager.getInstance()
-                .update(new Types.ObjectId(userId), { taskListTracking: undefined })
+                .update(new Types.ObjectId(userId), { itemListTracking: undefined })
                 .catch(console.error);
         }
     }

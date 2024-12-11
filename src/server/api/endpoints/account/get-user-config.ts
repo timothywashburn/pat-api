@@ -14,14 +14,14 @@ interface UserConfig {
     name: string;
     timezone: string;
     discordID?: string;
-    taskListTracking?: {
+    itemListTracking?: {
         channelId: string;
         messageId: string;
     };
     iosApp?: {
         panels: Panel[];
-        taskCategories: string[];
-        taskTypes: string[];
+        itemCategories: string[];
+        itemTypes: string[];
     };
 }
 
@@ -89,11 +89,11 @@ export const getUserConfigEndpoint: ApiEndpoint<unknown, GetUserConfigResponse> 
                     name: user.name,
                     timezone: user.timezone,
                     discordID: user.discordID || undefined,
-                    taskListTracking: user.taskListTracking || undefined,
+                    itemListTracking: user.itemListTracking || undefined,
                     iosApp: {
                         panels: transformedPanels,
-                        taskCategories: user.iosApp.taskCategories,
-                        taskTypes: user.iosApp.taskTypes
+                        itemCategories: user.iosApp.itemCategories,
+                        itemTypes: user.iosApp.itemTypes
                     }
                 }
             };

@@ -1,24 +1,24 @@
 import { ApiEndpoint } from '../../types';
-import TaskManager from '../../../controllers/task-manager';
+import ItemManager from '../../../controllers/item-manager';
 import { Types } from 'mongoose';
 
-interface DeleteTaskResponse {
+interface DeleteItemResponse {
     deleted: boolean;
 }
 
-export const deleteTaskEndpoint: ApiEndpoint<unknown, DeleteTaskResponse> = {
-    path: '/api/tasks/:taskId',
+export const deleteItemEndpoint: ApiEndpoint<unknown, DeleteItemResponse> = {
+    path: '/api/items/:itemId',
     method: 'delete',
     auth: 'verifiedEmail',
     handler: async (req, res) => {
         try {
-            const taskId = new Types.ObjectId(req.params.taskId);
-            const deleted = await TaskManager.getInstance().delete(taskId);
+            const itemId = new Types.ObjectId(req.params.itemId);
+            const deleted = await ItemManager.getInstance().delete(itemId);
 
             if (!deleted) {
                 res.status(404).json({
                     success: false,
-                    error: 'Task not found'
+                    error: 'Item not found'
                 });
                 return;
             }
@@ -32,7 +32,7 @@ export const deleteTaskEndpoint: ApiEndpoint<unknown, DeleteTaskResponse> = {
         } catch (error) {
             res.status(400).json({
                 success: false,
-                error: 'Failed to delete task'
+                error: 'Failed to delete item'
             });
         }
     }

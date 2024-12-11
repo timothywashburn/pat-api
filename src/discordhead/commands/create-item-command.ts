@@ -1,16 +1,16 @@
 import { CommandInteraction, CommandInteractionOptionResolver } from 'discord.js';
 import Command from "../models/command";
-import TaskManager from "../../server/controllers/task-manager";
+import ItemManager from "../../server/controllers/item-manager";
 import UserManager from "../../server/controllers/user-manager";
 
-export default class CreateTaskCommand extends Command {
+export default class CreateItemCommand extends Command {
     constructor() {
-        super('create', 'Create a new task');
+        super('create', 'Create a new item');
         this.data
             .addStringOption(option =>
                 option
                     .setName('name')
-                    .setDescription('The name of the task')
+                    .setDescription('The name of the item')
                     .setRequired(true)
             )
             .addStringOption(option =>
@@ -22,7 +22,7 @@ export default class CreateTaskCommand extends Command {
             .addStringOption(option =>
                 option
                     .setName('notes')
-                    .setDescription('Additional notes for the task')
+                    .setDescription('Additional notes for the item')
                     .setRequired(false)
             );
     }
@@ -67,9 +67,9 @@ export default class CreateTaskCommand extends Command {
             return;
         }
 
-        const existingTasks = await TaskManager.getInstance().getAllByUser(user._id);
-        if (existingTasks.some(task => task.name.toLowerCase() === name.toLowerCase())) {
-            await interaction.reply({ content: 'A task with this name already exists', ephemeral: true });
+        const existingItems = await ItemManager.getInstance().getAllByUser(user._id);
+        if (existingItems.some(item => item.name.toLowerCase() === name.toLowerCase())) {
+            await interaction.reply({ content: 'A item with this name already exists', ephemeral: true });
             return;
         }
 
@@ -86,14 +86,14 @@ export default class CreateTaskCommand extends Command {
             dueDate = parsedDate;
         }
 
-        const task = await TaskManager.getInstance().create(user._id, {
+        const item = await ItemManager.getInstance().create(user._id, {
             name,
             dueDate,
             notes
         });
 
         await interaction.reply(
-            `Task "${task.name}" created successfully${
+            `Item "${item.name}" created successfully${
                 dueDate
                     ? ` (due: <t:${Math.floor(dueDate.getTime() / 1000)}:f>)`
                     : ''

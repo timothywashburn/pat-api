@@ -1,16 +1,16 @@
-import TaskManager from "../../server/controllers/task-manager";
+import ItemManager from "../../server/controllers/item-manager";
 import Command from "../models/command";
 import {AutocompleteInteraction, CommandInteraction, CommandInteractionOptionResolver} from "discord.js";
 import UserManager from "../../server/controllers/user-manager";
 
-export default class DeleteTaskCommand extends Command {
+export default class DeleteItemCommand extends Command {
     constructor() {
-        super('delete', 'Delete a task');
+        super('delete', 'Delete a item');
         this.data
             .addStringOption(option =>
                 option
                     .setName('name')
-                    .setDescription('The name of the task to delete')
+                    .setDescription('The name of the item to delete')
                     .setRequired(true)
                     .setAutocomplete(true)
             );
@@ -25,15 +25,15 @@ export default class DeleteTaskCommand extends Command {
             return;
         }
 
-        const tasks = await TaskManager.getInstance().getAllByUser(user._id);
-        const filtered = tasks
-            .filter(task =>
-                task.name.toLowerCase().includes(focusedOption.value.toLowerCase())
+        const items = await ItemManager.getInstance().getAllByUser(user._id);
+        const filtered = items
+            .filter(item =>
+                item.name.toLowerCase().includes(focusedOption.value.toLowerCase())
             )
             .slice(0, 25)
-            .map(task => ({
-                name: task.name,
-                value: task.name
+            .map(item => ({
+                name: item.name,
+                value: item.name
             }));
 
         await interaction.respond(filtered);
@@ -41,7 +41,7 @@ export default class DeleteTaskCommand extends Command {
 
     async execute(interaction: CommandInteraction): Promise<void> {
         const options = interaction.options as CommandInteractionOptionResolver;
-        const taskName = options.getString('name', true);
+        const itemName = options.getString('name', true);
         const user = await UserManager.getInstance().getByDiscordID(interaction.user.id);
 
         if (!user) {
@@ -49,15 +49,15 @@ export default class DeleteTaskCommand extends Command {
             return;
         }
 
-        const tasks = await TaskManager.getInstance().getAllByUser(user._id);
-        const taskToDelete = tasks.find(task => task.name.toLowerCase() === taskName.toLowerCase());
+        const items = await ItemManager.getInstance().getAllByUser(user._id);
+        const itemToDelete = items.find(item => item.name.toLowerCase() === itemName.toLowerCase());
 
-        if (!taskToDelete) {
-            await interaction.reply({ content: 'Task not found', ephemeral: true });
+        if (!itemToDelete) {
+            await interaction.reply({ content: 'Item not found', ephemeral: true });
             return;
         }
 
-        await TaskManager.getInstance().delete(taskToDelete._id);
-        await interaction.reply(`Task "${taskName}" deleted successfully`);
+        await ItemManager.getInstance().delete(itemToDelete._id);
+        await interaction.reply(`Item "${itemName}" deleted successfully`);
     }
 }

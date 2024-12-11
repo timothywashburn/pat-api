@@ -1,8 +1,8 @@
-import { Types } from "mongoose";
-import { TaskData, TaskModel } from "../models/mongo/task";
+import {Types} from "mongoose";
+import {ItemData, ItemModel} from "../models/mongo/item-data";
 
-export default class TaskManager {
-    private static instance: TaskManager;
+export default class ItemManager {
+    private static instance: ItemManager;
 
     private constructor() {}
 
@@ -13,8 +13,8 @@ export default class TaskManager {
         urgent?: boolean;
         category?: string | null;
         type?: string | null;
-    }): Promise<TaskData> {
-        const todo = new TaskModel({
+    }): Promise<ItemData> {
+        const todo = new ItemModel({
             userId,
             ...data,
             completed: false,
@@ -25,23 +25,23 @@ export default class TaskManager {
         return todo.save();
     }
 
-    getById(todoId: Types.ObjectId): Promise<TaskData | null> {
-        return TaskModel.findById(todoId);
+    getById(todoId: Types.ObjectId): Promise<ItemData | null> {
+        return ItemModel.findById(todoId);
     }
 
-    getAllByUser(userId: Types.ObjectId): Promise<TaskData[]> {
-        return TaskModel.find({ userId });
+    getAllByUser(userId: Types.ObjectId): Promise<ItemData[]> {
+        return ItemModel.find({ userId });
     }
 
-    getPending(userId: Types.ObjectId): Promise<TaskData[]> {
-        return TaskModel.find({
+    getPending(userId: Types.ObjectId): Promise<ItemData[]> {
+        return ItemModel.find({
             userId,
             completed: false
         }).sort({ dueDate: 1 });
     }
 
-    getOverdue(userId: Types.ObjectId): Promise<TaskData[]> {
-        return TaskModel.find({
+    getOverdue(userId: Types.ObjectId): Promise<ItemData[]> {
+        return ItemModel.find({
             userId,
             completed: false,
             dueDate: { $lt: new Date() }
@@ -50,8 +50,8 @@ export default class TaskManager {
 
     update(
         todoId: Types.ObjectId,
-        updates: Partial<Omit<TaskData, '_id' | 'userId' | 'createdAt' | 'updatedAt'>>
-    ): Promise<TaskData | null> {
+        updates: Partial<Omit<ItemData, '_id' | 'userId' | 'createdAt' | 'updatedAt'>>
+    ): Promise<ItemData | null> {
 
         const set: any = {};
         const unset: any = {};
@@ -68,32 +68,31 @@ export default class TaskManager {
         if (Object.keys(set).length > 0) updateOperation.$set = set;
         if (Object.keys(unset).length > 0) updateOperation.$unset = unset;
 
-        return TaskModel.findByIdAndUpdate(
+        return ItemModel.findByIdAndUpdate(
             todoId,
             updateOperation,
             { new: true }
         );
     }
 
-    async setCompleted(taskId: Types.ObjectId, completed: boolean) {
-        const task = await TaskModel.findByIdAndUpdate(
-            taskId,
-            { $set: { completed } },
-            { new: true }
+    async setCompleted(itemId: Types.ObjectId, completed: boolean) {
+        return ItemModel.findByIdAndUpdate(
+            itemId,
+            {$set: {completed}},
+            {new: true}
         );
-        return task;
     }
 
-    async clearTaskCategory(userId: Types.ObjectId, category: string): Promise<number> {
-        const result = await TaskModel.updateMany(
+    async clearItemCategory(userId: Types.ObjectId, category: string): Promise<number> {
+        const result = await ItemModel.updateMany(
             { userId, category },
             { $set: { category: null } }
         );
         return result.modifiedCount;
     }
 
-    async clearTaskType(userId: Types.ObjectId, type: string): Promise<number> {
-        const result = await TaskModel.updateMany(
+    async clearItemType(userId: Types.ObjectId, type: string): Promise<number> {
+        const result = await ItemModel.updateMany(
             { userId, type },
             { $set: { type: null } }
         );
@@ -101,12 +100,12 @@ export default class TaskManager {
     }
 
     delete(todoId: Types.ObjectId): Promise<boolean> {
-        return TaskModel.deleteOne({ _id: todoId })
+        return ItemModel.deleteOne({ _id: todoId })
             .then(result => result.deletedCount > 0);
     }
 
     deleteAllForUser(userId: Types.ObjectId): Promise<number> {
-        return TaskModel.deleteMany({ userId })
+        return ItemModel.deleteMany({ userId })
             .then(result => result.deletedCount);
     }
 
@@ -117,10 +116,10 @@ export default class TaskManager {
         overdue: number;
     }> {
         return Promise.all([
-            TaskModel.countDocuments({ userId }),
-            TaskModel.countDocuments({ userId, completed: true }),
-            TaskModel.countDocuments({ userId, completed: false }),
-            TaskModel.countDocuments({
+            ItemModel.countDocuments({ userId }),
+            ItemModel.countDocuments({ userId, completed: true }),
+            ItemModel.countDocuments({ userId, completed: false }),
+            ItemModel.countDocuments({
                 userId,
                 completed: false,
                 dueDate: { $lt: new Date() }
@@ -133,8 +132,8 @@ export default class TaskManager {
         }));
     }
 
-    static getInstance(): TaskManager {
-        if (!TaskManager.instance) TaskManager.instance = new TaskManager();
-        return TaskManager.instance;
+    static getInstance(): ItemManager {
+        if (!ItemManager.instance) ItemManager.instance = new ItemManager();
+        return ItemManager.instance;
     }
 }

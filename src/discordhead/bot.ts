@@ -9,14 +9,14 @@ import {
 import { Routes } from 'discord-api-types/v10';
 import Command from "./models/command";
 import PingCommand from "./commands/ping";
-import CreateTaskCommand from "./commands/create-task-command";
-import DeleteTaskCommand from "./commands/delete-task-command";
-import ListTasksCommand from "./commands/list-tasks-command";
+import CreateItemCommand from "./commands/create-item-command";
+import DeleteItemCommand from "./commands/delete-item-command";
+import ListItemsCommand from "./commands/list-items-command";
 import CreateUserCommand from "./commands/create-user-command";
-import CompleteTaskCommand from "./commands/complete-task-command";
+import CompleteItemCommand from "./commands/complete-item-command";
 import ConfigManager from "../server/controllers/config-manager";
 import SetupCommand from "./commands/setup-command";
-import TaskListManager from "./controllers/task-list-manager";
+import ItemListManager from "./controllers/item-list-manager";
 import DiscordLogger from "./controllers/discord-logger";
 import LinkAccountCommand from "./commands/link-account-command";
 
@@ -42,8 +42,8 @@ export default class Bot {
             console.log(`logged in as ${this.client.user?.tag}`);
 
             DiscordLogger.getInstance().setClient(this.client);
-            TaskListManager.getInstance().setClient(this.client);
-            await TaskListManager.getInstance().initializeTrackers();
+            ItemListManager.getInstance().setClient(this.client);
+            await ItemListManager.getInstance().initializeTrackers();
 
             this.client.on('interactionCreate', async (interaction: Interaction) => {
                 if (interaction instanceof AutocompleteInteraction) {
@@ -83,10 +83,10 @@ export default class Bot {
 
     private async loadCommands() {
         this.commands = [
-            new CreateTaskCommand(),
-            new CompleteTaskCommand(),
-            new DeleteTaskCommand(),
-            new ListTasksCommand(),
+            new CreateItemCommand(),
+            new CompleteItemCommand(),
+            new DeleteItemCommand(),
+            new ListItemsCommand(),
             new CreateUserCommand(),
             new LinkAccountCommand(),
             new SetupCommand(),

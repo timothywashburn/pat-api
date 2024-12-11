@@ -15,7 +15,7 @@ const userConfigSchema = new Schema({
         sparse: true,
         index: true
     },
-    taskListTracking: {
+    itemListTracking: {
         type: {
             channelId: {
                 type: String, required: true
@@ -39,11 +39,11 @@ const userConfigSchema = new Schema({
                     }
                 }
             }],
-            taskCategories: [{
+            itemCategories: [{
                 type: String,
                 trim: true
             }],
-            taskTypes: [{
+            itemTypes: [{
                 type: String,
                 trim: true
             }]
@@ -55,8 +55,8 @@ const userConfigSchema = new Schema({
                 { panel: 'inbox', visible: true },
                 { panel: 'settings', visible: true }
             ],
-            taskCategories: ['School', 'Work', 'Personal'],
-            taskTypes: ['Assignment', 'Project']
+            itemCategories: ['School', 'Work', 'Personal'],
+            itemTypes: ['Assignment', 'Project']
         }
     }
 }, {

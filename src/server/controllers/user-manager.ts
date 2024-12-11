@@ -76,7 +76,7 @@ export default class UserManager {
     }
 
     async getAllWithTracking(): Promise<UserConfig[]> {
-        return UserConfigModel.find({ taskListTracking: { $exists: true, $ne: null } });
+        return UserConfigModel.find({ itemListTracking: { $exists: true, $ne: null } });
     }
 
     static getInstance(): UserManager {

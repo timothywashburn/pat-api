@@ -7,7 +7,7 @@ interface UserConfigData {
     name: string;
     timezone: string;
     discordID?: string;
-    taskListTracking?: {
+    itemListTracking?: {
         channelId: string;
         messageId: string;
     };

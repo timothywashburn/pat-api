@@ -1,13 +1,13 @@
 import { CommandInteraction, CommandInteractionOptionResolver } from 'discord.js';
 import Command from "../models/command";
 import UserManager from "../../server/controllers/user-manager";
-import TaskListManager from "../controllers/task-list-manager";
+import ItemListManager from "../controllers/item-list-manager";
 import ConfigManager from "../../server/controllers/config-manager";
 import DiscordLogger from "../controllers/discord-logger";
 
 export default class SetupCommand extends Command {
     constructor() {
-        super('setup', 'Setup automated task list updates and logging');
+        super('setup', 'Setup automated item list updates and logging');
         this.data
             .addStringOption(option =>
                 option
@@ -15,7 +15,7 @@ export default class SetupCommand extends Command {
                     .setDescription('What to set up')
                     .setRequired(true)
                     .addChoices(
-                        { name: 'Task List', value: 'list' },
+                        { name: 'Item List', value: 'list' },
                         { name: 'Log Channel', value: 'logs' }
                     )
             );
@@ -60,8 +60,8 @@ export default class SetupCommand extends Command {
             return;
         }
 
-        const isTracking = TaskListManager.getInstance().isTracking(user._id.toString());
-        const success = await TaskListManager.getInstance().startTracking(
+        const isTracking = ItemListManager.getInstance().isTracking(user._id.toString());
+        const success = await ItemListManager.getInstance().startTracking(
             interaction.channelId,
             user._id.toString(),
             interaction.user.id
@@ -69,8 +69,8 @@ export default class SetupCommand extends Command {
 
         await interaction.reply({
             content: success
-                ? `Task list tracking has been ${isTracking ? 'moved to' : 'set up in'} this channel. It will update every 10 seconds.`
-                : 'Failed to set up task list tracking. Please try again later.',
+                ? `Item list tracking has been ${isTracking ? 'moved to' : 'set up in'} this channel. It will update every 10 seconds.`
+                : 'Failed to set up item list tracking. Please try again later.',
             ephemeral: true
         });
     }

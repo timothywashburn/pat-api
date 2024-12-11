@@ -1,16 +1,16 @@
 import { AutocompleteInteraction, CommandInteraction, CommandInteractionOptionResolver } from 'discord.js';
 import Command from "../models/command";
-import TaskManager from "../../server/controllers/task-manager";
+import ItemManager from "../../server/controllers/item-manager";
 import UserManager from "../../server/controllers/user-manager";
 
-export default class CompleteTaskCommand extends Command {
+export default class CompleteItemCommand extends Command {
     constructor() {
-        super('complete', 'Mark a task as completed');
+        super('complete', 'Mark a item as completed');
         this.data
             .addStringOption(option =>
                 option
                     .setName('name')
-                    .setDescription('The name of the task to mark as completed')
+                    .setDescription('The name of the item to mark as completed')
                     .setRequired(true)
                     .setAutocomplete(true)
             );
@@ -25,16 +25,16 @@ export default class CompleteTaskCommand extends Command {
             return;
         }
 
-        const tasks = await TaskManager.getInstance().getAllByUser(user._id);
-        const filtered = tasks
-            .filter(task =>
-                !task.completed &&
-                task.name.toLowerCase().includes(focusedOption.value.toLowerCase())
+        const items = await ItemManager.getInstance().getAllByUser(user._id);
+        const filtered = items
+            .filter(item =>
+                !item.completed &&
+                item.name.toLowerCase().includes(focusedOption.value.toLowerCase())
             )
             .slice(0, 25)
-            .map(task => ({
-                name: task.name,
-                value: task.name
+            .map(item => ({
+                name: item.name,
+                value: item.name
             }));
 
         await interaction.respond(filtered);
@@ -42,7 +42,7 @@ export default class CompleteTaskCommand extends Command {
 
     async execute(interaction: CommandInteraction): Promise<void> {
         const options = interaction.options as CommandInteractionOptionResolver;
-        const taskName = options.getString('name', true);
+        const itemName = options.getString('name', true);
         const user = await UserManager.getInstance().getByDiscordID(interaction.user.id);
 
         if (!user) {
@@ -50,33 +50,33 @@ export default class CompleteTaskCommand extends Command {
             return;
         }
 
-        const tasks = await TaskManager.getInstance().getAllByUser(user._id);
-        const taskToComplete = tasks.find(task =>
-            task.name.toLowerCase() === taskName.toLowerCase() && !task.completed
+        const items = await ItemManager.getInstance().getAllByUser(user._id);
+        const itemToComplete = items.find(item =>
+            item.name.toLowerCase() === itemName.toLowerCase() && !item.completed
         );
 
-        if (!taskToComplete) {
+        if (!itemToComplete) {
             await interaction.reply({
-                content: 'Task not found or already completed',
+                content: 'Item not found or already completed',
                 ephemeral: true
             });
             return;
         }
 
-        const updatedTask = await TaskManager.getInstance().setCompleted(taskToComplete._id, true);
+        const updatedItem = await ItemManager.getInstance().setCompleted(itemToComplete._id, true);
 
-        if (!updatedTask) {
+        if (!updatedItem) {
             await interaction.reply({
-                content: 'An error occurred while completing the task',
+                content: 'An error occurred while completing the item',
                 ephemeral: true
             });
             return;
         }
 
         await interaction.reply(
-            `✅ Task "${taskName}" marked as complete${
-                taskToComplete.dueDate
-                    ? taskToComplete.dueDate < new Date()
+            `✅ Item "${itemName}" marked as complete${
+                itemToComplete.dueDate
+                    ? itemToComplete.dueDate < new Date()
                         ? ' (completed overdue)'
                         : ' (completed on time)'
                     : ''

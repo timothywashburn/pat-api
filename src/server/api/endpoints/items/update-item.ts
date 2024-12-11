@@ -1,9 +1,9 @@
 import { ApiEndpoint } from '../../types';
-import TaskManager from '../../../controllers/task-manager';
+import ItemManager from '../../../controllers/item-manager';
 import { Types } from 'mongoose';
 import { z } from 'zod';
 
-const updateTaskSchema = z.object({
+const updateItemSchema = z.object({
     name: z.string().min(1).optional(),
     dueDate: z.string().nullish(),
     notes: z.string().optional(),
@@ -12,10 +12,10 @@ const updateTaskSchema = z.object({
     type: z.string().nullish()
 });
 
-type UpdateTaskRequest = z.infer<typeof updateTaskSchema>;
+type UpdateItemRequest = z.infer<typeof updateItemSchema>;
 
-interface UpdateTaskResponse {
-    task: {
+interface UpdateItemResponse {
+    item: {
         id: string;
         name: string;
         dueDate?: string;
@@ -27,16 +27,16 @@ interface UpdateTaskResponse {
     };
 }
 
-export const updateTaskEndpoint: ApiEndpoint<UpdateTaskRequest, UpdateTaskResponse> = {
-    path: '/api/tasks/:taskId',
+export const updateItemEndpoint: ApiEndpoint<UpdateItemRequest, UpdateItemResponse> = {
+    path: '/api/items/:itemId',
     method: 'put',
     auth: 'verifiedEmail',
     handler: async (req, res) => {
         try {
-            const data = updateTaskSchema.parse(req.body);
-            const taskId = new Types.ObjectId(req.params.taskId);
+            const data = updateItemSchema.parse(req.body);
+            const itemId = new Types.ObjectId(req.params.itemId);
 
-            const task = await TaskManager.getInstance().update(taskId, {
+            const item = await ItemManager.getInstance().update(itemId, {
                 name: data.name,
                 dueDate: data.dueDate ? new Date(data.dueDate) : null,
                 notes: data.notes,
@@ -45,10 +45,10 @@ export const updateTaskEndpoint: ApiEndpoint<UpdateTaskRequest, UpdateTaskRespon
                 type: data.type ?? null
             });
 
-            if (!task) {
+            if (!item) {
                 res.status(404).json({
                     success: false,
-                    error: 'Task not found'
+                    error: 'Item not found'
                 });
                 return;
             }
@@ -56,20 +56,20 @@ export const updateTaskEndpoint: ApiEndpoint<UpdateTaskRequest, UpdateTaskRespon
             res.json({
                 success: true,
                 data: {
-                    task: {
-                        id: task._id.toString(),
-                        name: task.name,
-                        dueDate: task.dueDate?.toISOString(),
-                        notes: task.notes,
-                        completed: task.completed,
-                        urgent: task.urgent,
-                        category: task.category ?? undefined,
-                        type: task.type ?? undefined
+                    item: {
+                        id: item._id.toString(),
+                        name: item.name,
+                        dueDate: item.dueDate?.toISOString(),
+                        notes: item.notes,
+                        completed: item.completed,
+                        urgent: item.urgent,
+                        category: item.category ?? undefined,
+                        type: item.type ?? undefined
                     }
                 }
             });
         } catch (error) {
-            let message = 'Failed to update task';
+            let message = 'Failed to update item';
 
             if (error instanceof z.ZodError) {
                 message = error.errors[0].message;

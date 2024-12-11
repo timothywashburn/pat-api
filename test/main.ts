@@ -4,17 +4,17 @@ import { resolve } from 'path';
 import chalk from 'chalk';
 import { runCreateAccountTest } from './tests/api/create-account.test';
 import { runLoginTest } from './tests/api/login.test';
-import { runGetTasksTest } from './tests/api/get-tasks.test';
+import { runGetItemsTest } from './tests/api/get-items.test';
 import {runSetupDiscordConfigTest} from "./tests/create-config";
-import {runCreateTasksTest} from "./tests/api/create-tasks.test";
-import {runDeleteTaskTest} from "./tests/api/delete-task.test";
+import {runCreateItemsTest} from "./tests/api/create-items.test";
+import {runDeleteItemTest} from "./tests/api/delete-item.test";
 import {runRefreshTokenTest} from "./tests/api/refresh-token.test";
-import {runCompleteTaskTest} from "./tests/api/complete-task.test";
+import {runCompleteItemTest} from "./tests/api/complete-item.test";
 import {runUpdateUserConfigTest} from "./tests/api/update-user-config.test";
 import {runGetUserConfigTest} from "./tests/api/get-user-config.test";
 import {runResendVerificationTest} from "./tests/api/resend-verification.test";
 import {runVerifyEmailTest} from "./tests/api/verify-email.test";
-import {runUpdateTaskTest} from "./tests/api/update-task.test";
+import {runUpdateItemTest} from "./tests/api/update-item.test";
 
 config({ path: resolve(__dirname, '../.env') });
 
@@ -24,7 +24,7 @@ export interface TestContext {
     authToken?: string;
     refreshToken?: string;
     emailVerificationToken?: string;
-    taskIds?: string[];
+    itemIds?: string[];
     account: {
         name: string;
         email: string;
@@ -46,11 +46,11 @@ const tests: Test[] = [
     { name: 'refresh token', run: runRefreshTokenTest },
     { name: 'get user config', run: runGetUserConfigTest },
     { name: 'update user config', run: runUpdateUserConfigTest },
-    { name: 'create tasks', run: runCreateTasksTest },
-    { name: 'delete task', run: runDeleteTaskTest },
-    { name: 'complete task', run: runCompleteTaskTest },
-    { name: 'update task', run: runUpdateTaskTest },
-    { name: 'get tasks', run: runGetTasksTest }
+    { name: 'create items', run: runCreateItemsTest },
+    { name: 'delete item', run: runDeleteItemTest },
+    { name: 'complete item', run: runCompleteItemTest },
+    { name: 'update item', run: runUpdateItemTest },
+    { name: 'get items', run: runGetItemsTest }
 ];
 
 async function runTests() {

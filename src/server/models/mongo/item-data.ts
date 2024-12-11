@@ -1,6 +1,6 @@
 import { Schema, model, Types } from 'mongoose';
 
-interface TaskData {
+interface ItemData {
     _id: Types.ObjectId;
     userId: Types.ObjectId;
 
@@ -16,7 +16,7 @@ interface TaskData {
     type?: string | null;
 }
 
-const taskSchema = new Schema<TaskData>({
+const itemSchema = new Schema<ItemData>({
     userId: {
         type: Schema.Types.ObjectId,
         required: true,
@@ -54,9 +54,9 @@ const taskSchema = new Schema<TaskData>({
     timestamps: true,
 });
 
-const TaskModel = model<TaskData>('Task', taskSchema);
+const ItemModel = model<ItemData>('Item', itemSchema);
 
 export {
-    TaskData,
-    TaskModel,
+    ItemData,
+    ItemModel,
 };

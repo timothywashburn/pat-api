@@ -1,6 +1,6 @@
 import { ApiEndpoint } from '../../types';
 import UserManager from '../../../controllers/user-manager';
-import TaskManager from '../../../controllers/task-manager';
+import ItemManager from '../../../controllers/item-manager';
 import { z } from 'zod';
 import {Types} from "mongoose";
 
@@ -19,7 +19,7 @@ const updateUserConfigSchema = z.object({
         })
         .nullish(),
     discordID: z.string().nullish(),
-    taskListTracking: z.object({
+    itemListTracking: z.object({
         channelId: z.string(),
         messageId: z.string()
     }).nullish(),
@@ -28,8 +28,8 @@ const updateUserConfigSchema = z.object({
             panel: z.enum(['agenda', 'tasks', 'inbox', 'settings']),
             visible: z.boolean()
         })).optional(),
-        taskCategories: z.array(z.string()).optional(),
-        taskTypes: z.array(z.string()).optional()
+        itemCategories: z.array(z.string()).optional(),
+        itemTypes: z.array(z.string()).optional()
     }).nullish()
 }).strict();
 
@@ -59,24 +59,24 @@ export const updateUserConfigEndpoint: ApiEndpoint<UpdateUserConfigRequest, Upda
                 return;
             }
 
-            if (data.iosApp?.taskCategories !== undefined) {
-                const removedCategories = (currentUser.iosApp?.taskCategories || [])
-                    .filter(cat => !data.iosApp!.taskCategories!.includes(cat));
+            if (data.iosApp?.itemCategories !== undefined) {
+                const removedCategories = (currentUser.iosApp?.itemCategories || [])
+                    .filter(cat => !data.iosApp!.itemCategories!.includes(cat));
 
                 for (const category of removedCategories) {
-                    await TaskManager.getInstance().clearTaskCategory(
+                    await ItemManager.getInstance().clearItemCategory(
                         new Types.ObjectId(userId),
                         category
                     );
                 }
             }
 
-            if (data.iosApp?.taskTypes !== undefined) {
-                const removedTypes = (currentUser.iosApp?.taskTypes || [])
-                    .filter(type => !data.iosApp!.taskTypes!.includes(type));
+            if (data.iosApp?.itemTypes !== undefined) {
+                const removedTypes = (currentUser.iosApp?.itemTypes || [])
+                    .filter(type => !data.iosApp!.itemTypes!.includes(type));
 
                 for (const type of removedTypes) {
-                    await TaskManager.getInstance().clearTaskType(
+                    await ItemManager.getInstance().clearItemType(
                         new Types.ObjectId(userId),
                         type
                     );
@@ -97,8 +97,8 @@ export const updateUserConfigEndpoint: ApiEndpoint<UpdateUserConfigRequest, Upda
                     panel: p.type?.panel || 'agenda',
                     visible: p.type?.visible || false
                 })),
-                taskCategories: updatedUser.iosApp.taskCategories,
-                taskTypes: updatedUser.iosApp.taskTypes
+                itemCategories: updatedUser.iosApp.itemCategories,
+                itemTypes: updatedUser.iosApp.itemTypes
             } : undefined;
 
             res.json({
@@ -109,7 +109,7 @@ export const updateUserConfigEndpoint: ApiEndpoint<UpdateUserConfigRequest, Upda
                         name: updatedUser.name,
                         timezone: updatedUser.timezone,
                         discordID: updatedUser.discordID,
-                        taskListTracking: updatedUser.taskListTracking,
+                        itemListTracking: updatedUser.itemListTracking,
                         iosApp: formattedIosApp
                     }
                 }

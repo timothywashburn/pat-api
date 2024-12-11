@@ -1,9 +1,9 @@
 import { ApiEndpoint } from '../../types';
-import TaskManager from '../../../controllers/task-manager';
+import ItemManager from '../../../controllers/item-manager';
 import { Types } from 'mongoose';
 import { z } from 'zod';
 
-const createTaskSchema = z.object({
+const createItemSchema = z.object({
     name: z.string().min(1),
     dueDate: z.string().nullish(),
     notes: z.string().optional(),
@@ -12,10 +12,10 @@ const createTaskSchema = z.object({
     type: z.string().nullish()
 });
 
-type CreateTaskRequest = z.infer<typeof createTaskSchema>;
+type CreateItemRequest = z.infer<typeof createItemSchema>;
 
-interface CreateTaskResponse {
-    task: {
+interface CreateItemResponse {
+    item: {
         id: string;
         name: string;
         dueDate?: string;
@@ -27,16 +27,16 @@ interface CreateTaskResponse {
     };
 }
 
-export const createTaskEndpoint: ApiEndpoint<CreateTaskRequest, CreateTaskResponse> = {
-    path: '/api/tasks',
+export const createItemEndpoint: ApiEndpoint<CreateItemRequest, CreateItemResponse> = {
+    path: '/api/items',
     method: 'post',
     auth: 'verifiedEmail',
     handler: async (req, res) => {
         try {
-            const data = createTaskSchema.parse(req.body);
+            const data = createItemSchema.parse(req.body);
             const userId = new Types.ObjectId(req.auth!.userId);
 
-            const task = await TaskManager.getInstance().create(userId, {
+            const item = await ItemManager.getInstance().create(userId, {
                 name: data.name,
                 dueDate: data.dueDate ? new Date(data.dueDate) : null,
                 notes: data.notes,
@@ -48,20 +48,20 @@ export const createTaskEndpoint: ApiEndpoint<CreateTaskRequest, CreateTaskRespon
             res.json({
                 success: true,
                 data: {
-                    task: {
-                        id: task._id.toString(),
-                        name: task.name,
-                        dueDate: task.dueDate?.toISOString(),
-                        notes: task.notes,
-                        completed: task.completed,
-                        urgent: task.urgent,
-                        category: task.category ?? undefined,
-                        type: task.type ?? undefined
+                    item: {
+                        id: item._id.toString(),
+                        name: item.name,
+                        dueDate: item.dueDate?.toISOString(),
+                        notes: item.notes,
+                        completed: item.completed,
+                        urgent: item.urgent,
+                        category: item.category ?? undefined,
+                        type: item.type ?? undefined
                     }
                 }
             });
         } catch (error) {
-            let message = 'Failed to create task';
+            let message = 'Failed to create item';
 
             if (error instanceof z.ZodError) {
                 message = error.errors[0].message;

@@ -1,19 +1,19 @@
 import express, { Router, Request, Response, NextFunction, RequestHandler } from 'express';
 import { ApiEndpoint, ApiRequest, ApiResponse } from '../api/types';
 import { loginEndpoint } from "../api/endpoints/auth/login";
-import { getTasksEndpoint } from "../api/endpoints/tasks/get-tasks";
+import { getItemsEndpoint } from "../api/endpoints/items/get-items";
 import AuthManager from './auth-manager';
-import {createTaskEndpoint} from "../api/endpoints/tasks/create-task";
-import {deleteTaskEndpoint} from "../api/endpoints/tasks/delete-task";
+import {createItemEndpoint} from "../api/endpoints/items/create-item";
+import {deleteItemEndpoint} from "../api/endpoints/items/delete-item";
 import {refreshTokenEndpoint} from "../api/endpoints/auth/refresh-token";
-import {completeTaskEndpoint} from "../api/endpoints/tasks/complete-task";
+import {completeItemEndpoint} from "../api/endpoints/items/complete-item";
 import {updateUserConfigEndpoint} from "../api/endpoints/account/update-user-config";
 import {getUserConfigEndpoint} from "../api/endpoints/account/get-user-config";
 import {registerEndpoint} from "../api/endpoints/auth/register";
 import {resendVerificationEndpoint} from "../api/endpoints/auth/resend-verification";
 import {verifyEmailEndpoint} from "../api/endpoints/auth/verify-email";
 import {AuthDataModel} from "../models/mongo/auth-data";
-import {updateTaskEndpoint} from "../api/endpoints/tasks/update-task";
+import {updateItemEndpoint} from "../api/endpoints/items/update-item";
 
 export default class ApiManager {
     private static instance: ApiManager;
@@ -36,11 +36,11 @@ export default class ApiManager {
         this.addEndpoint(resendVerificationEndpoint);
         this.addEndpoint(verifyEmailEndpoint);
 
-        this.addEndpoint(completeTaskEndpoint);
-        this.addEndpoint(createTaskEndpoint);
-        this.addEndpoint(deleteTaskEndpoint);
-        this.addEndpoint(getTasksEndpoint);
-        this.addEndpoint(updateTaskEndpoint);
+        this.addEndpoint(completeItemEndpoint);
+        this.addEndpoint(createItemEndpoint);
+        this.addEndpoint(deleteItemEndpoint);
+        this.addEndpoint(getItemsEndpoint);
+        this.addEndpoint(updateItemEndpoint);
     }
 
     private setupMiddleware() {
