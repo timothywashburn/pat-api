@@ -8,13 +8,19 @@ export default class TaskManager {
 
     create(userId: Types.ObjectId, data: {
         name: string;
-        dueDate?: Date;
+        dueDate?: Date | null;
         notes?: string;
+        urgent?: boolean;
+        category?: string | null;
+        type?: string | null;
     }): Promise<TaskData> {
         const todo = new TaskModel({
             userId,
             ...data,
-            completed: false
+            completed: false,
+            urgent: data.urgent ?? false,
+            category: data.category ?? null,
+            type: data.type ?? null
         });
         return todo.save();
     }

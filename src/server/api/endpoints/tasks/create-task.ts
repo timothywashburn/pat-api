@@ -2,12 +2,14 @@ import { ApiEndpoint } from '../../types';
 import TaskManager from '../../../controllers/task-manager';
 import { Types } from 'mongoose';
 import { z } from 'zod';
-import {shouldUseGlobalFetchAndWebSocket} from "discord.js";
 
 const createTaskSchema = z.object({
     name: z.string().min(1),
-    dueDate: z.string().optional(),
-    notes: z.string().optional()
+    dueDate: z.string().nullish(),
+    notes: z.string().optional(),
+    urgent: z.boolean().optional().default(false),
+    category: z.string().nullish(),
+    type: z.string().nullish()
 });
 
 type CreateTaskRequest = z.infer<typeof createTaskSchema>;
@@ -19,6 +21,9 @@ interface CreateTaskResponse {
         dueDate?: string;
         notes?: string;
         completed: boolean;
+        urgent: boolean;
+        category?: string;
+        type?: string;
     };
 }
 
@@ -33,8 +38,11 @@ export const createTaskEndpoint: ApiEndpoint<CreateTaskRequest, CreateTaskRespon
 
             const task = await TaskManager.getInstance().create(userId, {
                 name: data.name,
-                dueDate: data.dueDate ? new Date(data.dueDate) : undefined,
-                notes: data.notes
+                dueDate: data.dueDate ? new Date(data.dueDate) : null,
+                notes: data.notes,
+                urgent: data.urgent,
+                category: data.category ?? null,
+                type: data.type ?? null
             });
 
             res.json({
@@ -45,7 +53,10 @@ export const createTaskEndpoint: ApiEndpoint<CreateTaskRequest, CreateTaskRespon
                         name: task.name,
                         dueDate: task.dueDate?.toISOString(),
                         notes: task.notes,
-                        completed: task.completed
+                        completed: task.completed,
+                        urgent: task.urgent,
+                        category: task.category ?? undefined,
+                        type: task.type ?? undefined
                     }
                 }
             });
