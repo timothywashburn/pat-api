@@ -84,6 +84,22 @@ export default class TaskManager {
         return task;
     }
 
+    async clearTaskCategory(userId: Types.ObjectId, category: string): Promise<number> {
+        const result = await TaskModel.updateMany(
+            { userId, category },
+            { $set: { category: null } }
+        );
+        return result.modifiedCount;
+    }
+
+    async clearTaskType(userId: Types.ObjectId, type: string): Promise<number> {
+        const result = await TaskModel.updateMany(
+            { userId, type },
+            { $set: { type: null } }
+        );
+        return result.modifiedCount;
+    }
+
     delete(todoId: Types.ObjectId): Promise<boolean> {
         return TaskModel.deleteOne({ _id: todoId })
             .then(result => result.deletedCount > 0);

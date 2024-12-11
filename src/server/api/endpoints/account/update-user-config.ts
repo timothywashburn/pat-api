@@ -1,6 +1,8 @@
 import { ApiEndpoint } from '../../types';
 import UserManager from '../../../controllers/user-manager';
+import TaskManager from '../../../controllers/task-manager';
 import { z } from 'zod';
+import {Types} from "mongoose";
 
 const updateUserConfigSchema = z.object({
     name: z.string().min(1).nullish(),
@@ -47,14 +49,47 @@ export const updateUserConfigEndpoint: ApiEndpoint<UpdateUserConfigRequest, Upda
         try {
             const data: UpdateUserConfigRequest = updateUserConfigSchema.parse(req.body);
             const userId = req.auth!.userId!;
-            const updatedUser = await UserManager.getInstance().update(userId, data);
 
+            const currentUser = await UserManager.getInstance().getById(userId);
+            if (!currentUser) {
+                res.status(404).json({
+                    success: false,
+                    error: 'User not found'
+                });
+                return;
+            }
+
+            if (data.iosApp?.taskCategories !== undefined) {
+                const removedCategories = (currentUser.iosApp?.taskCategories || [])
+                    .filter(cat => !data.iosApp!.taskCategories!.includes(cat));
+
+                for (const category of removedCategories) {
+                    await TaskManager.getInstance().clearTaskCategory(
+                        new Types.ObjectId(userId),
+                        category
+                    );
+                }
+            }
+
+            if (data.iosApp?.taskTypes !== undefined) {
+                const removedTypes = (currentUser.iosApp?.taskTypes || [])
+                    .filter(type => !data.iosApp!.taskTypes!.includes(type));
+
+                for (const type of removedTypes) {
+                    await TaskManager.getInstance().clearTaskType(
+                        new Types.ObjectId(userId),
+                        type
+                    );
+                }
+            }
+
+            const updatedUser = await UserManager.getInstance().update(userId, data);
             if (!updatedUser) {
                 res.status(404).json({
                     success: false,
                     error: 'User not found'
                 });
-                return
+                return;
             }
 
             const formattedIosApp = updatedUser.iosApp ? {
@@ -92,7 +127,7 @@ export const updateUserConfigEndpoint: ApiEndpoint<UpdateUserConfigRequest, Upda
             res.status(400).json({
                 success: false,
                 error: message
-            })
+            });
         }
     }
-}
+};
