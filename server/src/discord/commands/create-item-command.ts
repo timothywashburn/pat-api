@@ -1,7 +1,7 @@
 import { CommandInteraction, CommandInteractionOptionResolver } from 'discord.js';
 import Command from "../models/command";
-import ItemManager from "../../server/controllers/item-manager";
-import UserManager from "../../server/controllers/user-manager";
+import ItemManager from "../../controllers/item-manager";
+import UserManager from "../../controllers/user-manager";
 
 export default class CreateItemCommand extends Command {
     constructor() {

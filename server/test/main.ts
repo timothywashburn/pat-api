@@ -2,21 +2,21 @@ import mongoose from 'mongoose';
 import { config } from 'dotenv';
 import { resolve } from 'path';
 import chalk from 'chalk';
-import { runCreateAccountTest } from './tests/api/create-account.test';
-import { runLoginTest } from './tests/api/login.test';
-import { runGetItemsTest } from './tests/api/get-items.test';
-import {runSetupDiscordConfigTest} from "./tests/create-config";
-import {runCreateItemsTest} from "./tests/api/create-items.test";
-import {runDeleteItemTest} from "./tests/api/delete-item.test";
-import {runRefreshTokenTest} from "./tests/api/refresh-token.test";
-import {runCompleteItemTest} from "./tests/api/complete-item.test";
-import {runUpdateUserConfigTest} from "./tests/api/update-user-config.test";
-import {runGetUserConfigTest} from "./tests/api/get-user-config.test";
-import {runResendVerificationTest} from "./tests/api/resend-verification.test";
-import {runVerifyEmailTest} from "./tests/api/verify-email.test";
-import {runUpdateItemTest} from "./tests/api/update-item.test";
+import { runCreateAccountTest } from './unit/api/create-account.test';
+import { runLoginTest } from './unit/api/login.test';
+import { runGetItemsTest } from './unit/api/get-items.test';
+import {runSetupDiscordConfigTest} from "./unit/create-config";
+import {runCreateItemsTest} from "./unit/api/create-items.test";
+import {runDeleteItemTest} from "./unit/api/delete-item.test";
+import {runRefreshTokenTest} from "./unit/api/refresh-token.test";
+import {runCompleteItemTest} from "./unit/api/complete-item.test";
+import {runUpdateUserConfigTest} from "./unit/api/update-user-config.test";
+import {runGetUserConfigTest} from "./unit/api/get-user-config.test";
+import {runResendVerificationTest} from "./unit/api/resend-verification.test";
+import {runVerifyEmailTest} from "./unit/api/verify-email.test";
+import {runUpdateItemTest} from "./unit/api/update-item.test";
 
-config({ path: resolve(__dirname, '../.env') });
+config({ path: resolve(__dirname, '../../.env') });
 
 export interface TestContext {
     baseUrl: string;
@@ -97,7 +97,7 @@ async function runTests() {
         }
 
         console.log('\n----------------------------------------');
-        console.log(`${chalk.green('all tests completed successfully')} ${chalk.magenta(`(${totalTests} total)`)}`)
+        console.log(`${chalk.green('all unit completed successfully')} ${chalk.magenta(`(${totalTests} total)`)}`)
         console.log('----------------------------------------');
     } catch (error) {
         console.log('\n----------------------------------------');

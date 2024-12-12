@@ -1,6 +1,6 @@
 import axios from 'axios';
 import { TestContext } from '../../main';
-import { AuthDataModel } from '../../../src/server/models/mongo/auth-data';
+import { AuthDataModel } from '../../../src/models/mongo/auth-data';
 import { Types } from 'mongoose';
 import {sign} from "jsonwebtoken";
 

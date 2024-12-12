@@ -1,5 +1,5 @@
 import express from "express";
-import Bot from "../discordhead/bot";
+import Bot from "./discord/bot";
 import MongoManager from "./controllers/mongo-manager";
 import ApiManager from "./controllers/api-manager";
 import { config } from "dotenv";
@@ -22,10 +22,14 @@ config({ path: resolve(__dirname, '../../.env') });
     SocketManager.initialize(server);
 
     app.use(ApiManager.getInstance().getRouter());
+    app.use(express.static(resolve(__dirname, '../../client/build')));
+    app.get('*', (req, res) => {
+        res.sendFile(resolve(__dirname, '../../client/build/index.html'));
+    });
 
     const port = 3000;
     server.listen(port, () => {
-        console.log(`API server listening on port ${port}`);
+        console.log(`server listening on port ${port}`);
     });
 
     try {

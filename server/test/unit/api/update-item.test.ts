@@ -1,6 +1,6 @@
 import axios from 'axios';
 import { TestContext } from '../../main';
-import { ItemModel } from '../../../src/server/models/mongo/item-data';
+import { ItemModel } from '../../../src/models/mongo/item-data';
 import { Types } from 'mongoose';
 
 interface UpdateItemResponse {

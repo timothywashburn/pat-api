@@ -1,8 +1,8 @@
 import { CommandInteraction, CommandInteractionOptionResolver } from 'discord.js';
 import Command from "../models/command";
-import ItemManager from "../../server/controllers/item-manager";
-import UserManager from "../../server/controllers/user-manager";
-import {ItemData} from "../../server/models/mongo/item-data";
+import ItemManager from "../../controllers/item-manager";
+import UserManager from "../../controllers/user-manager";
+import {ItemData} from "../../models/mongo/item-data";
 import ItemListManager from "../controllers/item-list-manager";
 
 export default class ListItemsCommand extends Command {

@@ -1,4 +1,4 @@
-import {ProgramConfigModel} from "../../src/server/models/mongo/program-config";
+import {ProgramConfigModel} from "../../src/models/mongo/program-config";
 import {TestContext} from '../main';
 
 export async function runSetupDiscordConfigTest(context: TestContext) {

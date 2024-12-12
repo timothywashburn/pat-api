@@ -1,5 +1,5 @@
 import { Client, TextChannel, DiscordAPIError } from 'discord.js';
-import ConfigManager from "../../server/controllers/config-manager";
+import ConfigManager from "../../controllers/config-manager";
 
 export default class DiscordLogger {
     private static instance: DiscordLogger;

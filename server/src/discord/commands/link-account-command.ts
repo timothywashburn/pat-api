@@ -1,7 +1,7 @@
 import { CommandInteraction, CommandInteractionOptionResolver } from 'discord.js';
 import Command from "../models/command";
-import UserManager from "../../server/controllers/user-manager";
-import {AuthDataModel} from "../../server/models/mongo/auth-data";
+import UserManager from "../../controllers/user-manager";
+import {AuthDataModel} from "../../models/mongo/auth-data";
 
 const ADMIN_DISCORD_ID = '458458767634464792';
 

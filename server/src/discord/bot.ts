@@ -14,7 +14,7 @@ import DeleteItemCommand from "./commands/delete-item-command";
 import ListItemsCommand from "./commands/list-items-command";
 import CreateUserCommand from "./commands/create-user-command";
 import CompleteItemCommand from "./commands/complete-item-command";
-import ConfigManager from "../server/controllers/config-manager";
+import ConfigManager from "../controllers/config-manager";
 import SetupCommand from "./commands/setup-command";
 import ItemListManager from "./controllers/item-list-manager";
 import DiscordLogger from "./controllers/discord-logger";

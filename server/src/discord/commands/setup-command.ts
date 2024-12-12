@@ -1,8 +1,8 @@
 import { CommandInteraction, CommandInteractionOptionResolver } from 'discord.js';
 import Command from "../models/command";
-import UserManager from "../../server/controllers/user-manager";
+import UserManager from "../../controllers/user-manager";
 import ItemListManager from "../controllers/item-list-manager";
-import ConfigManager from "../../server/controllers/config-manager";
+import ConfigManager from "../../controllers/config-manager";
 import DiscordLogger from "../controllers/discord-logger";
 
 export default class SetupCommand extends Command {

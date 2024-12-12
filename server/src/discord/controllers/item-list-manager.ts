@@ -1,8 +1,8 @@
 import { Client, Message, TextChannel } from 'discord.js';
-import { ItemData } from "../../server/models/mongo/item-data";
-import UserManager from "../../server/controllers/user-manager";
-import ItemManager from "../../server/controllers/item-manager";
-import { UserConfig } from "../../server/models/mongo/user-config";
+import { ItemData } from "../../models/mongo/item-data";
+import UserManager from "../../controllers/user-manager";
+import ItemManager from "../../controllers/item-manager";
+import { UserConfig } from "../../models/mongo/user-config";
 import { Types } from 'mongoose';
 
 interface ItemCategories {

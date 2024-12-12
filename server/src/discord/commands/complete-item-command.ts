@@ -1,16 +1,16 @@
-import ItemManager from "../../server/controllers/item-manager";
+import { AutocompleteInteraction, CommandInteraction, CommandInteractionOptionResolver } from 'discord.js';
 import Command from "../models/command";
-import {AutocompleteInteraction, CommandInteraction, CommandInteractionOptionResolver} from "discord.js";
-import UserManager from "../../server/controllers/user-manager";
+import ItemManager from "../../controllers/item-manager";
+import UserManager from "../../controllers/user-manager";
 
-export default class DeleteItemCommand extends Command {
+export default class CompleteItemCommand extends Command {
     constructor() {
-        super('delete', 'Delete a item');
+        super('complete', 'Mark a item as completed');
         this.data
             .addStringOption(option =>
                 option
                     .setName('name')
-                    .setDescription('The name of the item to delete')
+                    .setDescription('The name of the item to mark as completed')
                     .setRequired(true)
                     .setAutocomplete(true)
             );
@@ -28,6 +28,7 @@ export default class DeleteItemCommand extends Command {
         const items = await ItemManager.getInstance().getAllByUser(user._id);
         const filtered = items
             .filter(item =>
+                !item.completed &&
                 item.name.toLowerCase().includes(focusedOption.value.toLowerCase())
             )
             .slice(0, 25)
@@ -50,14 +51,36 @@ export default class DeleteItemCommand extends Command {
         }
 
         const items = await ItemManager.getInstance().getAllByUser(user._id);
-        const itemToDelete = items.find(item => item.name.toLowerCase() === itemName.toLowerCase());
+        const itemToComplete = items.find(item =>
+            item.name.toLowerCase() === itemName.toLowerCase() && !item.completed
+        );
 
-        if (!itemToDelete) {
-            await interaction.reply({ content: 'Item not found', ephemeral: true });
+        if (!itemToComplete) {
+            await interaction.reply({
+                content: 'Item not found or already completed',
+                ephemeral: true
+            });
             return;
         }
 
-        await ItemManager.getInstance().delete(itemToDelete._id);
-        await interaction.reply(`Item "${itemName}" deleted successfully`);
+        const updatedItem = await ItemManager.getInstance().setCompleted(itemToComplete._id, true);
+
+        if (!updatedItem) {
+            await interaction.reply({
+                content: 'An error occurred while completing the item',
+                ephemeral: true
+            });
+            return;
+        }
+
+        await interaction.reply(
+            `✅ Item "${itemName}" marked as complete${
+                itemToComplete.dueDate
+                    ? itemToComplete.dueDate < new Date()
+                        ? ' (completed overdue)'
+                        : ' (completed on time)'
+                    : ''
+            }`
+        );
     }
 }
