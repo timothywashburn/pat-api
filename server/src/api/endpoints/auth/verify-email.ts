@@ -1,6 +1,7 @@
 import { ApiEndpoint } from '../../types';
 import AuthManager from '../../../controllers/auth-manager';
 import SocketManager, {SocketMessage} from "../../../controllers/socket-manager";
+import {AuthDataModel} from "../../../models/mongo/auth-data";
 
 interface VerifyEmailQuery {
     token?: string;
@@ -14,19 +15,30 @@ export const verifyEmailEndpoint: ApiEndpoint<unknown, never> = {
             const { token } = req.query as VerifyEmailQuery;
 
             if (!token) {
-                res.redirect(`https://${process.env.API_URL}/verify-failed?error=missing-token`);
+                res.redirect(`https://${process.env.API_URL}/verify-fail?error=invalid-token`);
                 return;
             }
 
             const decoded = AuthManager.getInstance().verifyToken(token);
             if (!decoded) {
-                res.redirect(`https://${process.env.API_URL}/verify-failed?error=invalid-token`);
+                res.redirect(`https://${process.env.API_URL}/verify-fail?error=invalid-token`);
+                return;
+            }
+
+            const auth = await AuthDataModel.findById(decoded.authId);
+            if (!auth) {
+                res.redirect(`https://${process.env.API_URL}/verify-fail?error=verification-failed`);
+                return;
+            }
+
+            if (auth.emailVerified) {
+                res.redirect(`https://${process.env.API_URL}/verify-fail?error=already-verified`);
                 return;
             }
 
             const success = await AuthManager.getInstance().verifyEmail(decoded.authId);
             if (!success) {
-                res.redirect(`https://${process.env.API_URL}/verify-failed?error=verification-failed`);
+                res.redirect(`https://${process.env.API_URL}/verify-fail?error=verification-failed`);
                 return;
             }
 
@@ -35,7 +47,7 @@ export const verifyEmailEndpoint: ApiEndpoint<unknown, never> = {
             res.redirect(`https://${process.env.API_URL}/verify-success`);
         } catch (error) {
             console.error('Error in verifyEmail:', error);
-            res.redirect(`https://${process.env.API_URL}/verify-failed?error=unknown`);
+            res.redirect(`https://${process.env.API_URL}/verify-fail?error=verification-failed`);
         }
     }
 };
