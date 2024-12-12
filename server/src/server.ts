@@ -22,10 +22,17 @@ config({ path: resolve(__dirname, '../../.env') });
     SocketManager.initialize(server);
 
     app.use(ApiManager.getInstance().getRouter());
-    app.use(express.static(resolve(__dirname, '../../client/build')));
-    app.get('*', (req, res) => {
-        res.sendFile(resolve(__dirname, '../../client/build/index.html'));
-    });
+
+    if (process.env.NODE_ENV === 'production') {
+        app.use(express.static(resolve(__dirname, '../../client/build')));
+        app.get('*', (req, res) => {
+            res.sendFile(resolve(__dirname, '../../client/build/index.html'));
+        });
+    } else {
+        app.use((req, res) => {
+            res.redirect(`http://localhost:3001${req.url}`);
+        });
+    }
 
     const port = 3000;
     server.listen(port, () => {

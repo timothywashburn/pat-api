@@ -54,6 +54,11 @@ export default class ApiManager {
         });
 
         this.router.use((req, res, next) => {
+            if (!req.path.startsWith('/api')) {
+                next();
+                return;
+            }
+
             const timestamp = new Date().toISOString();
             console.log(`[${timestamp}] ${req.method} ${req.path}`);
             next();
