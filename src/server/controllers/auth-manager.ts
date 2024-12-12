@@ -73,7 +73,7 @@ export default class AuthManager {
         return { userConfig, token, refreshToken, emailVerified: authData.emailVerified };
     }
 
-    async refreshToken(refreshToken: string): Promise<{ user: UserConfig; auth: AuthData; token: string; refreshToken: string } | null> {
+    async refreshAuth(refreshToken: string): Promise<{ user: UserConfig; auth: AuthData; token: string; refreshToken: string } | null> {
         try {
             const decoded = verify(refreshToken, process.env.REFRESH_SECRET!) as RefreshTokenPayload;
             const auth = await AuthDataModel.findById(decoded.authId);
@@ -83,7 +83,11 @@ export default class AuthManager {
             if (!user) return null;
 
             const tokens = this.generateTokens(auth, user._id);
-            return { user, auth, ...tokens };
+            return {
+                user,
+                auth,
+                ...tokens,
+            };
         } catch {
             return null;
         }

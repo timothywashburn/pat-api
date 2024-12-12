@@ -8,18 +8,24 @@ const refreshTokenSchema = z.object({
 
 type RefreshTokenRequest = z.infer<typeof refreshTokenSchema>;
 
-interface RefreshTokenResponse {
+interface RefreshAuthResponse {
     token: string;
     refreshToken: string;
+    user: {
+        id: string;
+        name: string;
+        email: string;
+        isEmailVerified: boolean;
+    }
 }
 
-export const refreshTokenEndpoint: ApiEndpoint<RefreshTokenRequest, RefreshTokenResponse> = {
+export const refreshAuthEndpoint: ApiEndpoint<RefreshTokenRequest, RefreshAuthResponse> = {
     path: '/api/auth/refresh',
     method: 'post',
     handler: async (req, res) => {
         try {
             const data = refreshTokenSchema.parse(req.body);
-            const result = await AuthManager.getInstance().refreshToken(data.refreshToken);
+            const result = await AuthManager.getInstance().refreshAuth(data.refreshToken);
 
             if (!result) {
                 res.status(401).json({
@@ -33,7 +39,13 @@ export const refreshTokenEndpoint: ApiEndpoint<RefreshTokenRequest, RefreshToken
                 success: true,
                 data: {
                     token: result.token,
-                    refreshToken: result.refreshToken
+                    refreshToken: result.refreshToken,
+                    user: {
+                        id: result.user._id.toString(),
+                        name: result.user.name,
+                        email: result.auth.email,
+                        isEmailVerified: result.auth.emailVerified
+                    }
                 }
             });
         } catch (error) {

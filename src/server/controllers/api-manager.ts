@@ -5,7 +5,7 @@ import { getItemsEndpoint } from "../api/endpoints/items/get-items";
 import AuthManager from './auth-manager';
 import {createItemEndpoint} from "../api/endpoints/items/create-item";
 import {deleteItemEndpoint} from "../api/endpoints/items/delete-item";
-import {refreshTokenEndpoint} from "../api/endpoints/auth/refresh-token";
+import {refreshAuthEndpoint} from "../api/endpoints/auth/refresh-auth";
 import {completeItemEndpoint} from "../api/endpoints/items/complete-item";
 import {updateUserConfigEndpoint} from "../api/endpoints/account/update-user-config";
 import {getUserConfigEndpoint} from "../api/endpoints/account/get-user-config";
@@ -31,7 +31,7 @@ export default class ApiManager {
         this.addEndpoint(updateUserConfigEndpoint);
 
         this.addEndpoint(loginEndpoint);
-        this.addEndpoint(refreshTokenEndpoint);
+        this.addEndpoint(refreshAuthEndpoint);
         this.addEndpoint(registerEndpoint);
         this.addEndpoint(resendVerificationEndpoint);
         this.addEndpoint(verifyEmailEndpoint);
