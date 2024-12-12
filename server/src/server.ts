@@ -23,14 +23,17 @@ config({ path: resolve(__dirname, '../../.env') });
 
     app.use(ApiManager.getInstance().getRouter());
 
-    if (process.env.NODE_ENV === 'production') {
+    if (process.env.NODE_ENV === 'development') {
+        const { createProxyMiddleware } = require('http-proxy-middleware');
+        app.use(createProxyMiddleware({
+            target: 'http://localhost:3001',
+            changeOrigin: true,
+            ws: true
+        }));
+    } else if (process.env.NODE_ENV === 'production') {
         app.use(express.static(resolve(__dirname, '../../client/build')));
         app.get('*', (req, res) => {
             res.sendFile(resolve(__dirname, '../../client/build/index.html'));
-        });
-    } else {
-        app.use((req, res) => {
-            res.redirect(`http://localhost:3001${req.url}`);
         });
     }
 

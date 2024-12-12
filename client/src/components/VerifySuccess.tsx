@@ -3,7 +3,7 @@ import { Check } from 'lucide-react';
 
 const VerifySuccess: React.FC = () => {
     const handleReturnToApp = () => {
-        window.location.href = 'pat.timthyw.dev://verify-success';
+        window.location.href = 'pat.timothyw.dev://';
     };
 
     return (
