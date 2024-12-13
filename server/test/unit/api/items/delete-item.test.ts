@@ -1,7 +1,7 @@
 import axios from 'axios';
-import { TestContext } from '../../main';
+import { TestContext } from '../../../main';
 import { Types } from 'mongoose';
-import {ItemModel} from "../../../src/models/mongo/item-data";
+import {ItemModel} from "../../../../src/models/mongo/item-data";
 
 interface DeleteItemResponse {
     success: boolean;
