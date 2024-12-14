@@ -5,16 +5,20 @@ import chalk from 'chalk';
 import { runCreateAccountTest } from './unit/api/auth/register.test';
 import { runLoginTest } from './unit/api/auth/login.test';
 import { runGetItemsTest } from './unit/api/items/get-items.test';
-import {runSetupDiscordConfigTest} from "./unit/create-config";
-import {runCreateItemsTest} from "./unit/api/items/create-items.test";
-import {runDeleteItemTest} from "./unit/api/items/delete-item.test";
-import {runRefreshTokenTest} from "./unit/api/auth/refresh-auth.test";
-import {runCompleteItemTest} from "./unit/api/items/complete-item.test";
-import {runUpdateUserConfigTest} from "./unit/api/account/update-user-config.test";
-import {runGetUserConfigTest} from "./unit/api/account/get-user-config.test";
-import {runResendVerificationTest} from "./unit/api/auth/resend-verification.test";
-import {runVerifyEmailTest} from "./unit/api/auth/verify-email.test";
-import {runUpdateItemTest} from "./unit/api/items/update-item.test";
+import { runSetupDiscordConfigTest } from "./unit/create-config";
+import { runCreateItemsTest } from "./unit/api/items/create-items.test";
+import { runDeleteItemTest } from "./unit/api/items/delete-item.test";
+import { runRefreshTokenTest } from "./unit/api/auth/refresh-auth.test";
+import { runCompleteItemTest } from "./unit/api/items/complete-item.test";
+import { runUpdateUserConfigTest } from "./unit/api/account/update-user-config.test";
+import { runGetUserConfigTest } from "./unit/api/account/get-user-config.test";
+import { runResendVerificationTest } from "./unit/api/auth/resend-verification.test";
+import { runVerifyEmailTest } from "./unit/api/auth/verify-email.test";
+import { runUpdateItemTest } from "./unit/api/items/update-item.test";
+import { runCreateThoughtsTest } from './unit/api/thoughts/create-thoughts.test';
+import { runDeleteThoughtTest } from './unit/api/thoughts/delete-thought.test';
+import { runUpdateThoughtTest } from './unit/api/thoughts/update-thought.test';
+import { runGetThoughtsTest } from './unit/api/thoughts/get-thoughts.test';
 
 config({ path: resolve(__dirname, '../../.env') });
 
@@ -25,6 +29,7 @@ export interface TestContext {
     refreshToken?: string;
     emailVerificationToken?: string;
     itemIds?: string[];
+    thoughtIds?: string[];
     account: {
         name: string;
         email: string;
@@ -44,13 +49,20 @@ const tests: Test[] = [
     // { name: 'resend verification', run: runResendVerificationTest },
     { name: 'verify email', run: runVerifyEmailTest },
     { name: 'refresh token', run: runRefreshTokenTest },
+
     { name: 'get user config', run: runGetUserConfigTest },
     { name: 'update user config', run: runUpdateUserConfigTest },
+
     { name: 'create items', run: runCreateItemsTest },
     { name: 'delete item', run: runDeleteItemTest },
     { name: 'complete item', run: runCompleteItemTest },
     { name: 'update item', run: runUpdateItemTest },
-    { name: 'get items', run: runGetItemsTest }
+    { name: 'get items', run: runGetItemsTest },
+
+    { name: 'create thoughts', run: runCreateThoughtsTest },
+    { name: 'delete thought', run: runDeleteThoughtTest },
+    { name: 'update thought', run: runUpdateThoughtTest },
+    { name: 'get thoughts', run: runGetThoughtsTest }
 ];
 
 async function runTests() {

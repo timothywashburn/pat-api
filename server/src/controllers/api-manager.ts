@@ -14,6 +14,10 @@ import {resendVerificationEndpoint} from "../api/endpoints/auth/resend-verificat
 import {verifyEmailEndpoint} from "../api/endpoints/auth/verify-email";
 import {AuthDataModel} from "../models/mongo/auth-data";
 import {updateItemEndpoint} from "../api/endpoints/items/update-item";
+import {createThoughtEndpoint} from "../api/endpoints/thoughts/create-thought";
+import {deleteThoughtEndpoint} from "../api/endpoints/thoughts/delete-thought";
+import {getThoughtsEndpoint} from "../api/endpoints/thoughts/get-thoughts";
+import {updateThoughtEndpoint} from "../api/endpoints/thoughts/update-thought";
 
 export default class ApiManager {
     private static instance: ApiManager;
@@ -41,6 +45,11 @@ export default class ApiManager {
         this.addEndpoint(deleteItemEndpoint);
         this.addEndpoint(getItemsEndpoint);
         this.addEndpoint(updateItemEndpoint);
+
+        this.addEndpoint(createThoughtEndpoint);
+        this.addEndpoint(deleteThoughtEndpoint);
+        this.addEndpoint(getThoughtsEndpoint);
+        this.addEndpoint(updateThoughtEndpoint);
     }
 
     private setupMiddleware() {
