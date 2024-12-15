@@ -2,6 +2,7 @@ import axios from 'axios';
 import { TestContext } from '../../../main';
 import { UserConfigModel } from '../../../../src/models/mongo/user-config';
 import { Types } from 'mongoose';
+import {PANEL_TYPES, PanelType} from "../../../../src/models/panels";
 
 interface GetUserConfigResponse {
     success: boolean;
@@ -17,7 +18,7 @@ interface GetUserConfigResponse {
             };
             iosApp?: {
                 panels: Array<{
-                    panel: 'agenda' | 'tasks' | 'inbox' | 'settings';
+                    panel: PanelType;
                     visible: boolean;
                 }>;
             };

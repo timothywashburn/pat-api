@@ -3,6 +3,7 @@ import UserManager from '../../../controllers/user-manager';
 import ItemManager from '../../../controllers/item-manager';
 import { z } from 'zod';
 import {Types} from "mongoose";
+import {PANEL_TYPES} from "../../../models/panels";
 
 const updateUserConfigSchema = z.object({
     name: z.string().min(1).nullish(),
@@ -25,7 +26,7 @@ const updateUserConfigSchema = z.object({
     }).nullish(),
     iosApp: z.object({
         panels: z.array(z.object({
-            panel: z.enum(['agenda', 'tasks', 'inbox', 'settings']),
+            panel: z.enum(PANEL_TYPES),
             visible: z.boolean()
         })).optional(),
         itemCategories: z.array(z.string()).optional(),
@@ -93,9 +94,9 @@ export const updateUserConfigEndpoint: ApiEndpoint<UpdateUserConfigRequest, Upda
             }
 
             const formattedIosApp = updatedUser.iosApp ? {
-                panels: updatedUser.iosApp.panels.map(p => ({
-                    panel: p.type?.panel || 'agenda',
-                    visible: p.type?.visible || false
+                panels: updatedUser.iosApp.panels.map(panel => ({
+                    panel: panel.type?.panel!,
+                    visible: panel.type?.visible!
                 })),
                 itemCategories: updatedUser.iosApp.itemCategories,
                 itemTypes: updatedUser.iosApp.itemTypes

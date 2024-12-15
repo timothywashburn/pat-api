@@ -1,8 +1,7 @@
 import { ApiEndpoint } from '../../types';
 import UserManager from '../../../controllers/user-manager';
 import { Document } from 'mongoose';
-
-type PanelType = 'agenda' | 'tasks' | 'inbox' | 'settings';
+import {PANEL_TYPES, PanelType} from "../../../models/panels";
 
 interface Panel {
     panel: PanelType;
@@ -35,7 +34,7 @@ interface MongoosePanelDocument extends Document {
 }
 
 const isValidPanel = (panel: string | null | undefined): panel is PanelType => {
-    return panel != null && ['agenda', 'tasks', 'inbox', 'settings'].includes(panel);
+    return panel != null && PANEL_TYPES.includes(panel as PanelType);
 };
 
 export const getUserConfigEndpoint: ApiEndpoint<unknown, GetUserConfigResponse> = {

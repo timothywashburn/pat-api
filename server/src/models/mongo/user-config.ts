@@ -1,4 +1,5 @@
 import {model, Schema, InferSchemaType, HydratedDocument} from "mongoose";
+import {PANEL_TYPES} from "../panels";
 
 const userConfigSchema = new Schema({
     name: {
@@ -18,10 +19,12 @@ const userConfigSchema = new Schema({
     itemListTracking: {
         type: {
             channelId: {
-                type: String, required: true
+                type: String,
+                required: true
             },
             messageId: {
-                type: String, required: true
+                type: String,
+                required: true
             }
         }
     },
@@ -31,10 +34,12 @@ const userConfigSchema = new Schema({
                 type: {
                     panel: {
                         type: String,
-                        enum: ['agenda', 'tasks', 'inbox', 'settings']
+                        enum: PANEL_TYPES,
+                        required: true
                     },
                     visible: {
                         type: Boolean,
+                        required: true,
                         default: true
                     }
                 }
@@ -49,12 +54,7 @@ const userConfigSchema = new Schema({
             }]
         },
         default: {
-            panels: [
-                { panel: 'agenda', visible: true },
-                { panel: 'tasks', visible: true },
-                { panel: 'inbox', visible: true },
-                { panel: 'settings', visible: true }
-            ],
+            panels: PANEL_TYPES.map(panel => ({ panel, visible: true })),
             itemCategories: ['School', 'Work', 'Personal'],
             itemTypes: ['Assignment', 'Project']
         }

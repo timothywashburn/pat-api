@@ -18,6 +18,10 @@ import {createThoughtEndpoint} from "../api/endpoints/thoughts/create-thought";
 import {deleteThoughtEndpoint} from "../api/endpoints/thoughts/delete-thought";
 import {getThoughtsEndpoint} from "../api/endpoints/thoughts/get-thoughts";
 import {updateThoughtEndpoint} from "../api/endpoints/thoughts/update-thought";
+import {createPersonEndpoint} from "../api/endpoints/people/create-person";
+import {deletePersonEndpoint} from "../api/endpoints/people/delete-person";
+import {getPeopleEndpoint} from "../api/endpoints/people/get-people";
+import {updatePersonEndpoint} from "../api/endpoints/people/update-person";
 
 export default class ApiManager {
     private static instance: ApiManager;
@@ -50,6 +54,11 @@ export default class ApiManager {
         this.addEndpoint(deleteThoughtEndpoint);
         this.addEndpoint(getThoughtsEndpoint);
         this.addEndpoint(updateThoughtEndpoint);
+
+        this.addEndpoint(createPersonEndpoint);
+        this.addEndpoint(deletePersonEndpoint);
+        this.addEndpoint(getPeopleEndpoint);
+        this.addEndpoint(updatePersonEndpoint);
     }
 
     private setupMiddleware() {

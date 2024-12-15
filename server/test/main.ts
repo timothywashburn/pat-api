@@ -19,6 +19,10 @@ import { runCreateThoughtsTest } from './unit/api/thoughts/create-thoughts.test'
 import { runDeleteThoughtTest } from './unit/api/thoughts/delete-thought.test';
 import { runUpdateThoughtTest } from './unit/api/thoughts/update-thought.test';
 import { runGetThoughtsTest } from './unit/api/thoughts/get-thoughts.test';
+import {runCreatePeopleTest} from "./unit/api/person/create-people.test";
+import {runDeletePersonTest} from "./unit/api/person/delete-person.test";
+import {runUpdatePersonTest} from "./unit/api/person/update-person.test";
+import {runGetPeopleTest} from "./unit/api/person/get-people.test";
 
 config({ path: resolve(__dirname, '../../.env') });
 
@@ -30,6 +34,7 @@ export interface TestContext {
     emailVerificationToken?: string;
     itemIds?: string[];
     thoughtIds?: string[];
+    personIds?: string[];
     account: {
         name: string;
         email: string;
@@ -62,7 +67,12 @@ const tests: Test[] = [
     { name: 'create thoughts', run: runCreateThoughtsTest },
     { name: 'delete thought', run: runDeleteThoughtTest },
     { name: 'update thought', run: runUpdateThoughtTest },
-    { name: 'get thoughts', run: runGetThoughtsTest }
+    { name: 'get thoughts', run: runGetThoughtsTest },
+
+    { name: 'create people', run: runCreatePeopleTest },
+    { name: 'delete person', run: runDeletePersonTest },
+    { name: 'update person', run: runUpdatePersonTest },
+    { name: 'get people', run: runGetPeopleTest }
 ];
 
 async function runTests() {
