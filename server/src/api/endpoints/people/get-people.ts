@@ -8,11 +8,9 @@ interface GetPeopleResponse {
         properties: Array<{
             key: string;
             value: string;
-            order: number;
         }>;
         notes: Array<{
             content: string;
-            order: number;
             createdAt: string;
             updatedAt: string;
         }>;
@@ -26,20 +24,22 @@ export const getPeopleEndpoint: ApiEndpoint<unknown, GetPeopleResponse> = {
     handler: async (req, res) => {
         try {
             const people = await PersonManager.getInstance().getAllByUser(req.auth!.userId!);
+            let data = {
+                people: people.map(p => ({
+                    id: p._id.toString(),
+                    name: p.name,
+                    properties: p.properties,
+                    notes: p.notes.map(n => ({
+                        content: n.content,
+                        createdAt: n.createdAt.toISOString(),
+                        updatedAt: n.updatedAt.toISOString()
+                    }))
+                }))
+            }
+            console.log(data.people[0].notes[0].content);
             res.json({
                 success: true,
-                data: {
-                    people: people.map(p => ({
-                        id: p._id.toString(),
-                        name: p.name,
-                        properties: p.properties,
-                        notes: p.notes.map(n => ({
-                            ...n,
-                            createdAt: n.createdAt.toISOString(),
-                            updatedAt: n.updatedAt.toISOString()
-                        }))
-                    }))
-                }
+                data: data
             });
         } catch (error) {
             res.status(500).json({ success: false, error: 'Failed to fetch people' });

@@ -3,7 +3,6 @@ import {PersonData, PersonModel, PersonNote, PersonProperty} from "../models/mon
 
 interface CreateNoteInput {
     content: string;
-    order: number;
 }
 
 export default class PersonManager {

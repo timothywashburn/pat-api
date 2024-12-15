@@ -30,7 +30,8 @@ const updateUserConfigSchema = z.object({
             visible: z.boolean()
         })).optional(),
         itemCategories: z.array(z.string()).optional(),
-        itemTypes: z.array(z.string()).optional()
+        itemTypes: z.array(z.string()).optional(),
+        propertyKeys: z.array(z.string()).optional()
     }).nullish()
 }).strict();
 
@@ -99,7 +100,8 @@ export const updateUserConfigEndpoint: ApiEndpoint<UpdateUserConfigRequest, Upda
                     visible: panel.type?.visible!
                 })),
                 itemCategories: updatedUser.iosApp.itemCategories,
-                itemTypes: updatedUser.iosApp.itemTypes
+                itemTypes: updatedUser.iosApp.itemTypes,
+                propertyKeys: updatedUser.iosApp.propertyKeys
             } : undefined;
 
             res.json({

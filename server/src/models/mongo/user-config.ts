@@ -51,12 +51,17 @@ const userConfigSchema = new Schema({
             itemTypes: [{
                 type: String,
                 trim: true
+            }],
+            propertyKeys: [{
+                type: String,
+                trim: true
             }]
         },
         default: {
             panels: PANEL_TYPES.map(panel => ({ panel, visible: true })),
             itemCategories: ['School', 'Work', 'Personal'],
-            itemTypes: ['Assignment', 'Project']
+            itemTypes: ['Assignment', 'Project'],
+            propertyKeys: ['Email', 'Phone', 'Company', 'Title']
         }
     }
 }, {

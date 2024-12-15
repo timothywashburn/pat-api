@@ -3,12 +3,10 @@ import { Schema, model, Types } from 'mongoose';
 interface PersonProperty {
     key: string;
     value: string;
-    order: number;
 }
 
 interface PersonNote {
     content: string;
-    order: number;
     createdAt: Date;
     updatedAt: Date;
 }
@@ -33,10 +31,6 @@ const personPropertySchema = new Schema<PersonProperty>({
         type: String,
         required: true,
         trim: true,
-    },
-    order: {
-        type: Number,
-        required: true,
     }
 });
 
@@ -45,10 +39,6 @@ const personNoteSchema = new Schema<PersonNote>({
         type: String,
         required: true,
         trim: true,
-    },
-    order: {
-        type: Number,
-        required: true,
     }
 }, {
     timestamps: true

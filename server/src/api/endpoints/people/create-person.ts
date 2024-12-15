@@ -7,12 +7,10 @@ const createPersonSchema = z.object({
     name: z.string().min(1),
     properties: z.array(z.object({
         key: z.string().min(1),
-        value: z.string().min(1),
-        order: z.number()
+        value: z.string().min(1)
     })).optional(),
     notes: z.array(z.object({
-        content: z.string().min(1),
-        order: z.number()
+        content: z.string().min(1)
     })).optional()
 });
 
@@ -25,11 +23,9 @@ interface CreatePersonResponse {
         properties: Array<{
             key: string;
             value: string;
-            order: number;
         }>;
         notes: Array<{
             content: string;
-            order: number;
             createdAt: string;
             updatedAt: string;
         }>;
