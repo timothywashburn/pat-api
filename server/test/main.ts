@@ -28,6 +28,8 @@ config({ path: resolve(__dirname, '../../.env') });
 
 export interface TestContext {
     baseUrl: string;
+    skipVerificationEmail: boolean;
+
     userId?: string;
     authToken?: string;
     refreshToken?: string;
@@ -81,6 +83,7 @@ async function runTests() {
 
     const context: TestContext = {
         baseUrl: 'https://mac.timothyw.dev',
+        skipVerificationEmail: true,
         account: {
             name: 'Test',
             email: 'trwisinthehouse@gmail.com',

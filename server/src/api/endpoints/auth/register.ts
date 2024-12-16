@@ -1,11 +1,13 @@
 import { ApiEndpoint } from '../../types';
 import AuthManager from '../../../controllers/auth-manager';
 import { z } from 'zod';
+import MailjetManager from "../../../controllers/mailjet-manager";
 
 const registerSchema = z.object({
     name: z.string().trim().min(1),
     email: z.string().trim().email(),
-    password: z.string().min(4)
+    password: z.string().min(4),
+    skipVerificationEmail: z.boolean().optional()
 });
 
 type RegisterRequest = z.infer<typeof registerSchema>;
@@ -28,6 +30,8 @@ export const registerEndpoint: ApiEndpoint<RegisterRequest, RegisterResponse> = 
                 data.email,
                 data.password
             );
+
+            if (!data.skipVerificationEmail) await MailjetManager.getInstance().sendVerificationEmail(auth);
 
             res.json({
                 success: true,

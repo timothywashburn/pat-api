@@ -14,7 +14,12 @@ interface CreateAccountResponse {
 export async function runCreateAccountTest(context: TestContext) {
     const response = await axios.post<CreateAccountResponse>(
         `${context.baseUrl}/api/auth/register`,
-        context.account
+        {
+            name: context.account.name,
+            email: context.account.email,
+            password: context.account.password,
+            skipVerificationEmail: context.skipVerificationEmail
+        }
     );
 
     if (!response.data.success) {
