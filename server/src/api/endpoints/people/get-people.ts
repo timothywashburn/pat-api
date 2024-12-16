@@ -36,7 +36,6 @@ export const getPeopleEndpoint: ApiEndpoint<unknown, GetPeopleResponse> = {
                     }))
                 }))
             }
-            console.log(data.people[0].notes[0].content);
             res.json({
                 success: true,
                 data: data
