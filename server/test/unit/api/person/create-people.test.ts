@@ -29,10 +29,12 @@ export async function runCreatePeopleTest(context: TestContext) {
         {
             name: 'Test Person 1',
             properties: [
-                { key: 'email', value: 'test1@example.com', order: 0 }
+                { key: 'email', value: 'test1@example.com' }
             ],
             notes: [
-                { content: 'Test note 1', order: 0 }
+                { content: 'Test note 1' },
+                { content: 'Test note 2' },
+                { content: 'Test note 3' }
             ]
         },
         {

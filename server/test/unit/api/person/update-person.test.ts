@@ -31,11 +31,15 @@ export async function runUpdatePersonTest(context: TestContext) {
     const updates = {
         name: 'Updated Person Name',
         properties: [
-            { key: 'email', value: 'updated@example.com', order: 0 },
-            { key: 'phone', value: '123-456-7890', order: 1 }
+            { key: 'email', value: 'updated@example.com' },
+            { key: 'phone', value: '123-456-7890' }
         ],
         notes: [
-            { content: 'Updated test note', order: 0 }
+            { content: 'Updated test note' },
+            { content: 'Another updated note' },
+            { content: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. ' +
+                    'Curabitur sed gravida erat. Fusce a auctor magna. Vivamus eget ' +
+                    'diam et mauris pretium auctor. Mauris ac vestibulum erat. Maecenas ac metus enim.' }
         ]
     };
 
