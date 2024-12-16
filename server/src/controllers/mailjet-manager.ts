@@ -31,14 +31,14 @@ export default class MailjetManager {
                 Messages: [{
                     From: {
                         Email: "noreply@timothyw.dev",
-                        Name: "Pat"
+                        Name: "Planner and Tracker"
                     },
                     To: [{
                         Email: auth.email
                     }],
                     TemplateID: 6525498,
                     TemplateLanguage: true,
-                    Subject: "Pat Verification Email",
+                    Subject: "Verify your email address",
                     Variables: {
                         VerificationLink: verificationLink
                     }
