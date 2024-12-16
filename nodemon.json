@@ -1,5 +1,0 @@
-{
-	"watch": ["server/"],
-	"ignore": ["server/test/"],
-	"exec": "npx ts-node"
-}
