@@ -57,7 +57,7 @@ jobs:
           sshpass -p "$SSH_PASSWORD" ssh -o StrictHostKeyChecking=no $SSH_CONNECTION "mkdir -p ~/pat-server"
           sshpass -p "$SSH_PASSWORD" scp -o StrictHostKeyChecking=no docker-compose.yml $SSH_CONNECTION:~/pat-server/
           sshpass -p "$SSH_PASSWORD" scp -o StrictHostKeyChecking=no .env $SSH_CONNECTION:~/pat-server/
-          sshpass -p "$SSH_PASSWORD" scp -o StrictHostKeyChecking=no -r nginx/conf.d/ $SSH_CONNECTION:~/pat-server/
+          sshpass -p "$SSH_PASSWORD" scp -o StrictHostKeyChecking=no nginx.conf $SSH_CONNECTION:~/pat-server/
 
           # Debug: Verify file transfer and contents
           sshpass -p "$SSH_PASSWORD" ssh -o StrictHostKeyChecking=no $SSH_CONNECTION "cd ~/pat-server && ls -la && cat .env | sed 's/=.*/=REDACTED/'"
