@@ -11,6 +11,6 @@ RUN npm run install:all
 COPY . .
 
 RUN mkdir -p /etc/nginx
-COPY nginx/config.d/nginx.conf /etc/nginx/nginx.conf
+COPY nginx/conf.d/nginx.conf /etc/nginx/nginx.conf
 
 CMD ["npm", "start"]
