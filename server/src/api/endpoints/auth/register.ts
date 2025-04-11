@@ -22,6 +22,11 @@ export const registerEndpoint: ApiEndpoint<RegisterRequest, RegisterResponse> = 
     path: '/api/auth/register',
     method: 'post',
     handler: async (req, res) => {
+        res.status(503).json({
+            success: false,
+            error: "Registration is temporarily disabled"
+        });
+
         try {
             const data = registerSchema.parse(req.body);
 
