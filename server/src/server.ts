@@ -31,9 +31,17 @@ config({ path: resolve(__dirname, '../../.env') });
             ws: true
         }));
     } else if (process.env.NODE_ENV === 'production') {
-        app.use(express.static(resolve(__dirname, '../../client/build')));
+        // app.use(express.static(resolve(__dirname, '../../client/build')));
+        // app.get('*', (req, res) => {
+        //     res.sendFile(resolve(__dirname, '../../client/build/index.html'));
+        // });
+
+        const appDir = resolve(__dirname, '../../app');
+        console.log(`serving webapp build from ${appDir}`);
+
+        app.use(express.static(appDir));
         app.get('*', (req, res) => {
-            res.sendFile(resolve(__dirname, '../../client/build/index.html'));
+            res.sendFile(resolve(appDir, 'index.html'));
         });
     }
 
