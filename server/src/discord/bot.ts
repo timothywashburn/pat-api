@@ -9,14 +9,7 @@ import {
 import { Routes } from 'discord-api-types/v10';
 import Command from "./models/command";
 import PingCommand from "./commands/ping";
-import CreateItemCommand from "./commands/create-item-command";
-import DeleteItemCommand from "./commands/delete-item-command";
-import ListItemsCommand from "./commands/list-items-command";
-import CreateUserCommand from "./commands/create-user-command";
-import CompleteItemCommand from "./commands/complete-item-command";
 import ConfigManager from "../controllers/config-manager";
-import SetupCommand from "./commands/setup-command";
-import ItemListManager from "./controllers/item-list-manager";
 import DiscordLogger from "./controllers/discord-logger";
 import LinkAccountCommand from "./commands/link-account-command";
 
@@ -42,8 +35,6 @@ export default class Bot {
             console.log(`logged in as ${this.client.user?.tag}`);
 
             DiscordLogger.getInstance().setClient(this.client);
-            ItemListManager.getInstance().setClient(this.client);
-            await ItemListManager.getInstance().initializeTrackers();
 
             this.client.on('interactionCreate', async (interaction: Interaction) => {
                 if (interaction instanceof AutocompleteInteraction) {
@@ -83,13 +74,7 @@ export default class Bot {
 
     private async loadCommands() {
         this.commands = [
-            new CreateItemCommand(),
-            new CompleteItemCommand(),
-            new DeleteItemCommand(),
-            new ListItemsCommand(),
-            new CreateUserCommand(),
             new LinkAccountCommand(),
-            new SetupCommand(),
             new PingCommand(),
         ];
 

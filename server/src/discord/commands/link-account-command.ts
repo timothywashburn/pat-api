@@ -33,7 +33,9 @@ export default class LinkAccountCommand extends Command {
         }
 
         const options = interaction.options as CommandInteractionOptionResolver;
+        // @ts-ignore
         const targetUser = options.getUser('user', true);
+        // @ts-ignore
         const email = options.getString('email', true).toLowerCase();
 
         try {
