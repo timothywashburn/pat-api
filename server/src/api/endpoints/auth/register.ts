@@ -2,6 +2,7 @@ import { ApiEndpoint } from '../../types';
 import AuthManager from '../../../controllers/auth-manager';
 import { z } from 'zod';
 import MailjetManager from "../../../controllers/mailjet-manager";
+import ConfigManager from '../../../controllers/config-manager';
 
 const registerSchema = z.object({
     name: z.string().trim().min(1),
@@ -22,13 +23,19 @@ export const registerEndpoint: ApiEndpoint<RegisterRequest, RegisterResponse> = 
     path: '/api/auth/register',
     method: 'post',
     handler: async (req, res) => {
-        res.status(503).json({
-            success: false,
-            error: "Registration is temporarily disabled"
-        });
-
         try {
             const data = registerSchema.parse(req.body);
+
+            const config = ConfigManager.getConfig();
+            const authorizedEmails = config.dev?.authorizedEmails || [];
+
+            if (!authorizedEmails.includes(data.email.toLowerCase())) {
+                res.status(403).json({
+                    success: false,
+                    error: "You are not authorized to register. Contact me and I'll add you."
+                });
+                return;
+            }
 
             const { user, auth } = await AuthManager.getInstance().register(
                 data.name,

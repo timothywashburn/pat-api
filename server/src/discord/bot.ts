@@ -12,6 +12,9 @@ import PingCommand from "./commands/ping";
 import ConfigManager from "../controllers/config-manager";
 import DiscordLogger from "./controllers/discord-logger";
 import LinkAccountCommand from "./commands/link-account-command";
+import ListEmailsCommand from "./commands/authedemails/list-emails-command";
+import AddEmailCommand from "./commands/authedemails/add-email-command";
+import RemoveEmailCommand from "./commands/authedemails/remove-email-command";
 
 export default class Bot {
     private client: Client;
@@ -74,6 +77,9 @@ export default class Bot {
 
     private async loadCommands() {
         this.commands = [
+            new AddEmailCommand(),
+            new RemoveEmailCommand(),
+            new ListEmailsCommand(),
             new LinkAccountCommand(),
             new PingCommand(),
         ];

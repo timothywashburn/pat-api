@@ -1,6 +1,9 @@
 import {Schema, Document, model} from 'mongoose';
 
 interface ProgramConfigData extends Document {
+    dev: {
+        authorizedEmails: string[]
+    };
     discord: {
         token: string;
         clientId: string;
@@ -16,6 +19,13 @@ interface ProgramConfigData extends Document {
 }
 
 const programConfigSchema = new Schema<ProgramConfigData>({
+    dev: {
+        authorizedEmails: {
+            type: [String],
+            required: true,
+            default: []
+        }
+    },
     discord: {
         token: {
             type: String,
