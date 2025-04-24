@@ -1,9 +1,9 @@
 import { ApiEndpoint } from '../../types';
 import AuthManager from '../../../controllers/auth-manager';
 import { z } from 'zod';
-import { TokenData } from "../../../models/token-data";
 import { PublicAuthData } from "../../../models/mongo/auth-data";
 import { UserConfig } from "../../../models/mongo/user-config";
+import { AuthTokens } from "@timothyw/pat-common";
 
 const refreshTokenSchema = z.object({
     refreshToken: z.string()
@@ -12,7 +12,7 @@ const refreshTokenSchema = z.object({
 type RefreshTokenRequest = z.infer<typeof refreshTokenSchema>;
 
 export interface RefreshAuthResponse {
-    tokenData: TokenData;
+    tokenData: AuthTokens;
     authData: PublicAuthData;
 }
 

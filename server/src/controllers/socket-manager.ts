@@ -1,7 +1,7 @@
 import { Server as HttpServer } from 'http';
 import { Server, Socket } from 'socket.io';
 import { verify } from 'jsonwebtoken';
-import { TokenPayload } from "../models/token-data";
+import { TokenPayload } from "@timothyw/pat-common";
 
 export interface SocketMessage<T = any> {
     type: string;

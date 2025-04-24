@@ -2,20 +2,20 @@ import { Types } from "mongoose";
 import { UserConfig } from "../models/mongo/user-config";
 import { sign, verify } from "jsonwebtoken";
 import UserManager from "./user-manager";
-import { AuthData, AuthDataModel } from "../models/mongo/auth-data";
+import { AuthData, AuthDataModel, toPublicAuthData } from "../models/mongo/auth-data";
 import { compare, hash } from "bcrypt";
 import { randomBytes } from 'crypto';
 import MailjetManager from "./mailjet-manager";
-import { RefreshTokenPayload, TokenData, TokenPayload } from "../models/token-data";
 import { LoginResponse } from "../api/endpoints/auth/login";
 import { RefreshAuthResponse } from "../api/endpoints/auth/refresh-auth";
+import { AuthTokens, RefreshTokenPayload, TokenPayload } from "@timothyw/pat-common";
 
 export default class AuthManager {
     private static instance: AuthManager;
 
     private constructor() {}
 
-    private generateTokens(auth: AuthData, userId: Types.ObjectId): TokenData {
+    private generateTokens(auth: AuthData, userId: Types.ObjectId): AuthTokens {
         const tokenId = randomBytes(32).toString('hex');
 
         const tokenPayload: TokenPayload = {
@@ -29,12 +29,12 @@ export default class AuthManager {
         };
 
         return {
-            token: sign(tokenPayload, process.env.JWT_SECRET!, { expiresIn: '1d' }),
+            accessToken: sign(tokenPayload, process.env.JWT_SECRET!, { expiresIn: '1d' }),
             refreshToken: sign(refreshPayload, process.env.REFRESH_SECRET!, { expiresIn: '7d' })
         };
     }
 
-    async register(name: string, email: string, password: string): Promise<{ tokenData: TokenData; authData: AuthData; user: UserConfig }> {
+    async register(name: string, email: string, password: string): Promise<{ tokenData: AuthTokens; authData: AuthData; user: UserConfig }> {
         const existingAuth = await AuthDataModel.findOne({ email });
         if (existingAuth) {
             throw new Error('Email already exists');
@@ -58,7 +58,7 @@ export default class AuthManager {
     }
 
     async login(email: string, password: string): Promise<LoginResponse | null> {
-        const authData = await AuthDataModel.findOne({ email });
+        const authData: AuthData | null = await AuthDataModel.findOne({ email });
         if (!authData) return null;
 
         const isValid = await compare(password, authData.passwordHash);
@@ -70,7 +70,7 @@ export default class AuthManager {
         const tokenData = this.generateTokens(authData, user._id);
         return {
             tokenData,
-            authData,
+            authData: toPublicAuthData(authData),
             user
         };
     }
@@ -88,7 +88,7 @@ export default class AuthManager {
 
             return {
                 tokenData,
-                authData,
+                authData: toPublicAuthData(authData),
             };
         } catch {
             return null;

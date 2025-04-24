@@ -1,9 +1,9 @@
 import { ApiEndpoint } from '../../types';
 import AuthManager from '../../../controllers/auth-manager';
 import { z } from 'zod';
-import { TokenData } from "../../../models/token-data";
 import { PublicAuthData } from "../../../models/mongo/auth-data";
 import { UserConfig } from "../../../models/mongo/user-config";
+import { AuthTokens } from "@timothyw/pat-common";
 
 const loginSchema = z.object({
     email: z.string().email(),
@@ -13,7 +13,7 @@ const loginSchema = z.object({
 type LoginRequest = z.infer<typeof loginSchema>;
 
 export interface LoginResponse {
-    tokenData: TokenData;
+    tokenData: AuthTokens;
     authData: PublicAuthData;
     user: UserConfig;
 }

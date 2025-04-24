@@ -10,7 +10,14 @@ export interface AuthData {
     updatedAt: Date;
 }
 
-export type PublicAuthData = Pick<AuthData, 'email' | 'emailVerified'>;
+export type PublicAuthData = Pick<AuthData, 'email' | 'emailVerified'> & { readonly __brand: unique symbol };
+
+export function toPublicAuthData(data: AuthData): PublicAuthData {
+    return {
+        email: data.email,
+        emailVerified: data.emailVerified
+    } as PublicAuthData;
+}
 
 const authSchema = new Schema<AuthData>({
     userId: {
