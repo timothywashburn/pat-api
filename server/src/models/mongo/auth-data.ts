@@ -1,6 +1,6 @@
 import { Schema, model, Types } from 'mongoose';
 
-interface AuthData {
+export interface AuthData {
     _id: Types.ObjectId;
     userId: Types.ObjectId;
     email: string;
@@ -9,6 +9,8 @@ interface AuthData {
     createdAt: Date;
     updatedAt: Date;
 }
+
+export type PublicAuthData = Pick<AuthData, 'email' | 'emailVerified'>;
 
 const authSchema = new Schema<AuthData>({
     userId: {
@@ -34,9 +36,4 @@ const authSchema = new Schema<AuthData>({
     timestamps: true
 });
 
-const AuthDataModel = model<AuthData>('Auth', authSchema);
-
-export {
-    AuthData,
-    AuthDataModel
-};
+export const AuthDataModel = model<AuthData>('Auth', authSchema);

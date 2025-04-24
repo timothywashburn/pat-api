@@ -3,7 +3,7 @@ import ConfigManager from "./config-manager";
 import { Types } from "mongoose";
 import { AuthData } from "../models/mongo/auth-data";
 import { sign } from "jsonwebtoken";
-import { TokenPayload } from "./auth-manager";
+import { TokenPayload } from "../models/token-data";
 
 export default class MailjetManager {
     private static instance: MailjetManager;

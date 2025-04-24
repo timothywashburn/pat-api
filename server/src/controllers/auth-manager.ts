@@ -6,22 +6,16 @@ import { AuthData, AuthDataModel } from "../models/mongo/auth-data";
 import { compare, hash } from "bcrypt";
 import { randomBytes } from 'crypto';
 import MailjetManager from "./mailjet-manager";
-
-export interface TokenPayload {
-    authId: string;
-    userId: string;
-}
-
-interface RefreshTokenPayload extends TokenPayload {
-    tokenId: string;
-}
+import { RefreshTokenPayload, TokenData, TokenPayload } from "../models/token-data";
+import { LoginResponse } from "../api/endpoints/auth/login";
+import { RefreshAuthResponse } from "../api/endpoints/auth/refresh-auth";
 
 export default class AuthManager {
     private static instance: AuthManager;
 
     private constructor() {}
 
-    private generateTokens(auth: AuthData, userId: Types.ObjectId): { token: string; refreshToken: string } {
+    private generateTokens(auth: AuthData, userId: Types.ObjectId): TokenData {
         const tokenId = randomBytes(32).toString('hex');
 
         const tokenPayload: TokenPayload = {
@@ -40,7 +34,7 @@ export default class AuthManager {
         };
     }
 
-    async register(name: string, email: string, password: string): Promise<{ user: UserConfig; auth: AuthData; token: string; refreshToken: string }> {
+    async register(name: string, email: string, password: string): Promise<{ tokenData: TokenData; authData: AuthData; user: UserConfig }> {
         const existingAuth = await AuthDataModel.findOne({ email });
         if (existingAuth) {
             throw new Error('Email already exists');
@@ -48,45 +42,53 @@ export default class AuthManager {
 
         const user = await UserManager.getInstance().create(name);
         const passwordHash = await hash(password, 10);
-        const auth = await new AuthDataModel({
+        const authData = await new AuthDataModel({
             userId: user._id,
             email,
             passwordHash,
             emailVerified: false
         }).save();
 
-        const { token, refreshToken } = this.generateTokens(auth, user._id);
-        return { user, auth, token, refreshToken };
+        const tokenData = this.generateTokens(authData, user._id);
+        return {
+            authData,
+            tokenData,
+            user
+        };
     }
 
-    async login(email: string, password: string): Promise<{ userConfig: UserConfig; token: string; refreshToken: string, emailVerified: boolean } | null> {
+    async login(email: string, password: string): Promise<LoginResponse | null> {
         const authData = await AuthDataModel.findOne({ email });
         if (!authData) return null;
 
         const isValid = await compare(password, authData.passwordHash);
         if (!isValid) return null;
 
-        const userConfig = await UserManager.getInstance().getById(authData.userId);
-        if (!userConfig) return null;
+        const user = await UserManager.getInstance().getById(authData.userId);
+        if (!user) return null;
 
-        const { token, refreshToken } = this.generateTokens(authData, userConfig._id);
-        return { userConfig, token, refreshToken, emailVerified: authData.emailVerified };
+        const tokenData = this.generateTokens(authData, user._id);
+        return {
+            tokenData,
+            authData,
+            user
+        };
     }
 
-    async refreshAuth(refreshToken: string): Promise<{ user: UserConfig; auth: AuthData; token: string; refreshToken: string } | null> {
+    async refreshAuth(refreshToken: string): Promise<RefreshAuthResponse | null> {
         try {
             const decoded = verify(refreshToken, process.env.REFRESH_SECRET!) as RefreshTokenPayload;
-            const auth = await AuthDataModel.findById(decoded.authId);
-            if (!auth) return null;
+            const authData = await AuthDataModel.findById(decoded.authId);
+            if (!authData) return null;
 
-            const user = await UserManager.getInstance().getById(auth.userId);
+            const user = await UserManager.getInstance().getById(authData.userId);
             if (!user) return null;
 
-            const tokens = this.generateTokens(auth, user._id);
+            const tokenData = this.generateTokens(authData, user._id);
+
             return {
-                user,
-                auth,
-                ...tokens,
+                tokenData,
+                authData,
             };
         } catch {
             return null;

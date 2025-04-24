@@ -37,20 +37,20 @@ export const registerEndpoint: ApiEndpoint<RegisterRequest, RegisterResponse> = 
                 return;
             }
 
-            const { user, auth } = await AuthManager.getInstance().register(
+            const { tokenData, authData, user } = await AuthManager.getInstance().register(
                 data.name,
                 data.email,
                 data.password
             );
 
-            if (!data.skipVerificationEmail) await MailjetManager.getInstance().sendVerificationEmail(auth);
+            if (!data.skipVerificationEmail) await MailjetManager.getInstance().sendVerificationEmail(authData);
 
             res.json({
                 success: true,
                 data: {
                     id: user._id.toString(),
                     name: user.name,
-                    email: auth.email
+                    email: authData.email
                 }
             });
         } catch (error) {

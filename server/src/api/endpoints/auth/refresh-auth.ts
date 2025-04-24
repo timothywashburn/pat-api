@@ -1,6 +1,9 @@
 import { ApiEndpoint } from '../../types';
 import AuthManager from '../../../controllers/auth-manager';
 import { z } from 'zod';
+import { TokenData } from "../../../models/token-data";
+import { PublicAuthData } from "../../../models/mongo/auth-data";
+import { UserConfig } from "../../../models/mongo/user-config";
 
 const refreshTokenSchema = z.object({
     refreshToken: z.string()
@@ -8,15 +11,9 @@ const refreshTokenSchema = z.object({
 
 type RefreshTokenRequest = z.infer<typeof refreshTokenSchema>;
 
-interface RefreshAuthResponse {
-    token: string;
-    refreshToken: string;
-    user: {
-        id: string;
-        name: string;
-        email: string;
-        isEmailVerified: boolean;
-    }
+export interface RefreshAuthResponse {
+    tokenData: TokenData;
+    authData: PublicAuthData;
 }
 
 export const refreshAuthEndpoint: ApiEndpoint<RefreshTokenRequest, RefreshAuthResponse> = {
@@ -37,16 +34,7 @@ export const refreshAuthEndpoint: ApiEndpoint<RefreshTokenRequest, RefreshAuthRe
 
             res.json({
                 success: true,
-                data: {
-                    token: result.token,
-                    refreshToken: result.refreshToken,
-                    user: {
-                        id: result.user._id.toString(),
-                        name: result.user.name,
-                        email: result.auth.email,
-                        isEmailVerified: result.auth.emailVerified
-                    }
-                }
+                data: result
             });
         } catch (error) {
             let message = 'Token refresh failed';

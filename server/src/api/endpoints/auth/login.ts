@@ -1,6 +1,9 @@
 import { ApiEndpoint } from '../../types';
 import AuthManager from '../../../controllers/auth-manager';
 import { z } from 'zod';
+import { TokenData } from "../../../models/token-data";
+import { PublicAuthData } from "../../../models/mongo/auth-data";
+import { UserConfig } from "../../../models/mongo/user-config";
 
 const loginSchema = z.object({
     email: z.string().email(),
@@ -9,15 +12,10 @@ const loginSchema = z.object({
 
 type LoginRequest = z.infer<typeof loginSchema>;
 
-interface LoginResponse {
-    token: string;
-    refreshToken: string;
-    user: {
-        id: string;
-        name: string;
-        email: string;
-        isEmailVerified: boolean;
-    };
+export interface LoginResponse {
+    tokenData: TokenData;
+    authData: PublicAuthData;
+    user: UserConfig;
 }
 
 export const loginEndpoint: ApiEndpoint<LoginRequest, LoginResponse> = {
@@ -41,16 +39,7 @@ export const loginEndpoint: ApiEndpoint<LoginRequest, LoginResponse> = {
 
             res.json({
                 success: true,
-                data: {
-                    token: result.token,
-                    refreshToken: result.refreshToken,
-                    user: {
-                        id: result.userConfig._id.toString(),
-                        name: result.userConfig.name,
-                        email: data.email,
-                        isEmailVerified: result.emailVerified
-                    }
-                }
+                data: result
             });
         } catch (error) {
             let message = 'Login failed';
