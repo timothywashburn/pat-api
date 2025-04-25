@@ -1,14 +1,14 @@
 import { ApiEndpoint } from '../../types';
 import AuthManager from '../../../controllers/auth-manager';
 import { z } from 'zod';
-import { RefreshAuthResponse, RefreshTokenRequest, refreshTokenRequestSchema } from "@timothyw/pat-common";
+import { RefreshAuthRequest, refreshAuthRequestSchema, RefreshAuthResponse } from "@timothyw/pat-common";
 
-export const refreshAuthEndpoint: ApiEndpoint<RefreshTokenRequest, RefreshAuthResponse> = {
+export const refreshAuthEndpoint: ApiEndpoint<RefreshAuthRequest, RefreshAuthResponse> = {
     path: '/api/auth/refresh',
     method: 'post',
     handler: async (req, res) => {
         try {
-            const data = refreshTokenRequestSchema.parse(req.body);
+            const data = refreshAuthRequestSchema.parse(req.body);
             const result = await AuthManager.getInstance().refreshAuth(data.refreshToken);
 
             if (!result) {
