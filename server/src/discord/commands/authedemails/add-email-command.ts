@@ -7,8 +7,7 @@ const ADMIN_DISCORD_ID = '458458767634464792';
 export default class AddEmailCommand extends Command {
     constructor() {
         super('add-email', 'Add an email to the authorized developers list');
-        this.data
-            .addStringOption(option =>
+        this.data.addStringOption(option =>
                 option
                     .setName('email')
                     .setDescription('The email address to authorize')

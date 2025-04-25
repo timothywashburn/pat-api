@@ -39,7 +39,7 @@ export const verifyEmailEndpoint: ApiEndpoint = {
                 return;
             }
 
-            SocketManager.getInstance().emitToUser(decoded.userId.toString(), "emailVerified");
+            SocketManager.getInstance().emitToUser(decoded.userId, "emailVerified");
 
             res.redirect(`https://${process.env.API_URL}/verify-success`);
         } catch (error) {

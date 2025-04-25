@@ -1,7 +1,7 @@
 import { Server as HttpServer } from 'http';
 import { Server, Socket } from 'socket.io';
 import { verify } from 'jsonwebtoken';
-import { TokenPayload } from "@timothyw/pat-common";
+import { TokenPayload, UserId } from "@timothyw/pat-common";
 
 export interface SocketMessage<T = any> {
     type: string;
@@ -72,7 +72,7 @@ export default class SocketManager {
         });
     }
 
-    emitToUser<T extends object>(userId: string, type: string, data: T = {} as T) {
+    emitToUser<T extends object>(userId: UserId, type: string, data: T = {} as T) {
         let message: SocketMessage<T> = {type, userId, data}
         console.log(`[socket] sending to user ${userId}:`, message);
         this.io.to(`user:${userId}`).emit('message', message);

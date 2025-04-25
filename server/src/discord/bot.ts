@@ -8,13 +8,14 @@ import {
 } from 'discord.js';
 import { Routes } from 'discord-api-types/v10';
 import Command from "./models/command";
-import PingCommand from "./commands/ping";
+import PingCommand from "./commands/ping-command";
 import ConfigManager from "../controllers/config-manager";
 import DiscordLogger from "./controllers/discord-logger";
 import LinkAccountCommand from "./commands/link-account-command";
 import ListEmailsCommand from "./commands/authedemails/list-emails-command";
 import AddEmailCommand from "./commands/authedemails/add-email-command";
 import RemoveEmailCommand from "./commands/authedemails/remove-email-command";
+import TestCommand from "./commands/test-command";
 
 export default class Bot {
     private client: Client;
@@ -82,6 +83,7 @@ export default class Bot {
             new ListEmailsCommand(),
             new LinkAccountCommand(),
             new PingCommand(),
+            new TestCommand(),
         ];
 
         let discordConfig = ConfigManager.getConfig().discord;
