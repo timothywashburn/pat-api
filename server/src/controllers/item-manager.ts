@@ -1,12 +1,13 @@
 import {Types} from "mongoose";
-import {ItemData, ItemModel} from "../models/mongo/item-data";
+import { ItemData, ItemId, UserId } from "@timothyw/pat-common";
+import { ItemModel } from "../models/mongo/item-data";
 
 export default class ItemManager {
     private static instance: ItemManager;
 
     private constructor() {}
 
-    create(userId: Types.ObjectId, data: {
+    create(userId: UserId, data: {
         name: string;
         dueDate?: Date | null;
         notes?: string;
@@ -25,22 +26,22 @@ export default class ItemManager {
         return todo.save();
     }
 
-    getById(todoId: Types.ObjectId): Promise<ItemData | null> {
-        return ItemModel.findById(todoId);
+    getById(itemId: UserId): Promise<ItemData | null> {
+        return ItemModel.findById(itemId);
     }
 
-    getAllByUser(userId: Types.ObjectId): Promise<ItemData[]> {
+    getAllByUser(userId: UserId): Promise<ItemData[]> {
         return ItemModel.find({ userId });
     }
 
-    getPending(userId: Types.ObjectId): Promise<ItemData[]> {
+    getPending(userId: UserId): Promise<ItemData[]> {
         return ItemModel.find({
             userId,
             completed: false
         }).sort({ dueDate: 1 });
     }
 
-    getOverdue(userId: Types.ObjectId): Promise<ItemData[]> {
+    getOverdue(userId: UserId): Promise<ItemData[]> {
         return ItemModel.find({
             userId,
             completed: false,
@@ -49,7 +50,7 @@ export default class ItemManager {
     }
 
     update(
-        todoId: Types.ObjectId,
+        itemId: ItemId,
         updates: Partial<Omit<ItemData, '_id' | 'userId' | 'createdAt' | 'updatedAt'>>
     ): Promise<ItemData | null> {
 
@@ -69,13 +70,13 @@ export default class ItemManager {
         if (Object.keys(unset).length > 0) updateOperation.$unset = unset;
 
         return ItemModel.findByIdAndUpdate(
-            todoId,
+            itemId,
             updateOperation,
             { new: true }
         );
     }
 
-    async setCompleted(itemId: Types.ObjectId, completed: boolean) {
+    async setCompleted(itemId: ItemId, completed: boolean) {
         return ItemModel.findByIdAndUpdate(
             itemId,
             {$set: {completed}},
@@ -83,7 +84,7 @@ export default class ItemManager {
         );
     }
 
-    async clearItemCategory(userId: Types.ObjectId, category: string): Promise<number> {
+    async clearItemCategory(userId: UserId, category: string): Promise<number> {
         const result = await ItemModel.updateMany(
             { userId, category },
             { $set: { category: null } }
@@ -91,7 +92,7 @@ export default class ItemManager {
         return result.modifiedCount;
     }
 
-    async clearItemType(userId: Types.ObjectId, type: string): Promise<number> {
+    async clearItemType(userId: UserId, type: string): Promise<number> {
         const result = await ItemModel.updateMany(
             { userId, type },
             { $set: { type: null } }
@@ -99,17 +100,17 @@ export default class ItemManager {
         return result.modifiedCount;
     }
 
-    delete(todoId: Types.ObjectId): Promise<boolean> {
-        return ItemModel.deleteOne({ _id: todoId })
+    delete(itemId: ItemId): Promise<boolean> {
+        return ItemModel.deleteOne({ _id: itemId })
             .then(result => result.deletedCount > 0);
     }
 
-    deleteAllForUser(userId: Types.ObjectId): Promise<number> {
+    deleteAllForUser(userId: UserId): Promise<number> {
         return ItemModel.deleteMany({ userId })
             .then(result => result.deletedCount);
     }
 
-    getStats(userId: Types.ObjectId): Promise<{
+    getStats(userId: UserId): Promise<{
         total: number;
         completed: number;
         pending: number;

@@ -1,22 +1,10 @@
 import axios from 'axios';
 import { TestContext } from '../../../main';
-
-interface LoginResponse {
-    success: boolean;
-    data: {
-        token: string;
-        refreshToken: string;
-        user: {
-            id: string;
-            name: string;
-            email: string;
-        };
-    };
-    error?: string;
-}
+import { ApiResponseBody } from "../../../../src/api/types";
+import { LoginResponse } from "@timothyw/pat-common";
 
 export async function runLoginTest(context: TestContext) {
-    const response = await axios.post<LoginResponse>(
+    const response = await axios.post<ApiResponseBody<LoginResponse>>(
         `${context.baseUrl}/api/auth/login`,
         context.account
     );
@@ -25,6 +13,6 @@ export async function runLoginTest(context: TestContext) {
         throw new Error('login failed');
     }
 
-    context.authToken = response.data.data.token;
-    context.refreshToken = response.data.data.refreshToken;
+    context.authToken = response.data.data!.tokenData.accessToken;
+    context.refreshToken = response.data.data!.tokenData.refreshToken;
 }

@@ -1,25 +1,5 @@
 import { Schema, model, Types } from 'mongoose';
-
-interface PersonProperty {
-    key: string;
-    value: string;
-}
-
-interface PersonNote {
-    content: string;
-    createdAt: Date;
-    updatedAt: Date;
-}
-
-interface PersonData {
-    _id: Types.ObjectId;
-    userId: Types.ObjectId;
-    createdAt: Date;
-    updatedAt: Date;
-    name: string;
-    properties: PersonProperty[];
-    notes: PersonNote[];
-}
+import { PersonData, PersonNote, PersonProperty } from "@timothyw/pat-common";
 
 const personPropertySchema = new Schema<PersonProperty>({
     key: {
@@ -46,7 +26,7 @@ const personNoteSchema = new Schema<PersonNote>({
 
 const personSchema = new Schema<PersonData>({
     userId: {
-        type: Schema.Types.ObjectId,
+        type: String,
         required: true,
         index: true,
     },
@@ -61,11 +41,4 @@ const personSchema = new Schema<PersonData>({
     timestamps: true,
 });
 
-const PersonModel = model<PersonData>('Person', personSchema);
-
-export {
-    PersonData,
-    PersonModel,
-    PersonProperty,
-    PersonNote
-};
+export const PersonModel = model<PersonData>('Person', personSchema);

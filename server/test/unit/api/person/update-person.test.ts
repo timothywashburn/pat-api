@@ -2,26 +2,8 @@ import axios from 'axios';
 import { TestContext } from '../../../main';
 import { Types } from 'mongoose';
 import {PersonModel} from "../../../../src/models/mongo/person.data";
-
-interface UpdatePersonResponse {
-    success: boolean;
-    data: {
-        person: {
-            id: string;
-            name: string;
-            properties: Array<{
-                key: string;
-                value: string;
-                order: number;
-            }>;
-            notes: Array<{
-                content: string;
-                order: number;
-            }>;
-        };
-    };
-    error?: string;
-}
+import { ApiResponseBody } from "../../../../src/api/types";
+import { UpdatePersonResponse } from "@timothyw/pat-common";
 
 export async function runUpdatePersonTest(context: TestContext) {
     if (!context.authToken || !context.userId || !context.personIds) {
@@ -43,7 +25,7 @@ export async function runUpdatePersonTest(context: TestContext) {
         ]
     };
 
-    const updateResponse = await axios.put<UpdatePersonResponse>(
+    const updateResponse = await axios.put<ApiResponseBody<UpdatePersonResponse>>(
         `${context.baseUrl}/api/people/${context.personIds[0]}`,
         updates,
         {
@@ -54,7 +36,7 @@ export async function runUpdatePersonTest(context: TestContext) {
     );
 
     if (!updateResponse.data.success) throw new Error('failed to update person');
-    if (updateResponse.data.data.person.name !== updates.name) throw new Error('name not updated in response');
+    if (updateResponse.data.data!.person.name !== updates.name) throw new Error('name not updated in response');
 
     const person = await PersonModel.findById(new Types.ObjectId(context.personIds[0]));
     if (!person) throw new Error('person not found in database');

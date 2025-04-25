@@ -2,21 +2,15 @@ import axios from 'axios';
 import { TestContext } from '../../../main';
 import { Types } from 'mongoose';
 import { ThoughtModel } from '../../../../src/models/mongo/thought-data';
-
-interface DeleteThoughtResponse {
-    success: boolean;
-    data: {
-        deleted: boolean;
-    };
-    error?: string;
-}
+import { ApiResponseBody } from "../../../../src/api/types";
+import { DeleteThoughtResponse } from "@timothyw/pat-common";
 
 export async function runDeleteThoughtTest(context: TestContext) {
     if (!context.authToken || !context.userId || !context.thoughtIds) {
         throw new Error('missing required context for delete test');
     }
 
-    const deleteResponse = await axios.delete<DeleteThoughtResponse>(
+    const deleteResponse = await axios.delete<ApiResponseBody<DeleteThoughtResponse>>(
         `${context.baseUrl}/api/thoughts/${context.thoughtIds[1]}`,
         {
             headers: {

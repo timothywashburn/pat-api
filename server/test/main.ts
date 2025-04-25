@@ -23,6 +23,7 @@ import {runCreatePeopleTest} from "./unit/api/person/create-people.test";
 import {runDeletePersonTest} from "./unit/api/person/delete-person.test";
 import {runUpdatePersonTest} from "./unit/api/person/update-person.test";
 import {runGetPeopleTest} from "./unit/api/person/get-people.test";
+import { ItemId, PersonId, ThoughtId, UserId } from "@timothyw/pat-common";
 
 config({ path: resolve(__dirname, '../../.env') });
 
@@ -30,13 +31,13 @@ export interface TestContext {
     baseUrl: string;
     skipVerificationEmail: boolean;
 
-    userId?: string;
+    userId?: UserId;
     authToken?: string;
     refreshToken?: string;
     emailVerificationToken?: string;
-    itemIds?: string[];
-    thoughtIds?: string[];
-    personIds?: string[];
+    itemIds?: ItemId[];
+    thoughtIds?: ThoughtId[];
+    personIds?: PersonId[];
     account: {
         name: string;
         email: string;
@@ -112,6 +113,7 @@ async function runTests() {
                 await test.run(context);
                 console.log(chalk.green(`  ► ${test.name} ${chalk.magenta(`(${i + 1}/${totalTests})`)}`));
             } catch (error) {
+                console.log(chalk.red(`  ► ${test.name} ${chalk.magenta(`(${i + 1}/${totalTests})`)}`));
                 console.log('\n----------------------------------------');
                 console.log(chalk.red(`unit tester failed at: ${test.name}`));
                 console.log('----------------------------------------\n');

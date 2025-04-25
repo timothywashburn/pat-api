@@ -1,11 +1,8 @@
 import { ApiEndpoint } from '../../types';
 import AuthManager from '../../../controllers/auth-manager';
+import { AuthId, ResendVerificationResponse } from "@timothyw/pat-common";
 
-interface ResendVerificationResponse {
-    sent: boolean;
-}
-
-export const resendVerificationEndpoint: ApiEndpoint<unknown, ResendVerificationResponse> = {
+export const resendVerificationEndpoint: ApiEndpoint<undefined, ResendVerificationResponse> = {
     path: '/api/auth/resend-verification',
     method: 'post',
     auth: 'authenticated',

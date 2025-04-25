@@ -1,18 +1,15 @@
 import { ApiEndpoint } from '../../types';
 import ItemManager from '../../../controllers/item-manager';
 import { Types } from 'mongoose';
+import { DeleteItemResponse, ItemId } from "@timothyw/pat-common";
 
-interface DeleteItemResponse {
-    deleted: boolean;
-}
-
-export const deleteItemEndpoint: ApiEndpoint<unknown, DeleteItemResponse> = {
+export const deleteItemEndpoint: ApiEndpoint<undefined, DeleteItemResponse> = {
     path: '/api/items/:itemId',
     method: 'delete',
     auth: 'verifiedEmail',
     handler: async (req, res) => {
         try {
-            const itemId = new Types.ObjectId(req.params.itemId);
+            const itemId = req.params.itemId as ItemId;
             const deleted = await ItemManager.getInstance().delete(itemId);
 
             if (!deleted) {

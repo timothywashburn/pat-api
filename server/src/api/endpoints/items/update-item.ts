@@ -2,30 +2,7 @@ import { ApiEndpoint } from '../../types';
 import ItemManager from '../../../controllers/item-manager';
 import { Types } from 'mongoose';
 import { z } from 'zod';
-
-const updateItemSchema = z.object({
-    name: z.string().min(1).optional(),
-    dueDate: z.string().nullish(),
-    notes: z.string().optional(),
-    urgent: z.boolean().optional(),
-    category: z.string().nullish(),
-    type: z.string().nullish()
-});
-
-type UpdateItemRequest = z.infer<typeof updateItemSchema>;
-
-interface UpdateItemResponse {
-    item: {
-        id: string;
-        name: string;
-        dueDate?: string;
-        notes?: string;
-        completed: boolean;
-        urgent: boolean;
-        category?: string;
-        type?: string;
-    };
-}
+import { ItemId, UpdateItemRequest, updateItemRequestSchema, UpdateItemResponse } from "@timothyw/pat-common";
 
 export const updateItemEndpoint: ApiEndpoint<UpdateItemRequest, UpdateItemResponse> = {
     path: '/api/items/:itemId',
@@ -33,8 +10,8 @@ export const updateItemEndpoint: ApiEndpoint<UpdateItemRequest, UpdateItemRespon
     auth: 'verifiedEmail',
     handler: async (req, res) => {
         try {
-            const data = updateItemSchema.parse(req.body);
-            const itemId = new Types.ObjectId(req.params.itemId);
+            const data = updateItemRequestSchema.parse(req.body);
+            const itemId = req.params.itemId as ItemId;
 
             const item = await ItemManager.getInstance().update(itemId, {
                 name: data.name,

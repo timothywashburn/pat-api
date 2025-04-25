@@ -1,13 +1,10 @@
 import { ApiEndpoint } from '../../types';
 import AuthManager from '../../../controllers/auth-manager';
-import SocketManager, {SocketMessage} from "../../../controllers/socket-manager";
+import SocketManager from "../../../controllers/socket-manager";
 import {AuthDataModel} from "../../../models/mongo/auth-data";
+import { VerifyEmailQuery } from "@timothyw/pat-common";
 
-interface VerifyEmailQuery {
-    token?: string;
-}
-
-export const verifyEmailEndpoint: ApiEndpoint<unknown, never> = {
+export const verifyEmailEndpoint: ApiEndpoint = {
     path: '/api/auth/verify-email',
     method: 'get',
     handler: async (req, res) => {

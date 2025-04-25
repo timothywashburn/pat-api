@@ -3,28 +3,14 @@ import AuthManager from '../../../controllers/auth-manager';
 import { z } from 'zod';
 import MailjetManager from "../../../controllers/mailjet-manager";
 import ConfigManager from '../../../controllers/config-manager';
-
-const registerSchema = z.object({
-    name: z.string().trim().min(1),
-    email: z.string().trim().email(),
-    password: z.string().min(4),
-    skipVerificationEmail: z.boolean().optional()
-});
-
-type RegisterRequest = z.infer<typeof registerSchema>;
-
-interface RegisterResponse {
-    id: string;
-    name: string;
-    email: string;
-}
+import { RegisterRequest, registerRequestSchema, RegisterResponse } from "@timothyw/pat-common";
 
 export const registerEndpoint: ApiEndpoint<RegisterRequest, RegisterResponse> = {
     path: '/api/auth/register',
     method: 'post',
     handler: async (req, res) => {
         try {
-            const data = registerSchema.parse(req.body);
+            const data = registerRequestSchema.parse(req.body);
 
             const config = ConfigManager.getConfig();
             const authorizedEmails = config.dev?.authorizedEmails || [];

@@ -1,27 +1,9 @@
 import { Schema, model, Types } from 'mongoose';
-
-export interface AuthData {
-    _id: Types.ObjectId;
-    userId: Types.ObjectId;
-    email: string;
-    passwordHash: string;
-    emailVerified: boolean;
-    createdAt: Date;
-    updatedAt: Date;
-}
-
-export type PublicAuthData = Pick<AuthData, 'email' | 'emailVerified'> & { readonly __brand: unique symbol };
-
-export function toPublicAuthData(data: AuthData): PublicAuthData {
-    return {
-        email: data.email,
-        emailVerified: data.emailVerified
-    } as PublicAuthData;
-}
+import { AuthData } from "@timothyw/pat-common";
 
 const authSchema = new Schema<AuthData>({
     userId: {
-        type: Schema.Types.ObjectId,
+        type: String,
         ref: 'UserConfig',
         required: true
     },

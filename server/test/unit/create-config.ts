@@ -3,6 +3,12 @@ import {TestContext} from '../main';
 
 export async function runSetupDiscordConfigTest(context: TestContext) {
     const config = await ProgramConfigModel.create({
+        dev: {
+            authorizedEmails: [
+                context.account.email,
+                "test@test.com"
+            ]
+        },
         discord: {
             token: process.env.DISCORD_TOKEN!,
             clientId: '1084621905606217778',

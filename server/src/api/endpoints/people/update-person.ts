@@ -2,35 +2,7 @@ import { ApiEndpoint } from '../../types';
 import PersonManager from '../../../controllers/person-manager';
 import { Types } from 'mongoose';
 import { z } from 'zod';
-
-const updatePersonSchema = z.object({
-    name: z.string().min(1).optional(),
-    properties: z.array(z.object({
-        key: z.string().min(1),
-        value: z.string().min(1)
-    })).optional(),
-    notes: z.array(z.object({
-        content: z.string().min(1)
-    })).optional()
-});
-
-type UpdatePersonRequest = z.infer<typeof updatePersonSchema>;
-
-interface UpdatePersonResponse {
-    person: {
-        id: string;
-        name: string;
-        properties: Array<{
-            key: string;
-            value: string;
-        }>;
-        notes: Array<{
-            content: string;
-            createdAt: string;
-            updatedAt: string;
-        }>;
-    };
-}
+import { PersonId, UpdatePersonRequest, updatePersonRequestSchema, UpdatePersonResponse } from "@timothyw/pat-common";
 
 export const updatePersonEndpoint: ApiEndpoint<UpdatePersonRequest, UpdatePersonResponse> = {
     path: '/api/people/:personId',
@@ -38,8 +10,8 @@ export const updatePersonEndpoint: ApiEndpoint<UpdatePersonRequest, UpdatePerson
     auth: 'verifiedEmail',
     handler: async (req, res) => {
         try {
-            const data = updatePersonSchema.parse(req.body);
-            const personId = new Types.ObjectId(req.params.personId);
+            const data = updatePersonRequestSchema.parse(req.body);
+            const personId = req.params.personId as PersonId;
 
             const person = await PersonManager.getInstance().update(personId, data);
 

@@ -1,6 +1,6 @@
 import {Types} from "mongoose";
-import {UserConfig, UserConfigModel} from "../models/mongo/user-config";
-import {UpdateUserConfigRequest} from "../api/endpoints/account/update-user-config";
+import {UserConfigModel} from "../models/mongo/user-config";
+import { UpdateUserConfigRequest, UserConfig, UserId } from "@timothyw/pat-common";
 
 export default class UserManager {
     private static instance: UserManager;
@@ -31,11 +31,11 @@ export default class UserManager {
         return userConfig.save();
     }
 
-    async getById(userId: Types.ObjectId): Promise<UserConfig | null> {
+    async getById(userId: UserId): Promise<UserConfig | null> {
         return UserConfigModel.findById(userId);
     }
 
-    async update(userId: Types.ObjectId, updates: UpdateUserConfigRequest): Promise<UserConfig | null> {
+    async update(userId: UserId, updates: UpdateUserConfigRequest): Promise<UserConfig | null> {
         const set: Record<string, any> = {};
         const unset: Record<string, any> = {};
 
@@ -60,7 +60,7 @@ export default class UserManager {
         );
     }
 
-    async delete(userId: Types.ObjectId): Promise<boolean> {
+    async delete(userId: UserId): Promise<boolean> {
         return UserConfigModel.deleteOne({ _id: userId })
             .then(result => result.deletedCount > 0);
     }

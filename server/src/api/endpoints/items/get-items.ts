@@ -1,12 +1,8 @@
 import { ApiEndpoint } from '../../types';
 import ItemManager from '../../../controllers/item-manager';
-import { ItemData } from '../../../models/mongo/item-data';
+import { GetItemsResponse } from "@timothyw/pat-common";
 
-interface GetItemsResponse {
-    items: ItemData[];
-}
-
-export const getItemsEndpoint: ApiEndpoint<unknown, GetItemsResponse> = {
+export const getItemsEndpoint: ApiEndpoint<undefined, GetItemsResponse> = {
     path: '/api/items',
     method: 'get',
     auth: 'verifiedEmail',

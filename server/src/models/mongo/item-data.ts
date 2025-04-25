@@ -1,24 +1,9 @@
 import { Schema, model, Types } from 'mongoose';
-
-interface ItemData {
-    _id: Types.ObjectId;
-    userId: Types.ObjectId;
-
-    createdAt: Date;
-    updatedAt: Date;
-
-    name: string;
-    dueDate?: Date | null;
-    notes?: string;
-    completed: boolean;
-    urgent: boolean;
-    category?: string | null;
-    type?: string | null;
-}
+import { ItemData } from "@timothyw/pat-common";
 
 const itemSchema = new Schema<ItemData>({
     userId: {
-        type: Schema.Types.ObjectId,
+        type: String,
         required: true,
         index: true,
     },
@@ -54,9 +39,4 @@ const itemSchema = new Schema<ItemData>({
     timestamps: true,
 });
 
-const ItemModel = model<ItemData>('Item', itemSchema);
-
-export {
-    ItemData,
-    ItemModel,
-};
+export const ItemModel = model<ItemData>('Item', itemSchema);

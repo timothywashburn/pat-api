@@ -3,45 +3,12 @@ import UserManager from '../../../controllers/user-manager';
 import ItemManager from '../../../controllers/item-manager';
 import { z } from 'zod';
 import {Types} from "mongoose";
-import {PANEL_TYPES} from "../../../models/panels";
-
-const updateUserConfigSchema = z.object({
-    name: z.string().min(1).nullish(),
-    timezone: z.string()
-        .refine((tz: string) => {
-            try {
-                Intl.DateTimeFormat(undefined, { timeZone: tz });
-                return true;
-            } catch (e) {
-                return false;
-            }
-        }, {
-            message: "Invalid timezone"
-        })
-        .nullish(),
-    discordID: z.string().nullish(),
-    itemListTracking: z.object({
-        channelId: z.string(),
-        messageId: z.string()
-    }).nullish(),
-    iosApp: z.object({
-        panels: z.array(z.object({
-            panel: z.enum(PANEL_TYPES),
-            visible: z.boolean()
-        })).optional(),
-        itemCategories: z.array(z.string()).optional(),
-        itemTypes: z.array(z.string()).optional(),
-        propertyKeys: z.array(z.string()).optional()
-    }).nullish()
-}).strict();
-
-export type UpdateUserConfigRequest = z.infer<typeof updateUserConfigSchema>;
-
-export interface UpdateUserConfigResponse {
-    user: UpdateUserConfigRequest & {
-        id: string;
-    };
-}
+import {
+    UpdateUserConfigRequest,
+    updateUserConfigRequestSchema,
+    UpdateUserConfigResponse,
+    UserId
+} from "@timothyw/pat-common";
 
 export const updateUserConfigEndpoint: ApiEndpoint<UpdateUserConfigRequest, UpdateUserConfigResponse> = {
     path: '/api/account/config',
@@ -49,7 +16,7 @@ export const updateUserConfigEndpoint: ApiEndpoint<UpdateUserConfigRequest, Upda
     auth: 'verifiedEmail',
     handler: async (req, res) => {
         try {
-            const data: UpdateUserConfigRequest = updateUserConfigSchema.parse(req.body);
+            const data: UpdateUserConfigRequest = updateUserConfigRequestSchema.parse(req.body);
             const userId = req.auth!.userId!;
 
             const currentUser = await UserManager.getInstance().getById(userId);
@@ -67,7 +34,7 @@ export const updateUserConfigEndpoint: ApiEndpoint<UpdateUserConfigRequest, Upda
 
                 for (const category of removedCategories) {
                     await ItemManager.getInstance().clearItemCategory(
-                        new Types.ObjectId(userId),
+                        userId,
                         category
                     );
                 }
@@ -79,7 +46,7 @@ export const updateUserConfigEndpoint: ApiEndpoint<UpdateUserConfigRequest, Upda
 
                 for (const type of removedTypes) {
                     await ItemManager.getInstance().clearItemType(
-                        new Types.ObjectId(userId),
+                        userId,
                         type
                     );
                 }
@@ -96,8 +63,8 @@ export const updateUserConfigEndpoint: ApiEndpoint<UpdateUserConfigRequest, Upda
 
             const formattedIosApp = updatedUser.iosApp ? {
                 panels: updatedUser.iosApp.panels.map(panel => ({
-                    panel: panel.type?.panel!,
-                    visible: panel.type?.visible!
+                    panel: panel.type,
+                    visible: panel.visible
                 })),
                 itemCategories: updatedUser.iosApp.itemCategories,
                 itemTypes: updatedUser.iosApp.itemTypes,

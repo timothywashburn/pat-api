@@ -1,14 +1,8 @@
 import { ApiEndpoint } from '../../types';
 import ThoughtManager from '../../../controllers/thought-manager';
+import { GetThoughtsResponse, UserId } from "@timothyw/pat-common";
 
-interface GetThoughtsResponse {
-    thoughts: Array<{
-        id: string;
-        content: string;
-    }>;
-}
-
-export const getThoughtsEndpoint: ApiEndpoint<unknown, GetThoughtsResponse> = {
+export const getThoughtsEndpoint: ApiEndpoint<undefined, GetThoughtsResponse> = {
     path: '/api/thoughts',
     method: 'get',
     auth: 'verifiedEmail',

@@ -2,29 +2,11 @@ import axios from 'axios';
 import { TestContext } from '../../../main';
 import { Types } from 'mongoose';
 import {PersonModel} from "../../../../src/models/mongo/person.data";
-
-interface CreatePersonResponse {
-    success: boolean;
-    data: {
-        person: {
-            id: string;
-            name: string;
-            properties: Array<{
-                key: string;
-                value: string;
-                order: number;
-            }>;
-            notes: Array<{
-                content: string;
-                order: number;
-            }>;
-        };
-    };
-    error?: string;
-}
+import { CreatePersonResponse, PersonId } from "@timothyw/pat-common";
+import { ApiResponseBody } from "../../../../src/api/types";
 
 export async function runCreatePeopleTest(context: TestContext) {
-    const person1Response = await axios.post<CreatePersonResponse>(
+    const person1Response = await axios.post<ApiResponseBody<CreatePersonResponse>>(
         `${context.baseUrl}/api/people`,
         {
             name: 'Test Person 1',
@@ -46,7 +28,7 @@ export async function runCreatePeopleTest(context: TestContext) {
 
     if (!person1Response.data.success) throw new Error('failed to create first person');
 
-    const person2Response = await axios.post<CreatePersonResponse>(
+    const person2Response = await axios.post<ApiResponseBody<CreatePersonResponse>>(
         `${context.baseUrl}/api/people`,
         {
             name: 'Test Person 2'
@@ -61,8 +43,8 @@ export async function runCreatePeopleTest(context: TestContext) {
     if (!person2Response.data.success) throw new Error('failed to create second person');
 
     context.personIds = [
-        person1Response.data.data.person.id,
-        person2Response.data.data.person.id
+        person1Response.data.data!.person.id as PersonId,
+        person2Response.data.data!.person.id as PersonId
     ];
 
     const people = await PersonModel.find({

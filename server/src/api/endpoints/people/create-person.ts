@@ -2,35 +2,7 @@ import { ApiEndpoint } from '../../types';
 import PersonManager from '../../../controllers/person-manager';
 import { Types } from 'mongoose';
 import { z } from 'zod';
-
-const createPersonSchema = z.object({
-    name: z.string().min(1),
-    properties: z.array(z.object({
-        key: z.string().min(1),
-        value: z.string().min(1)
-    })).optional(),
-    notes: z.array(z.object({
-        content: z.string().min(1)
-    })).optional()
-});
-
-type CreatePersonRequest = z.infer<typeof createPersonSchema>;
-
-interface CreatePersonResponse {
-    person: {
-        id: string;
-        name: string;
-        properties: Array<{
-            key: string;
-            value: string;
-        }>;
-        notes: Array<{
-            content: string;
-            createdAt: string;
-            updatedAt: string;
-        }>;
-    };
-}
+import { CreatePersonRequest, createPersonRequestSchema, CreatePersonResponse, UserId } from "@timothyw/pat-common";
 
 export const createPersonEndpoint: ApiEndpoint<CreatePersonRequest, CreatePersonResponse> = {
     path: '/api/people',
@@ -38,8 +10,8 @@ export const createPersonEndpoint: ApiEndpoint<CreatePersonRequest, CreatePerson
     auth: 'verifiedEmail',
     handler: async (req, res) => {
         try {
-            const data = createPersonSchema.parse(req.body);
-            const userId = new Types.ObjectId(req.auth!.userId);
+            const data = createPersonRequestSchema.parse(req.body);
+            const userId = req.auth!.userId!;
 
             const person = await PersonManager.getInstance().create(userId, data);
 

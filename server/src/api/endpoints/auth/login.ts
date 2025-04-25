@@ -1,29 +1,14 @@
 import { ApiEndpoint } from '../../types';
 import AuthManager from '../../../controllers/auth-manager';
 import { z } from 'zod';
-import { PublicAuthData } from "../../../models/mongo/auth-data";
-import { UserConfig } from "../../../models/mongo/user-config";
-import { AuthTokens } from "@timothyw/pat-common";
-
-const loginSchema = z.object({
-    email: z.string().email(),
-    password: z.string()
-});
-
-type LoginRequest = z.infer<typeof loginSchema>;
-
-export interface LoginResponse {
-    tokenData: AuthTokens;
-    authData: PublicAuthData;
-    user: UserConfig;
-}
+import { LoginRequest, loginRequestSchema, LoginResponse } from "@timothyw/pat-common";
 
 export const loginEndpoint: ApiEndpoint<LoginRequest, LoginResponse> = {
     path: '/api/auth/login',
     method: 'post',
     handler: async (req, res) => {
         try {
-            const data = loginSchema.parse(req.body);
+            const data = loginRequestSchema.parse(req.body);
             const result = await AuthManager.getInstance().login(
                 data.email,
                 data.password

@@ -30,7 +30,7 @@ export async function runVerifyEmailTest(context: TestContext) {
     );
 
     const updatedAuthData = await AuthDataModel.findOne({
-        userId: new Types.ObjectId(context.userId)
+        userId: context.userId
     });
 
     if (!updatedAuthData?.emailVerified) {

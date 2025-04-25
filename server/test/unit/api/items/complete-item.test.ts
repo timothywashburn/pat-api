@@ -35,7 +35,7 @@ export async function runCompleteItemTest(context: TestContext) {
     if (!completeResponse.data.success) throw new Error('failed to complete item');
     if (!completeResponse.data.data.item.completed) throw new Error('item not marked as completed');
 
-    const item = await ItemModel.findById(new Types.ObjectId(context.itemIds[1]));
+    const item = await ItemModel.findById(context.itemIds[1]);
     if (!item) throw new Error('item not found in database');
     if (!item.completed) throw new Error('item not marked as completed in database');
 

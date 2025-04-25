@@ -1,9 +1,7 @@
 import MailjetService from "node-mailjet";
 import ConfigManager from "./config-manager";
-import { Types } from "mongoose";
-import { AuthData } from "../models/mongo/auth-data";
 import { sign } from "jsonwebtoken";
-import { TokenPayload } from "@timothyw/pat-common";
+import { AuthData, TokenPayload } from "@timothyw/pat-common";
 
 export default class MailjetManager {
     private static instance: MailjetManager;

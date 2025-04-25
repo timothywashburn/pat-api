@@ -1,22 +1,5 @@
 import {Schema, Document, model} from 'mongoose';
-
-interface ProgramConfigData extends Document {
-    dev: {
-        authorizedEmails: string[]
-    };
-    discord: {
-        token: string;
-        clientId: string;
-        guildId: string;
-        logChannelId?: string;
-    };
-    mailjet: {
-        apiKey: string;
-        secretKey: string;
-    };
-    updatedAt: Date;
-    createdAt: Date;
-}
+import { ProgramConfigData } from "@timothyw/pat-common";
 
 const programConfigSchema = new Schema<ProgramConfigData>({
     dev: {
@@ -64,9 +47,4 @@ const programConfigSchema = new Schema<ProgramConfigData>({
     collection: 'general'
 });
 
-const ProgramConfigModel = model<ProgramConfigData>('ProgramConfig', programConfigSchema);
-
-export {
-    ProgramConfigData,
-    ProgramConfigModel,
-};
+export const ProgramConfigModel = model<ProgramConfigData>('ProgramConfig', programConfigSchema);

@@ -1,12 +1,13 @@
 import { Types } from "mongoose";
-import { ThoughtData, ThoughtModel } from "../models/mongo/thought-data";
+import { ThoughtModel } from "../models/mongo/thought-data";
+import { ThoughtData, ThoughtId, UserId } from "@timothyw/pat-common";
 
 export default class ThoughtManager {
     private static instance: ThoughtManager;
 
     private constructor() {}
 
-    create(userId: Types.ObjectId, data: {
+    create(userId: UserId, data: {
         content: string;
     }): Promise<ThoughtData> {
         const thought = new ThoughtModel({
@@ -16,11 +17,11 @@ export default class ThoughtManager {
         return thought.save();
     }
 
-    getAllByUser(userId: Types.ObjectId): Promise<ThoughtData[]> {
+    getAllByUser(userId: UserId): Promise<ThoughtData[]> {
         return ThoughtModel.find({ userId });
     }
 
-    update(thoughtId: Types.ObjectId, updates: {
+    update(thoughtId: ThoughtId, updates: {
         content?: string;
     }): Promise<ThoughtData | null> {
         return ThoughtModel.findByIdAndUpdate(
@@ -30,7 +31,7 @@ export default class ThoughtManager {
         );
     }
 
-    delete(thoughtId: Types.ObjectId): Promise<boolean> {
+    delete(thoughtId: ThoughtId): Promise<boolean> {
         return ThoughtModel.deleteOne({ _id: thoughtId })
             .then(result => result.deletedCount > 0);
     }

@@ -1,18 +1,10 @@
 import axios from 'axios';
 import { TestContext } from '../../../main';
-
-interface CreateAccountResponse {
-    success: boolean;
-    data: {
-        id: string;
-        name: string;
-        email: string;
-    };
-    error?: string;
-}
+import { RegisterResponse, UserId } from "@timothyw/pat-common";
+import { ApiResponseBody } from "../../../../src/api/types";
 
 export async function runCreateAccountTest(context: TestContext) {
-    const response = await axios.post<CreateAccountResponse>(
+    const response = await axios.post<ApiResponseBody<RegisterResponse>>(
         `${context.baseUrl}/api/auth/register`,
         {
             name: context.account.name,
@@ -26,5 +18,5 @@ export async function runCreateAccountTest(context: TestContext) {
         throw new Error('account creation failed');
     }
 
-    context.userId = response.data.data.id;
+    context.userId = response.data.data!.id as UserId;
 }

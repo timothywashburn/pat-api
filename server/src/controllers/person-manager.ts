@@ -1,5 +1,6 @@
 import { Types } from "mongoose";
-import {PersonData, PersonModel, PersonNote, PersonProperty} from "../models/mongo/person.data";
+import { PersonData, PersonId, PersonProperty, UserId } from "@timothyw/pat-common";
+import { PersonModel } from "../models/mongo/person.data";
 
 interface CreateNoteInput {
     content: string;
@@ -10,7 +11,7 @@ export default class PersonManager {
 
     private constructor() {}
 
-    create(userId: Types.ObjectId, data: {
+    create(userId: UserId, data: {
         name: string;
         properties?: PersonProperty[];
         notes?: CreateNoteInput[];
@@ -24,11 +25,11 @@ export default class PersonManager {
         return person.save();
     }
 
-    getAllByUser(userId: Types.ObjectId): Promise<PersonData[]> {
+    getAllByUser(userId: UserId): Promise<PersonData[]> {
         return PersonModel.find({ userId });
     }
 
-    update(personId: Types.ObjectId, updates: {
+    update(personId: PersonId, updates: {
         name?: string;
         properties?: PersonProperty[];
         notes?: CreateNoteInput[];
@@ -40,7 +41,7 @@ export default class PersonManager {
         );
     }
 
-    delete(personId: Types.ObjectId): Promise<boolean> {
+    delete(personId: PersonId): Promise<boolean> {
         return PersonModel.deleteOne({ _id: personId })
             .then(result => result.deletedCount > 0);
     }

@@ -2,22 +2,7 @@ import { ApiEndpoint } from '../../types';
 import ItemManager from '../../../controllers/item-manager';
 import { Types } from 'mongoose';
 import { z } from 'zod';
-
-const completeItemSchema = z.object({
-    completed: z.boolean()
-});
-
-type CompleteItemRequest = z.infer<typeof completeItemSchema>;
-
-interface CompleteItemResponse {
-    item: {
-        id: string;
-        name: string;
-        completed: boolean;
-        dueDate?: string;
-        notes?: string;
-    };
-}
+import { CompleteItemRequest, completeItemRequestSchema, CompleteItemResponse, ItemId } from "@timothyw/pat-common";
 
 export const completeItemEndpoint: ApiEndpoint<CompleteItemRequest, CompleteItemResponse> = {
     path: '/api/items/:itemId/complete',
@@ -25,8 +10,8 @@ export const completeItemEndpoint: ApiEndpoint<CompleteItemRequest, CompleteItem
     auth: 'verifiedEmail',
     handler: async (req, res) => {
         try {
-            const data = completeItemSchema.parse(req.body);
-            const itemId = new Types.ObjectId(req.params.itemId);
+            const data = completeItemRequestSchema.parse(req.body);
+            const itemId = req.params.itemId as ItemId;
             const item = await ItemManager.getInstance().setCompleted(itemId, data.completed);
 
             if (!item) {

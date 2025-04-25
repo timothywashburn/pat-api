@@ -2,21 +2,15 @@ import axios from 'axios';
 import { TestContext } from '../../../main';
 import { Types } from 'mongoose';
 import {PersonModel} from "../../../../src/models/mongo/person.data";
-
-interface DeletePersonResponse {
-    success: boolean;
-    data: {
-        deleted: boolean;
-    };
-    error?: string;
-}
+import { ApiResponseBody } from "../../../../src/api/types";
+import { DeletePersonResponse } from "@timothyw/pat-common";
 
 export async function runDeletePersonTest(context: TestContext) {
     if (!context.authToken || !context.userId || !context.personIds) {
         throw new Error('missing required context for delete test');
     }
 
-    const deleteResponse = await axios.delete<DeletePersonResponse>(
+    const deleteResponse = await axios.delete<ApiResponseBody<DeletePersonResponse>>(
         `${context.baseUrl}/api/people/${context.personIds[1]}`,
         {
             headers: {

@@ -1,20 +1,7 @@
 import { ApiEndpoint } from '../../types';
 import ThoughtManager from '../../../controllers/thought-manager';
-import { Types } from 'mongoose';
 import { z } from 'zod';
-
-const createThoughtSchema = z.object({
-    content: z.string().min(1)
-});
-
-type CreateThoughtRequest = z.infer<typeof createThoughtSchema>;
-
-interface CreateThoughtResponse {
-    thought: {
-        id: string;
-        content: string;
-    };
-}
+import { CreateThoughtRequest, createThoughtRequestSchema, CreateThoughtResponse } from "@timothyw/pat-common";
 
 export const createThoughtEndpoint: ApiEndpoint<CreateThoughtRequest, CreateThoughtResponse> = {
     path: '/api/thoughts',
@@ -22,8 +9,8 @@ export const createThoughtEndpoint: ApiEndpoint<CreateThoughtRequest, CreateThou
     auth: 'verifiedEmail',
     handler: async (req, res) => {
         try {
-            const data = createThoughtSchema.parse(req.body);
-            const userId = new Types.ObjectId(req.auth!.userId);
+            const data = createThoughtRequestSchema.parse(req.body);
+            const userId = req.auth!.userId!;
 
             const thought = await ThoughtManager.getInstance().create(userId, {
                 content: data.content

@@ -1,43 +1,13 @@
 import { ApiEndpoint } from '../../types';
 import UserManager from '../../../controllers/user-manager';
 import { Document } from 'mongoose';
-import {PANEL_TYPES, PanelType} from "../../../models/panels";
+import { GetUserConfigResponse, Panel, PANEL_TYPES } from "@timothyw/pat-common";
 
-interface Panel {
-    panel: PanelType;
-    visible: boolean;
-}
-
-interface UserConfig {
-    id: string;
-    name: string;
-    timezone: string;
-    discordID?: string;
-    itemListTracking?: {
-        channelId: string;
-        messageId: string;
-    };
-    iosApp?: {
-        panels: Panel[];
-        itemCategories: string[];
-        itemTypes: string[];
-    };
-}
-
-interface GetUserConfigResponse {
-    user: UserConfig;
-}
-
-interface MongoosePanelDocument extends Document {
-    panel?: PanelType | null;
-    visible?: boolean;
-}
-
-const isValidPanel = (panel: string | null | undefined): panel is PanelType => {
-    return panel != null && PANEL_TYPES.includes(panel as PanelType);
+const isValidPanel = (panel: Panel | null | undefined): panel is Panel => {
+    return panel != null && PANEL_TYPES.includes(panel.type);
 };
 
-export const getUserConfigEndpoint: ApiEndpoint<unknown, GetUserConfigResponse> = {
+export const getUserConfigEndpoint: ApiEndpoint<undefined, GetUserConfigResponse> = {
     path: '/api/account/config',
     method: 'get',
     auth: 'verifiedEmail',
@@ -61,18 +31,18 @@ export const getUserConfigEndpoint: ApiEndpoint<unknown, GetUserConfigResponse> 
                 return;
             }
 
-            const transformedPanels = (user.iosApp.panels as MongoosePanelDocument[])
-                .map(p => {
-                    const { panel, visible } = p.toObject();
-                    if (!isValidPanel(panel)) {
-                        return null;
-                    }
-                    return {
-                        panel,
-                        visible: visible ?? true
-                    };
-                })
-                .filter((p): p is Panel => p !== null);
+            console.log(user.iosApp.panels);
+            const transformedPanels = user.iosApp.panels.map(panel => {
+                if (!isValidPanel(panel)) {
+                    return null;
+                }
+                return {
+                    type: panel.type,
+                    visible: panel.visible ?? true
+                };
+            }).filter((p): p is Panel => p !== null);
+            console.log("transformed");
+            console.log(transformedPanels);
 
             if (transformedPanels.length === 0) {
                 res.status(500).json({
@@ -83,18 +53,7 @@ export const getUserConfigEndpoint: ApiEndpoint<unknown, GetUserConfigResponse> 
             }
 
             const responseData: GetUserConfigResponse = {
-                user: {
-                    id: user._id.toString(),
-                    name: user.name,
-                    timezone: user.timezone,
-                    discordID: user.discordID || undefined,
-                    itemListTracking: user.itemListTracking || undefined,
-                    iosApp: {
-                        panels: transformedPanels,
-                        itemCategories: user.iosApp.itemCategories,
-                        itemTypes: user.iosApp.itemTypes
-                    }
-                }
+                user
             };
 
             res.json({

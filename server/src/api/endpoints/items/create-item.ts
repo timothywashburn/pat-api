@@ -2,30 +2,7 @@ import { ApiEndpoint } from '../../types';
 import ItemManager from '../../../controllers/item-manager';
 import { Types } from 'mongoose';
 import { z } from 'zod';
-
-const createItemSchema = z.object({
-    name: z.string().min(1),
-    dueDate: z.string().nullish(),
-    notes: z.string().optional(),
-    urgent: z.boolean().optional().default(false),
-    category: z.string().nullish(),
-    type: z.string().nullish()
-});
-
-type CreateItemRequest = z.infer<typeof createItemSchema>;
-
-interface CreateItemResponse {
-    item: {
-        id: string;
-        name: string;
-        dueDate?: string;
-        notes?: string;
-        completed: boolean;
-        urgent: boolean;
-        category?: string;
-        type?: string;
-    };
-}
+import { CreateItemRequest, createItemRequestSchema, CreateItemResponse, UserId } from "@timothyw/pat-common";
 
 export const createItemEndpoint: ApiEndpoint<CreateItemRequest, CreateItemResponse> = {
     path: '/api/items',
@@ -33,8 +10,8 @@ export const createItemEndpoint: ApiEndpoint<CreateItemRequest, CreateItemRespon
     auth: 'verifiedEmail',
     handler: async (req, res) => {
         try {
-            const data = createItemSchema.parse(req.body);
-            const userId = new Types.ObjectId(req.auth!.userId);
+            const data = createItemRequestSchema.parse(req.body);
+            const userId = req.auth!.userId!;
 
             const item = await ItemManager.getInstance().create(userId, {
                 name: data.name,

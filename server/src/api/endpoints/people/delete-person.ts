@@ -1,18 +1,15 @@
 import { ApiEndpoint } from '../../types';
 import PersonManager from '../../../controllers/person-manager';
 import { Types } from 'mongoose';
+import { DeletePersonResponse, PersonId } from "@timothyw/pat-common";
 
-interface DeletePersonResponse {
-    deleted: boolean;
-}
-
-export const deletePersonEndpoint: ApiEndpoint<unknown, DeletePersonResponse> = {
+export const deletePersonEndpoint: ApiEndpoint<undefined, DeletePersonResponse> = {
     path: '/api/people/:personId',
     method: 'delete',
     auth: 'verifiedEmail',
     handler: async (req, res) => {
         try {
-            const personId = new Types.ObjectId(req.params.personId);
+            const personId = req.params.personId as PersonId;
             const deleted = await PersonManager.getInstance().delete(personId);
 
             if (!deleted) {

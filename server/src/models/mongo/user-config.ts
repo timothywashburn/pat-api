@@ -1,7 +1,7 @@
-import {model, Schema, InferSchemaType, HydratedDocument} from "mongoose";
-import {PANEL_TYPES} from "../panels";
+import { model, Schema, InferSchemaType, HydratedDocument, Types } from "mongoose";
+import { PANEL_TYPES, UserConfig } from "@timothyw/pat-common";
 
-const userConfigSchema = new Schema({
+const userConfigSchema = new Schema<UserConfig>({
     name: {
         type: String,
         required: true,
@@ -32,16 +32,14 @@ const userConfigSchema = new Schema({
         type: {
             panels: [{
                 type: {
-                    panel: {
-                        type: String,
-                        enum: PANEL_TYPES,
-                        required: true
-                    },
-                    visible: {
-                        type: Boolean,
-                        required: true,
-                        default: true
-                    }
+                    type: String,
+                    enum: PANEL_TYPES,
+                    required: true
+                },
+                visible: {
+                    type: Boolean,
+                    required: true,
+                    default: true
                 }
             }],
             itemCategories: [{
@@ -58,7 +56,7 @@ const userConfigSchema = new Schema({
             }]
         },
         default: {
-            panels: PANEL_TYPES.map(panel => ({ panel, visible: true })),
+            panels: PANEL_TYPES.map(type => ({ type, visible: true })),
             itemCategories: ['School', 'Work', 'Personal'],
             itemTypes: ['Assignment', 'Project'],
             propertyKeys: ['Email', 'Phone', 'Company', 'Title']
@@ -68,10 +66,4 @@ const userConfigSchema = new Schema({
     timestamps: true,
 });
 
-type UserConfig = HydratedDocument<InferSchemaType<typeof userConfigSchema>>;
-const UserConfigModel = model<UserConfig>('UserConfig', userConfigSchema);
-
-export {
-    UserConfig,
-    UserConfigModel
-};
+export const UserConfigModel = model<UserConfig>('UserConfig', userConfigSchema);

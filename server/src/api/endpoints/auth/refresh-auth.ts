@@ -1,27 +1,14 @@
 import { ApiEndpoint } from '../../types';
 import AuthManager from '../../../controllers/auth-manager';
 import { z } from 'zod';
-import { PublicAuthData } from "../../../models/mongo/auth-data";
-import { UserConfig } from "../../../models/mongo/user-config";
-import { AuthTokens } from "@timothyw/pat-common";
-
-const refreshTokenSchema = z.object({
-    refreshToken: z.string()
-});
-
-type RefreshTokenRequest = z.infer<typeof refreshTokenSchema>;
-
-export interface RefreshAuthResponse {
-    tokenData: AuthTokens;
-    authData: PublicAuthData;
-}
+import { RefreshAuthResponse, RefreshTokenRequest, refreshTokenRequestSchema } from "@timothyw/pat-common";
 
 export const refreshAuthEndpoint: ApiEndpoint<RefreshTokenRequest, RefreshAuthResponse> = {
     path: '/api/auth/refresh',
     method: 'post',
     handler: async (req, res) => {
         try {
-            const data = refreshTokenSchema.parse(req.body);
+            const data = refreshTokenRequestSchema.parse(req.body);
             const result = await AuthManager.getInstance().refreshAuth(data.refreshToken);
 
             if (!result) {

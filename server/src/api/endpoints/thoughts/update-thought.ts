@@ -2,19 +2,12 @@ import { ApiEndpoint } from '../../types';
 import ThoughtManager from '../../../controllers/thought-manager';
 import { Types } from 'mongoose';
 import { z } from 'zod';
-
-const updateThoughtSchema = z.object({
-    content: z.string().min(1)
-});
-
-type UpdateThoughtRequest = z.infer<typeof updateThoughtSchema>;
-
-interface UpdateThoughtResponse {
-    thought: {
-        id: string;
-        content: string;
-    };
-}
+import {
+    ThoughtId,
+    UpdateThoughtRequest,
+    updateThoughtRequestSchema,
+    UpdateThoughtResponse
+} from "@timothyw/pat-common";
 
 export const updateThoughtEndpoint: ApiEndpoint<UpdateThoughtRequest, UpdateThoughtResponse> = {
     path: '/api/thoughts/:thoughtId',
@@ -22,8 +15,8 @@ export const updateThoughtEndpoint: ApiEndpoint<UpdateThoughtRequest, UpdateThou
     auth: 'verifiedEmail',
     handler: async (req, res) => {
         try {
-            const data = updateThoughtSchema.parse(req.body);
-            const thoughtId = new Types.ObjectId(req.params.thoughtId);
+            const data = updateThoughtRequestSchema.parse(req.body);
+            const thoughtId = req.params.thoughtId as ThoughtId;
 
             const thought = await ThoughtManager.getInstance().update(thoughtId, data);
 

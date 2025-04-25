@@ -2,6 +2,7 @@ import { CommandInteraction, CommandInteractionOptionResolver } from 'discord.js
 import Command from "../models/command";
 import UserManager from "../../controllers/user-manager";
 import {AuthDataModel} from "../../models/mongo/auth-data";
+import { UserId } from "@timothyw/pat-common";
 
 const ADMIN_DISCORD_ID = '458458767634464792';
 
@@ -50,7 +51,7 @@ export default class LinkAccountCommand extends Command {
             }
 
             const updatedUser = await UserManager.getInstance().update(
-                auth.userId,
+                auth.userId as UserId,
                 { discordID: targetUser.id }
             );
 

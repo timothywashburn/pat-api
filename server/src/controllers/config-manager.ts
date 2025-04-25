@@ -1,4 +1,5 @@
-import {ProgramConfigData, ProgramConfigModel} from "../models/mongo/program-config";
+import {ProgramConfigModel} from "../models/mongo/program-config";
+import { ProgramConfigData } from "@timothyw/pat-common";
 
 export default class ConfigManager {
     private static configCache: ProgramConfigData | null;

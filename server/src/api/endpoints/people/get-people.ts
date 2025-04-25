@@ -1,23 +1,8 @@
 import { ApiEndpoint } from '../../types';
 import PersonManager from '../../../controllers/person-manager';
+import { GetPeopleResponse, UserId } from "@timothyw/pat-common";
 
-interface GetPeopleResponse {
-    people: Array<{
-        id: string;
-        name: string;
-        properties: Array<{
-            key: string;
-            value: string;
-        }>;
-        notes: Array<{
-            content: string;
-            createdAt: string;
-            updatedAt: string;
-        }>;
-    }>;
-}
-
-export const getPeopleEndpoint: ApiEndpoint<unknown, GetPeopleResponse> = {
+export const getPeopleEndpoint: ApiEndpoint<undefined, GetPeopleResponse> = {
     path: '/api/people',
     method: 'get',
     auth: 'verifiedEmail',

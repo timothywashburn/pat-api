@@ -1,16 +1,9 @@
 import { Schema, model, Types } from 'mongoose';
-
-interface ThoughtData {
-    _id: Types.ObjectId;
-    userId: Types.ObjectId;
-    createdAt: Date;
-    updatedAt: Date;
-    content: string;
-}
+import { ThoughtData } from "@timothyw/pat-common";
 
 const thoughtSchema = new Schema<ThoughtData>({
     userId: {
-        type: Schema.Types.ObjectId,
+        type: String,
         required: true,
         index: true,
     },
@@ -23,9 +16,4 @@ const thoughtSchema = new Schema<ThoughtData>({
     timestamps: true,
 });
 
-const ThoughtModel = model<ThoughtData>('Thought', thoughtSchema);
-
-export {
-    ThoughtData,
-    ThoughtModel,
-};
+export const ThoughtModel = model<ThoughtData>('Thought', thoughtSchema);

@@ -1,21 +1,25 @@
 import { Types } from "mongoose";
-import { UserConfig } from "../models/mongo/user-config";
 import { sign, verify } from "jsonwebtoken";
 import UserManager from "./user-manager";
-import { AuthData, AuthDataModel, toPublicAuthData } from "../models/mongo/auth-data";
 import { compare, hash } from "bcrypt";
 import { randomBytes } from 'crypto';
 import MailjetManager from "./mailjet-manager";
-import { LoginResponse } from "../api/endpoints/auth/login";
-import { RefreshAuthResponse } from "../api/endpoints/auth/refresh-auth";
-import { AuthTokens, RefreshTokenPayload, TokenPayload } from "@timothyw/pat-common";
+import {
+    AuthData, AuthId,
+    AuthTokens,
+    LoginResponse, RefreshAuthResponse,
+    RefreshTokenPayload,
+    TokenPayload,
+    toPublicAuthData, UserConfig, UserId
+} from "@timothyw/pat-common";
+import { AuthDataModel } from "../models/mongo/auth-data";
 
 export default class AuthManager {
     private static instance: AuthManager;
 
     private constructor() {}
 
-    private generateTokens(auth: AuthData, userId: Types.ObjectId): AuthTokens {
+    private generateTokens(auth: AuthData, userId: UserId): AuthTokens {
         const tokenId = randomBytes(32).toString('hex');
 
         const tokenPayload: TokenPayload = {
@@ -95,19 +99,19 @@ export default class AuthManager {
         }
     }
 
-    verifyToken(token: string): { authId: Types.ObjectId; userId: Types.ObjectId } | null {
+    verifyToken(token: string): { authId: AuthId; userId: UserId } | null {
         try {
             const decoded = verify(token, process.env.JWT_SECRET!) as TokenPayload;
             return {
-                authId: new Types.ObjectId(decoded.authId),
-                userId: new Types.ObjectId(decoded.userId)
+                authId: decoded.authId as AuthId,
+                userId: decoded.userId as UserId
             };
         } catch {
             return null;
         }
     }
 
-    async verifyEmail(authId: Types.ObjectId): Promise<boolean> {
+    async verifyEmail(authId: AuthId): Promise<boolean> {
         const result = await AuthDataModel.findByIdAndUpdate(
             authId,
             { $set: { emailVerified: true } },
@@ -116,7 +120,7 @@ export default class AuthManager {
         return result !== null;
     }
 
-    async resendVerificationEmail(authId: Types.ObjectId): Promise<boolean> {
+    async resendVerificationEmail(authId: AuthId): Promise<boolean> {
         try {
             const auth = await AuthDataModel.findById(authId);
             if (!auth || auth.emailVerified) {
