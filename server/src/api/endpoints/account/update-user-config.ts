@@ -2,12 +2,10 @@ import { ApiEndpoint } from '../../types';
 import UserManager from '../../../controllers/user-manager';
 import ItemManager from '../../../controllers/item-manager';
 import { z } from 'zod';
-import {Types} from "mongoose";
 import {
     UpdateUserConfigRequest,
     updateUserConfigRequestSchema,
-    UpdateUserConfigResponse,
-    UserId
+    UpdateUserConfigResponse
 } from "@timothyw/pat-common";
 
 export const updateUserConfigEndpoint: ApiEndpoint<UpdateUserConfigRequest, UpdateUserConfigResponse> = {
@@ -61,27 +59,10 @@ export const updateUserConfigEndpoint: ApiEndpoint<UpdateUserConfigRequest, Upda
                 return;
             }
 
-            const formattedIosApp = updatedUser.iosApp ? {
-                panels: updatedUser.iosApp.panels.map(panel => ({
-                    panel: panel.type,
-                    visible: panel.visible
-                })),
-                itemCategories: updatedUser.iosApp.itemCategories,
-                itemTypes: updatedUser.iosApp.itemTypes,
-                propertyKeys: updatedUser.iosApp.propertyKeys
-            } : undefined;
-
             res.json({
                 success: true,
                 data: {
-                    user: {
-                        id: updatedUser._id.toString(),
-                        name: updatedUser.name,
-                        timezone: updatedUser.timezone,
-                        discordID: updatedUser.discordID,
-                        itemListTracking: updatedUser.itemListTracking,
-                        iosApp: formattedIosApp
-                    }
+                    user: updatedUser
                 }
             });
         } catch (error) {

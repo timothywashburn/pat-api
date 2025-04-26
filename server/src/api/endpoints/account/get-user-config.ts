@@ -1,6 +1,5 @@
 import { ApiEndpoint } from '../../types';
 import UserManager from '../../../controllers/user-manager';
-import { Document } from 'mongoose';
 import { GetUserConfigResponse, Panel, PANEL_TYPES } from "@timothyw/pat-common";
 
 const isValidPanel = (panel: Panel | null | undefined): panel is Panel => {
@@ -31,7 +30,6 @@ export const getUserConfigEndpoint: ApiEndpoint<undefined, GetUserConfigResponse
                 return;
             }
 
-            console.log(user.iosApp.panels);
             const transformedPanels = user.iosApp.panels.map(panel => {
                 if (!isValidPanel(panel)) {
                     return null;
@@ -41,8 +39,6 @@ export const getUserConfigEndpoint: ApiEndpoint<undefined, GetUserConfigResponse
                     visible: panel.visible ?? true
                 };
             }).filter((p): p is Panel => p !== null);
-            console.log("transformed");
-            console.log(transformedPanels);
 
             if (transformedPanels.length === 0) {
                 res.status(500).json({
@@ -52,13 +48,11 @@ export const getUserConfigEndpoint: ApiEndpoint<undefined, GetUserConfigResponse
                 return;
             }
 
-            const responseData: GetUserConfigResponse = {
-                user
-            };
-
             res.json({
                 success: true,
-                data: responseData
+                data: {
+                    user
+                }
             });
         } catch (error) {
             console.error('[config] Error in getUserConfig:', error);
