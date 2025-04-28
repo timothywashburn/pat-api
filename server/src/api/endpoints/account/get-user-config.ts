@@ -1,9 +1,9 @@
 import { ApiEndpoint } from '../../types';
 import UserManager from '../../../controllers/user-manager';
-import { GetUserConfigResponse, Panel, PANEL_TYPES } from "@timothyw/pat-common";
+import { GetUserConfigResponse, Panel, PanelType } from "@timothyw/pat-common";
 
 const isValidPanel = (panel: Panel | null | undefined): panel is Panel => {
-    return panel != null && PANEL_TYPES.includes(panel.type);
+    return panel != null && Object.values(PanelType).includes(panel.type);
 };
 
 export const getUserConfigEndpoint: ApiEndpoint<undefined, GetUserConfigResponse> = {

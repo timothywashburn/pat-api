@@ -1,5 +1,5 @@
 import { model, Schema, InferSchemaType, HydratedDocument, Types } from "mongoose";
-import { PANEL_TYPES, UserConfig } from "@timothyw/pat-common";
+import { PanelType, UserConfig } from "@timothyw/pat-common";
 
 const userConfigSchema = new Schema<UserConfig>({
     name: {
@@ -33,7 +33,7 @@ const userConfigSchema = new Schema<UserConfig>({
             panels: [{
                 type: {
                     type: String,
-                    enum: PANEL_TYPES,
+                    enum: Object.values(PanelType),
                     required: true
                 },
                 visible: {
@@ -56,7 +56,7 @@ const userConfigSchema = new Schema<UserConfig>({
             }]
         },
         default: {
-            panels: PANEL_TYPES.map(type => ({ type, visible: true })),
+            panels: Object.values(PanelType).map(type => ({ type, visible: true })),
             itemCategories: ['School', 'Work', 'Personal'],
             itemTypes: ['Assignment', 'Project'],
             propertyKeys: ['Email', 'Phone', 'Company', 'Title']
