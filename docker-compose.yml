@@ -26,6 +26,7 @@ services:
 
   pat-server:
     image: kyrokrypt/pat-server:latest
+    pull_policy: always
     container_name: pat-server
     restart: unless-stopped
     expose:

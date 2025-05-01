@@ -70,5 +70,5 @@ jobs:
           sshpass -p "$SSH_PASSWORD" ssh -o StrictHostKeyChecking=no $SSH_CONNECTION "cd ~/pat-server && \
           docker compose down && \
           docker compose pull && \
-          docker compose up -d --force-recreate && \
+          docker compose up -d && \
           docker compose logs"
