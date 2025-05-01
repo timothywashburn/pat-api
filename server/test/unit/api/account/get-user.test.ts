@@ -2,15 +2,15 @@ import axios from 'axios';
 import { TestContext } from '../../../main';
 import { UserConfigModel } from '../../../../src/models/mongo/user-config';
 import { ApiResponseBody } from "../../../../src/api/types";
-import { GetUserConfigResponse } from '@timothyw/pat-common';
+import { GetUserResponse } from "@timothyw/pat-common";
 
 export async function runGetUserConfigTest(context: TestContext) {
     if (!context.authToken || !context.userId) {
         throw new Error('missing required context for get user config test');
     }
 
-    const response = await axios.get<ApiResponseBody<GetUserConfigResponse>>(
-        `${context.baseUrl}/api/account/config`,
+    const response = await axios.get<ApiResponseBody<GetUserResponse>>(
+        `${context.baseUrl}/api/account`,
         {
             headers: {
                 Authorization: `Bearer ${context.authToken}`

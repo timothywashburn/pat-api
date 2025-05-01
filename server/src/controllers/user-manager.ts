@@ -1,6 +1,6 @@
 import {Types} from "mongoose";
 import {UserConfigModel} from "../models/mongo/user-config";
-import { UpdateUserConfigRequest, UserConfig, UserId } from "@timothyw/pat-common";
+import { UpdateUserRequest, UserData, UserId } from "@timothyw/pat-common";
 
 export default class UserManager {
     private static instance: UserManager;
@@ -23,7 +23,7 @@ export default class UserManager {
         return flattened;
     }
 
-    async create(name: string, discordID?: string): Promise<UserConfig> {
+    async create(name: string, discordID?: string): Promise<UserData> {
         const userConfig = new UserConfigModel({
             name,
             discordID
@@ -31,11 +31,11 @@ export default class UserManager {
         return userConfig.save();
     }
 
-    async getById(userId: UserId): Promise<UserConfig | null> {
+    async getById(userId: UserId): Promise<UserData | null> {
         return UserConfigModel.findById(userId);
     }
 
-    async update(userId: UserId, updates: UpdateUserConfigRequest): Promise<UserConfig | null> {
+    async update(userId: UserId, updates: UpdateUserRequest): Promise<UserData | null> {
         const set: Record<string, any> = {};
         const unset: Record<string, any> = {};
 
@@ -71,11 +71,11 @@ export default class UserManager {
             .then(result => result !== null);
     }
 
-    async getByDiscordID(discordID: string): Promise<UserConfig | null> {
+    async getByDiscordID(discordID: string): Promise<UserData | null> {
         return UserConfigModel.findOne({ discordID });
     }
 
-    async getAllWithTracking(): Promise<UserConfig[]> {
+    async getAllWithTracking(): Promise<UserData[]> {
         return UserConfigModel.find({ itemListTracking: { $exists: true, $ne: null } });
     }
 

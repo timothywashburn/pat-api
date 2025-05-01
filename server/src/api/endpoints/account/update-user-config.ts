@@ -2,19 +2,15 @@ import { ApiEndpoint } from '../../types';
 import UserManager from '../../../controllers/user-manager';
 import ItemManager from '../../../controllers/item-manager';
 import { z } from 'zod';
-import {
-    UpdateUserConfigRequest,
-    updateUserConfigRequestSchema,
-    UpdateUserConfigResponse
-} from "@timothyw/pat-common";
+import { UpdateUserRequest, updateUserRequestSchema, UpdateUserResponse } from "@timothyw/pat-common";
 
-export const updateUserConfigEndpoint: ApiEndpoint<UpdateUserConfigRequest, UpdateUserConfigResponse> = {
-    path: '/api/account/config',
+export const updateUserEndpoint: ApiEndpoint<UpdateUserRequest, UpdateUserResponse> = {
+    path: '/api/account',
     method: 'put',
     auth: 'verifiedEmail',
     handler: async (req, res) => {
         try {
-            const data: UpdateUserConfigRequest = updateUserConfigRequestSchema.parse(req.body);
+            const data: UpdateUserRequest = updateUserRequestSchema.parse(req.body);
             const userId = req.auth!.userId!;
 
             const currentUser = await UserManager.getInstance().getById(userId);
@@ -26,9 +22,9 @@ export const updateUserConfigEndpoint: ApiEndpoint<UpdateUserConfigRequest, Upda
                 return;
             }
 
-            if (data.iosApp?.itemCategories !== undefined) {
-                const removedCategories = (currentUser.iosApp?.itemCategories || [])
-                    .filter(cat => !data.iosApp!.itemCategories!.includes(cat));
+            if (data.config?.agenda?.itemCategories !== undefined) {
+                const removedCategories = (currentUser.config.agenda.itemCategories || [])
+                    .filter(cat => !data.config!.agenda!.itemCategories!.includes(cat));
 
                 for (const category of removedCategories) {
                     await ItemManager.getInstance().clearItemCategory(
@@ -38,9 +34,9 @@ export const updateUserConfigEndpoint: ApiEndpoint<UpdateUserConfigRequest, Upda
                 }
             }
 
-            if (data.iosApp?.itemTypes !== undefined) {
-                const removedTypes = (currentUser.iosApp?.itemTypes || [])
-                    .filter(type => !data.iosApp!.itemTypes!.includes(type));
+            if (data.config?.agenda?.itemTypes !== undefined) {
+                const removedTypes = (currentUser.config.agenda.itemTypes || [])
+                    .filter(type => !data.config!.agenda!.itemTypes!.includes(type));
 
                 for (const type of removedTypes) {
                     await ItemManager.getInstance().clearItemType(

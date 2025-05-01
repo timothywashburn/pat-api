@@ -1,13 +1,13 @@
 import { ApiEndpoint } from '../../types';
 import UserManager from '../../../controllers/user-manager';
-import { GetUserConfigResponse, Panel, PanelType } from "@timothyw/pat-common";
+import { GetUserResponse, Panel, PanelType } from "@timothyw/pat-common";
 
 const isValidPanel = (panel: Panel | null | undefined): panel is Panel => {
     return panel != null && Object.values(PanelType).includes(panel.type);
 };
 
-export const getUserConfigEndpoint: ApiEndpoint<undefined, GetUserConfigResponse> = {
-    path: '/api/account/config',
+export const getUserEndpoint: ApiEndpoint<undefined, GetUserResponse> = {
+    path: '/api/account',
     method: 'get',
     auth: 'verifiedEmail',
     handler: async (req, res) => {
@@ -22,7 +22,7 @@ export const getUserConfigEndpoint: ApiEndpoint<undefined, GetUserConfigResponse
                 return;
             }
 
-            if (!user.iosApp?.panels) {
+            if (!user.config.panels) {
                 res.status(500).json({
                     success: false,
                     error: 'No panel configuration found'
@@ -30,7 +30,7 @@ export const getUserConfigEndpoint: ApiEndpoint<undefined, GetUserConfigResponse
                 return;
             }
 
-            const transformedPanels = user.iosApp.panels.map(panel => {
+            const transformedPanels = user.config.panels.map(panel => {
                 if (!isValidPanel(panel)) {
                     return null;
                 }

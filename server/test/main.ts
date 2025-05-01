@@ -10,8 +10,8 @@ import { runCreateItemsTest } from "./unit/api/items/create-items.test";
 import { runDeleteItemTest } from "./unit/api/items/delete-item.test";
 import { runRefreshTokenTest } from "./unit/api/auth/refresh-auth.test";
 import { runCompleteItemTest } from "./unit/api/items/complete-item.test";
-import { runUpdateUserConfigTest } from "./unit/api/account/update-user-config.test";
-import { runGetUserConfigTest } from "./unit/api/account/get-user-config.test";
+import { runUpdateUserConfigTest } from "./unit/api/account/update-user.test";
+import { runGetUserConfigTest } from "./unit/api/account/get-user.test";
 import { runResendVerificationTest } from "./unit/api/auth/resend-verification.test";
 import { runVerifyEmailTest } from "./unit/api/auth/verify-email.test";
 import { runUpdateItemTest } from "./unit/api/items/update-item.test";
@@ -58,8 +58,8 @@ const tests: Test[] = [
     { name: 'verify email', run: runVerifyEmailTest },
     { name: 'refresh token', run: runRefreshTokenTest },
 
-    { name: 'get user config', run: runGetUserConfigTest },
-    { name: 'update user config', run: runUpdateUserConfigTest },
+    { name: 'get user', run: runGetUserConfigTest },
+    { name: 'update user', run: runUpdateUserConfigTest },
 
     { name: 'create items', run: runCreateItemsTest },
     { name: 'delete item', run: runDeleteItemTest },

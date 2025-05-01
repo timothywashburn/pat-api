@@ -10,7 +10,7 @@ import {
     LoginResponse, RefreshAuthResponse,
     RefreshTokenPayload,
     TokenPayload,
-    toPublicAuthData, UserConfig, UserId
+    toPublicAuthData, UserData, UserId
 } from "@timothyw/pat-common";
 import { AuthDataModel } from "../models/mongo/auth-data";
 
@@ -38,7 +38,7 @@ export default class AuthManager {
         };
     }
 
-    async register(name: string, email: string, password: string): Promise<{ tokenData: AuthTokens; authData: AuthData; user: UserConfig }> {
+    async register(name: string, email: string, password: string): Promise<{ tokenData: AuthTokens; authData: AuthData; user: UserData }> {
         const existingAuth = await AuthDataModel.findOne({ email });
         if (existingAuth) {
             throw new Error('Email already exists');

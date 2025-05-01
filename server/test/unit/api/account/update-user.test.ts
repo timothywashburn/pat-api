@@ -1,8 +1,7 @@
 import axios from 'axios';
 import { TestContext } from '../../../main';
 import { UserConfigModel } from '../../../../src/models/mongo/user-config';
-import { Types } from 'mongoose';
-import { UpdateUserConfigResponse, UserId } from "@timothyw/pat-common";
+import { UpdateUserResponse, UserData } from "@timothyw/pat-common";
 import { ApiResponseBody } from "../../../../src/api/types";
 
 interface UserConfigData {
@@ -24,8 +23,8 @@ export async function runUpdateUserConfigTest(context: TestContext) {
         name: 'Updated Test User'
     };
 
-    const response = await axios.put<ApiResponseBody<UpdateUserConfigResponse>>(
-        `${context.baseUrl}/api/account/config`,
+    const response = await axios.put<ApiResponseBody<UpdateUserResponse>>(
+        `${context.baseUrl}/api/account`,
         updates,
         {
             headers: {
@@ -40,10 +39,10 @@ export async function runUpdateUserConfigTest(context: TestContext) {
     if (!user) throw new Error('user not found in database');
 
     for (const [key, value] of Object.entries(updates)) {
-        if (JSON.stringify(response.data.data!.user[key as keyof UserConfigData]) !== JSON.stringify(value)) {
+        if (JSON.stringify(response.data.data!.user[key as keyof UserData]) !== JSON.stringify(value)) {
             throw new Error(`${key} not updated correctly in response`);
         }
-        if (JSON.stringify(user[key as keyof UserConfigData]) !== JSON.stringify(value)) {
+        if (JSON.stringify(user[key as keyof UserData]) !== JSON.stringify(value)) {
             throw new Error(`${key} not updated correctly in database`);
         }
     }

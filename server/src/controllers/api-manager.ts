@@ -7,8 +7,8 @@ import {createItemEndpoint} from "../api/endpoints/items/create-item";
 import {deleteItemEndpoint} from "../api/endpoints/items/delete-item";
 import {refreshAuthEndpoint} from "../api/endpoints/auth/refresh-auth";
 import {completeItemEndpoint} from "../api/endpoints/items/complete-item";
-import {updateUserConfigEndpoint} from "../api/endpoints/account/update-user-config";
-import {getUserConfigEndpoint} from "../api/endpoints/account/get-user-config";
+import {updateUserEndpoint} from "../api/endpoints/account/update-user-config";
+import {getUserEndpoint} from "../api/endpoints/account/get-user";
 import {registerEndpoint} from "../api/endpoints/auth/register";
 import {resendVerificationEndpoint} from "../api/endpoints/auth/resend-verification";
 import {verifyEmailEndpoint} from "../api/endpoints/auth/verify-email";
@@ -35,8 +35,8 @@ export default class ApiManager {
     }
 
     private registerEndpoints() {
-        this.addEndpoint(getUserConfigEndpoint);
-        this.addEndpoint(updateUserConfigEndpoint);
+        this.addEndpoint(getUserEndpoint);
+        this.addEndpoint(updateUserEndpoint);
 
         this.addEndpoint(loginEndpoint);
         this.addEndpoint(refreshAuthEndpoint);

@@ -52,7 +52,11 @@ export default class LinkAccountCommand extends Command {
 
             const updatedUser = await UserManager.getInstance().update(
                 auth.userId as UserId,
-                { discordID: targetUser.id }
+                {
+                    sandbox: {
+                        discordId: targetUser.id
+                    }
+                }
             );
 
             if (!updatedUser) {

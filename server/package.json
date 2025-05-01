@@ -8,7 +8,7 @@
     "test": "ts-node test/main.ts"
   },
   "dependencies": {
-    "@timothyw/pat-common": "^1.0.16",
+    "@timothyw/pat-common": "^1.0.21",
     "bcrypt": "^5.1.1",
     "discord-api-types": "^0.37.103",
     "discord.js": "^14.18.0",
