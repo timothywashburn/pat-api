@@ -5,6 +5,10 @@ on:
       - main
   workflow_dispatch:
 
+concurrency:
+  group: production_environment
+  cancel-in-progress: true
+
 env:
   DOCKER_IMAGE: kyrokrypt/pat-server
 
