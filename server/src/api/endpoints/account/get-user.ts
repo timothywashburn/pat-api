@@ -1,9 +1,9 @@
 import { ApiEndpoint } from '../../types';
 import UserManager from '../../../controllers/user-manager';
-import { GetUserResponse, Panel, PanelType } from "@timothyw/pat-common";
+import { GetUserResponse, Module, ModuleType } from "@timothyw/pat-common";
 
-const isValidPanel = (panel: Panel | null | undefined): panel is Panel => {
-    return panel != null && Object.values(PanelType).includes(panel.type);
+const isValidModule = (module: Module | null | undefined): module is Module => {
+    return module != null && Object.values(ModuleType).includes(module.type);
 };
 
 export const getUserEndpoint: ApiEndpoint<undefined, GetUserResponse> = {
@@ -22,28 +22,28 @@ export const getUserEndpoint: ApiEndpoint<undefined, GetUserResponse> = {
                 return;
             }
 
-            if (!user.config.panels) {
+            if (!user.config.modules) {
                 res.status(500).json({
                     success: false,
-                    error: 'No panel configuration found'
+                    error: 'No module configuration found'
                 });
                 return;
             }
 
-            const transformedPanels = user.config.panels.map(panel => {
-                if (!isValidPanel(panel)) {
+            const transformedModules = user.config.modules.map(module => {
+                if (!isValidModule(module)) {
                     return null;
                 }
                 return {
-                    type: panel.type,
-                    visible: panel.visible ?? true
+                    type: module.type,
+                    visible: module.visible ?? true
                 };
-            }).filter((p): p is Panel => p !== null);
+            }).filter((module): module is Module => module !== null);
 
-            if (transformedPanels.length === 0) {
+            if (transformedModules.length === 0) {
                 res.status(500).json({
                     success: false,
-                    error: 'No valid panel configuration found'
+                    error: 'No valid module configuration found'
                 });
                 return;
             }

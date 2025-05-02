@@ -1,7 +1,7 @@
 import { model, Schema, InferSchemaType, HydratedDocument, Types } from "mongoose";
-import { PanelType, UserData } from "@timothyw/pat-common";
+import { ModuleType, UserData } from "@timothyw/pat-common";
 
-const userConfigSchema = new Schema<UserData>({
+const userDataSchema = new Schema<UserData>({
     sandbox: {
         type: {
             discordId: {
@@ -23,10 +23,10 @@ const userConfigSchema = new Schema<UserData>({
     },
     config: {
         type: {
-            panels: [{
+            modules: [{
                 type: {
                     type: String,
-                    enum: Object.values(PanelType),
+                    enum: Object.values(ModuleType),
                     required: true
                 },
                 visible: {
@@ -57,7 +57,7 @@ const userConfigSchema = new Schema<UserData>({
             }
         },
         default: {
-            panels: Object.values(PanelType).map(type => ({ type, visible: true })),
+            modules: Object.values(ModuleType).map(type => ({ type, visible: true })),
             agenda: {
                 itemCategories: ['School', 'Work', 'Personal'],
                 itemTypes: ['Assignment', 'Project']
@@ -71,4 +71,4 @@ const userConfigSchema = new Schema<UserData>({
     timestamps: true,
 });
 
-export const UserConfigModel = model<UserData>('UserConfig', userConfigSchema);
+export const UserConfigModel = model<UserData>('User', userDataSchema);
