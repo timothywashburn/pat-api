@@ -20,6 +20,8 @@ export default class TestCommand extends Command {
             return;
         }
 
+        await interaction.deferReply({ ephemeral: true });
+
         const userId = "68142858a2fa4d2f7546a9a9" as UserId;
         await NotificationManager.getInstance().sendToUser(
             userId,
@@ -28,6 +30,6 @@ export default class TestCommand extends Command {
             { source: "discord", command: "test" }
         );
 
-        await interaction.reply("Done");
+        await interaction.editReply("Done");
     }
 }

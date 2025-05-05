@@ -1,75 +1,78 @@
 import ConfigManager from "./config-manager";
 import UserManager from "./user-manager";
 import { UserId } from "@timothyw/pat-common";
+import { Expo, ExpoPushMessage, ExpoPushTicket, ExpoPushReceipt } from 'expo-server-sdk';
 
 export default class NotificationManager {
     private static _expoToken: string;
     private static instance: NotificationManager;
+    private expo: Expo;
 
-    private constructor() {}
+    private constructor() {
+        this.expo = new Expo();
+    }
 
     static async init(): Promise<void> {
         this._expoToken = ConfigManager.getConfig().expo.token;
     }
 
-    /**
-     * Send a push notification to all devices registered to a user
-     */
     async sendToUser(userId: UserId, title: string, body: string, data: any = {}): Promise<void> {
         try {
-            // Get user from database
             const user = await UserManager.getInstance().getById(userId);
             if (!user || !user.sandbox || !user.sandbox.devices || user.sandbox.devices.length === 0) {
                 console.log(`no devices found for user ${userId}`)
                 return;
             }
 
-            // Send notification to each device
-            const devices = user.sandbox.devices;
-            console.log(`sending notification to ${devices.length} devices for user ${userId}`)
+            const pushTokens = user.sandbox.devices.map(device => device.pushToken);
+            console.log(`sending notification to ${pushTokens.length} devices for user ${userId}`)
 
-            const promises = devices.map(device =>
-                this.sendToDevice(device.pushToken, title, body, data)
-            );
-
-            await Promise.all(promises);
+            await this.sendToDevices(pushTokens, title, body, data);
         } catch (error) {
             console.log(`error sending notifications: ${error}`)
         }
     }
 
-    /**
-     * Send a push notification to a specific device
-     */
-    async sendToDevice(pushToken: string, title: string, body: string, data: any = {}): Promise<void> {
+    async sendToDevices(pushTokens: string[], title: string, body: string, data: any = {}): Promise<void> {
         try {
-            const message = {
-                to: pushToken,
-                sound: 'default',
-                title,
-                body,
-                data
-            };
+            const messages: ExpoPushMessage[] = [];
 
-            const response = await fetch('https://exp.host/--/api/v2/push/send', {
-                method: 'POST',
-                headers: {
-                    Accept: 'application/json',
-                    'Accept-encoding': 'gzip, deflate',
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify(message),
-            });
+            for (const pushToken of pushTokens) {
+                if (!Expo.isExpoPushToken(pushToken)) {
+                    console.log(`invalid expo push token: ${pushToken}`)
+                    continue;
+                }
 
-            if (!response.ok) {
-                const errorData = await response.json();
-                console.log(`push notification api error: ${JSON.stringify(errorData)}`)
-            } else {
-                console.log(`notification sent to device ${pushToken}`)
+                messages.push({
+                    to: pushToken,
+                    sound: 'default',
+                    title,
+                    body,
+                    data
+                });
             }
+
+            const chunks = this.expo.chunkPushNotifications(messages);
+            const tickets: ExpoPushTicket[] = [];
+
+            for (const chunk of chunks) {
+                try {
+                    const ticketChunk = await this.expo.sendPushNotificationsAsync(chunk);
+                    tickets.push(...ticketChunk);
+                    console.log(`sent notifications chunk with ${chunk.length} messages`)
+                } catch (error) {
+                    console.log(`error sending notification chunk: ${error}`)
+                }
+            }
+
+            this.handlePushNotificationTickets(tickets);
         } catch (error) {
-            console.log(`error sending notification to device: ${error}`)
+            console.log(`error in sendToDevices: ${error}`)
         }
+    }
+
+    private async handlePushNotificationTickets(tickets: ExpoPushTicket[]): Promise<void> {
+    //     TODO: DO NOT IMPLEMENT YET
     }
 
     static getInstance(): NotificationManager {
