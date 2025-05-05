@@ -26,8 +26,7 @@ export default class TestCommand extends Command {
         await NotificationManager.getInstance().sendToUser(
             userId,
             "Test Notification",
-            "This is a test notification sent from the test command!",
-            { source: "discord", command: "test" }
+            "This is a test notification sent from the test command!"
         );
 
         await interaction.editReply("Done");

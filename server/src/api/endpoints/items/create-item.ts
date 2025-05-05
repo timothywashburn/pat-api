@@ -2,7 +2,8 @@ import { ApiEndpoint } from '../../types';
 import ItemManager from '../../../controllers/item-manager';
 import { Types } from 'mongoose';
 import { z } from 'zod';
-import { CreateItemRequest, createItemRequestSchema, CreateItemResponse, UserId } from "@timothyw/pat-common";
+import { CreateItemRequest, createItemRequestSchema, CreateItemResponse, ItemId, UserId } from "@timothyw/pat-common";
+import NotificationManager from "../../../controllers/notification-manager";
 
 export const createItemEndpoint: ApiEndpoint<CreateItemRequest, CreateItemResponse> = {
     path: '/api/items',
@@ -21,6 +22,9 @@ export const createItemEndpoint: ApiEndpoint<CreateItemRequest, CreateItemRespon
                 category: data.category ?? null,
                 type: data.type ?? null
             });
+
+            // TODO: figure out a better way to handle objectids as itemids
+            await NotificationManager.getInstance().scheduleNotificationsForItem(userId, String(item._id) as ItemId);
 
             res.json({
                 success: true,

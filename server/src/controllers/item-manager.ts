@@ -26,7 +26,7 @@ export default class ItemManager {
         return todo.save();
     }
 
-    getById(itemId: UserId): Promise<ItemData | null> {
+    getById(itemId: ItemId): Promise<ItemData | null> {
         return ItemModel.findById(itemId);
     }
 

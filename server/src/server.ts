@@ -8,6 +8,7 @@ import ConfigManager from "./controllers/config-manager";
 import { createServer } from 'http';
 import SocketManager from "./controllers/socket-manager";
 import NotificationManager from "./controllers/notification-manager";
+import RedisManager from "./controllers/redis-manager";
 
 console.log("starting server");
 
@@ -16,6 +17,7 @@ config({ path: resolve(__dirname, '../../.env') });
 (async () => {
     await MongoManager.getInstance().init();
     await ConfigManager.init();
+    await RedisManager.init();
     await NotificationManager.init();
 
     const app = express();

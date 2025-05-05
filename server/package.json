@@ -8,7 +8,7 @@
     "test": "ts-node test/main.ts"
   },
   "dependencies": {
-    "@timothyw/pat-common": "^1.0.25",
+    "@timothyw/pat-common": "^1.0.27",
     "bcrypt": "^5.1.1",
     "discord-api-types": "^0.37.103",
     "discord.js": "^14.18.0",
@@ -19,6 +19,7 @@
     "jsonwebtoken": "^9.0.2",
     "mongoose": "^8.7.2",
     "node-mailjet": "^6.0.6",
+    "redis": "^5.0.0",
     "socket.io": "^4.8.1",
     "zod": "^3.23.8"
   },
