@@ -8,11 +8,12 @@
     "test": "ts-node test/main.ts"
   },
   "dependencies": {
-    "@timothyw/pat-common": "^1.0.22",
+    "@timothyw/pat-common": "^1.0.25",
     "bcrypt": "^5.1.1",
     "discord-api-types": "^0.37.103",
     "discord.js": "^14.18.0",
     "dotenv": "^16.4.5",
+    "expo-server-sdk": "^3.15.0",
     "express": "^4.21.1",
     "http-proxy-middleware": "^3.0.3",
     "jsonwebtoken": "^9.0.2",

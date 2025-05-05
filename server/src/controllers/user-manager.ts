@@ -1,4 +1,3 @@
-import {Types} from "mongoose";
 import {UserConfigModel} from "../models/mongo/user-config";
 import { UpdateUserRequest, UserData, UserId } from "@timothyw/pat-common";
 

@@ -41,6 +41,13 @@ const programConfigSchema = new Schema<ProgramConfigData>({
             required: true,
             default: 'mailjet_secret_key'
         }
+    },
+    expo: {
+        token: {
+            type: String,
+            required: true,
+            default: 'expo_token'
+        }
     }
 }, {
     timestamps: true,

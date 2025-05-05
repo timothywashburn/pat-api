@@ -17,6 +17,9 @@ export async function runSetupDiscordConfigTest(context: TestContext) {
         mailjet: {
             apiKey: process.env.MAILJET_API_KEY,
             secretKey: process.env.MAILJET_SECRET_KEY
+        },
+        expo: {
+            token: process.env.EXPO_TOKEN
         }
     });
 

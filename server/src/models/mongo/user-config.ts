@@ -1,4 +1,4 @@
-import { model, Schema, InferSchemaType, HydratedDocument, Types } from "mongoose";
+import { model, Schema } from "mongoose";
 import { ModuleType, UserData } from "@timothyw/pat-common";
 
 const userDataSchema = new Schema<UserData>({
@@ -9,6 +9,12 @@ const userDataSchema = new Schema<UserData>({
                 index: true,
                 sparse: true
             },
+            devices: [{
+                pushToken: {
+                    type: String,
+                    required: true
+                }
+            }]
         },
         default: {}
     },

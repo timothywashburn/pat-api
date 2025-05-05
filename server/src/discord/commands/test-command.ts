@@ -1,6 +1,7 @@
 import { CommandInteraction } from 'discord.js';
 import Command from "../models/command";
 import SocketManager from "../../controllers/socket-manager";
+import NotificationManager from "../../controllers/notification-manager";
 import { UserId } from "@timothyw/pat-common";
 
 const ADMIN_DISCORD_ID = '458458767634464792';
@@ -19,8 +20,13 @@ export default class TestCommand extends Command {
             return;
         }
 
-        const userId = "680ad990a48e44f93f78ada5" as UserId;
-        SocketManager.getInstance().emitToUser(userId, "emailVerified");
+        const userId = "68142858a2fa4d2f7546a9a9" as UserId;
+        await NotificationManager.getInstance().sendToUser(
+            userId,
+            "Test Notification",
+            "This is a test notification sent from the test command!",
+            { source: "discord", command: "test" }
+        );
 
         await interaction.reply("Done");
     }
