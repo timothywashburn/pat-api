@@ -14,21 +14,15 @@ export type NotificationId = string & { readonly __brand: "NotificationId" };
 
 export default class NotificationManager {
     private static instance: NotificationManager;
-    private static _expoToken: string;
+    private _expoToken: string;
     private expo: Expo;
 
     private constructor() {
-        this.expo = new Expo();
-    }
-
-    static async init(): Promise<void> {
-        if (NotificationManager.instance) throw new Error("NotificationManager is already initialized");
-        NotificationManager.instance = new NotificationManager();
-
         this._expoToken = ConfigManager.getConfig().expo.token;
+        this.expo = new Expo();
 
-        this.instance.processNotifications().then();
-        setInterval(() => this.instance.processNotifications(), 10_000);
+        this.processNotifications().then();
+        setInterval(() => this.processNotifications(), 10_000);
     }
 
     async processNotifications() {
@@ -174,6 +168,11 @@ export default class NotificationManager {
 
     private async handlePushNotificationTickets(tickets: ExpoPushTicket[]): Promise<void> {
     //     TODO: DO NOT IMPLEMENT YET
+    }
+
+    static async init(): Promise<void> {
+        if (NotificationManager.instance) throw new Error("NotificationManager is already initialized");
+        NotificationManager.instance = new NotificationManager();
     }
 
     static getInstance(): NotificationManager {
