@@ -22,6 +22,8 @@ export const loginEndpoint: ApiEndpoint<LoginRequest, LoginResponse> = {
                 return;
             }
 
+            console.log(`User ${data.email} logged in successfully`);
+
             res.json({
                 success: true,
                 data: result
