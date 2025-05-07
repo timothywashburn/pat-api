@@ -5,18 +5,11 @@ import { Expo, ExpoPushMessage, ExpoPushTicket, ExpoPushReceipt } from 'expo-ser
 import { randomBytes } from 'crypto';
 import ItemManager from "./item-manager";
 import RedisManager from "./redis-manager";
+import { Notification, NotificationData } from "../models/notification-handler";
 
 // TODO: move this to utils
 const isNotNull = <T>(value: T | null): value is T => value != null;
 
-// TODO: move this to common lib, make it notification = notificationdata & id
-export interface Notification {
-    notificationId: NotificationId;
-    itemId: ItemId;
-    userId: UserId;
-    scheduledTime: number;
-    devName: string;
-}
 export type NotificationId = string & { readonly __brand: "NotificationId" };
 
 export default class NotificationManager {
@@ -39,19 +32,19 @@ export default class NotificationManager {
     }
 
     async processNotifications() {
-        const notifications = await this.fetchDueNotifications(60 * 60 * 1000);
+        const notifications: Notification[] = await this.fetchDueNotifications(60 * 60 * 1000);
         const client = RedisManager.getInstance().getClient();
 
         for (const notification of notifications) {
             await this.sendToUser(
-                notification.userId,
-                notification.devName,
+                notification.data.userId,
+                notification.data.devName,
                 "This thing is due soon!"
             );
             // TODO: move this to a separate function
-            await client.del(`notification:${notification.notificationId}`);
-            await client.zRem(`user:${notification.userId}:notifications`, notification.notificationId);
-            await client.zRem('global:notifications', notification.notificationId);
+            await client.del(`notification:${notification.id}`);
+            await client.zRem(`user:${notification.data.userId}:notifications`, notification.id);
+            await client.zRem('global:notifications', notification.id);
         }
     }
 
@@ -74,17 +67,17 @@ export default class NotificationManager {
 
         const notifications = await Promise.all(
             dueNotificationRefs.map(async (ref) => {
-                const notificationId = ref as NotificationId;
-                const notificationData = await client.hGetAll(`notification:${notificationId}`) as Omit<Notification, 'notificationId'>;
+                const id = ref as NotificationId;
+                const data = await client.hGetAll(`notification:${id}`) as unknown as NotificationData;
 
-                if (Object.keys(notificationData).length === 0) {
-                    console.log(`notification ${notificationId} not found in hash store`);
+                if (Object.keys(data).length === 0) {
+                    console.log(`notification ${id} not found in hash store`);
                     return null;
                 }
 
                 return {
-                    notificationId: notificationId,
-                    ...notificationData
+                    id,
+                    data
                 };
             })
         );
@@ -93,7 +86,7 @@ export default class NotificationManager {
     }
 
     // TODO: implement later when notifications become configurable
-    async fetchUserNotifications(userId: UserId) {
+    async fetchUserNotifications(userId: UserId): Promise<Notification[]> {
         const client = RedisManager.getInstance().getClient();
 
         const userNotifications = await client.zRangeWithScores(`user:${userId}:notifications`, 0, -1);
@@ -103,71 +96,25 @@ export default class NotificationManager {
         if (userNotifications.length === 0) return [];
 
         const notifications = await Promise.all(
-            userNotifications.map(async ({ value: notificationId }) => {
-                const notificationData = await client.hGetAll(`notification:${notificationId}`) as Omit<Notification, 'notificationId'>;
+            userNotifications.map(async ({ value: idString }) => {
+                const id = idString as NotificationId;
+                const data = await client.hGetAll(`notification:${id}`) as unknown as NotificationData;
 
-                if (Object.keys(notificationData).length === 0) {
-                    console.log(`notification ${notificationId} not found in hash store`);
+                if (Object.keys(data).length === 0) {
+                    console.log(`notification ${id} not found in hash store`);
                     return null;
                 }
 
                 return {
-                    notificationId,
-                    ...notificationData
+                    id,
+                    data
                 };
             })
         );
 
         return notifications
             .filter(isNotNull)
-            .sort((a, b) => a.scheduledTime - b.scheduledTime);
-    }
-
-    async scheduleNotificationsForItem(userId: UserId, itemId: ItemId): Promise<void> {
-        console.log(`scheduling notifications for user ${userId} and item ${itemId}`);
-        try {
-            const user = await UserManager.getInstance().getById(userId);
-            const item = await ItemManager.getInstance().getById(itemId);
-
-            if (!user) {
-                console.log(`user ${userId} not found`);
-                return;
-            }
-
-            if (!item) {
-                console.log(`item ${itemId} not found`);
-                return;
-            }
-
-            if (!item.dueDate) {
-                console.log(`item ${itemId} does not have a due date`);
-                return;
-            }
-
-            const notificationID = randomBytes(16).toString('base64url');
-            // const scheduledTime = item.dueDate.getTime() - 60 * 60 * 1000;
-            const scheduledTime = new Date().getTime() + 10 * 60 * 1000;
-
-            const notification: Omit<Notification, 'notificationId'> = {
-                itemId,
-                userId,
-                scheduledTime,
-                devName: item.name
-            };
-
-            const client = RedisManager.getInstance().getClient();
-            await client.hSet(`notification:${notificationID}`, notification);
-            await client.zAdd(`user:${userId}:notifications`, {
-                value: notificationID,
-                score: scheduledTime
-            });
-            await client.zAdd('global:notifications', {
-                value: notificationID,
-                score: scheduledTime
-            });
-        } catch (error) {
-            console.log(`error scheduling notifications: ${error}`)
-        }
+            .sort((a, b) => a.data.scheduledTime - b.data.scheduledTime);
     }
 
     async sendToUser(userId: UserId, title: string, body: string, data: any = {}): Promise<void> {
