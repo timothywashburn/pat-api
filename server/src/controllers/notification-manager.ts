@@ -16,34 +16,62 @@ export default class NotificationManager {
     private static instance: NotificationManager;
     private _expoToken: string;
     private expo: Expo;
+    private queue: Notification[] = [];
 
     private constructor() {
         this._expoToken = ConfigManager.getConfig().expo.token;
         this.expo = new Expo();
 
-        this.processNotifications().then();
-        setInterval(() => this.processNotifications(), 10_000);
+        this.enqueueNotifications().then();
+        setInterval(() => this.enqueueNotifications(), 10 * 60 * 1000);
+
+        this.sendNotifications().then();
+        setInterval(() => this.sendNotifications(), 1000);
     }
 
-    async processNotifications() {
-        const notifications: Notification[] = await this.fetchDueNotifications(60 * 60 * 1000);
+    async enqueueNotifications() {
+        const notifications: Notification[] = await this.fetchDueNotifications(15 * 60 * 1000);
+        for (const notification of notifications) this.insertSorted(notification);
+    }
+
+    async sendNotifications() {
+        const now = Date.now();
         const client = RedisManager.getInstance().getClient();
 
-        for (const notification of notifications) {
+        while (this.queue.length > 0) {
+            const nextNotification = this.queue[0];
+
+            if (nextNotification.data.scheduledTime > now) {
+                // console.log(`next notification not due yet. scheduled for ${nextNotification.data.scheduledTime}, current time ${now}`);
+                break;
+            }
+
+            console.log(`sending notification ${nextNotification.id}`);
             await this.sendToUser(
-                notification.data.userId,
-                notification.data.devName,
+                nextNotification.data.userId,
+                nextNotification.data.devName,
                 "This thing is due soon!"
             );
-            // TODO: move this to a separate function
-            await client.del(`notification:${notification.id}`);
-            await client.zRem(`user:${notification.data.userId}:notifications`, notification.id);
-            await client.zRem('global:notifications', notification.id);
+
+            await client.del(`notification:${nextNotification.id}`);
+            await client.zRem(`user:${nextNotification.data.userId}:notifications`, nextNotification.id);
+            await client.zRem('global:notifications', nextNotification.id);
+
+            this.queue.shift();
+        }
+    }
+
+    private insertSorted(notification: Notification) {
+        const index = this.queue.findIndex(n => n.data.scheduledTime > notification.data.scheduledTime);
+        if (index === -1) {
+            this.queue.push(notification);
+        } else {
+            this.queue.splice(index, 0, notification);
         }
     }
 
     async fetchDueNotifications(timeAhead: number): Promise<Notification[]> {
-        console.log(`fetching notifications due in the next ${timeAhead}ms`);
+        // console.log(`fetching notifications due in the next ${timeAhead}ms`);
         const client = RedisManager.getInstance().getClient();
 
         const now = Date.now();
@@ -62,6 +90,7 @@ export default class NotificationManager {
         const notifications = await Promise.all(
             dueNotificationRefs.map(async (ref) => {
                 const id = ref as NotificationId;
+                for (let queuedNotification of this.queue) if (queuedNotification.id === id) return null;
                 const data = await client.hGetAll(`notification:${id}`) as unknown as NotificationData;
 
                 if (Object.keys(data).length === 0) {
@@ -120,7 +149,7 @@ export default class NotificationManager {
             }
 
             const pushTokens = user.sandbox.devices.map(device => device.pushToken);
-            console.log(`sending notification to ${pushTokens.length} devices for user ${userId}`)
+            // console.log(`sending notification to ${pushTokens.length} devices for user ${userId}`)
 
             await this.sendToDevices(pushTokens, title, body, data);
         } catch (error) {

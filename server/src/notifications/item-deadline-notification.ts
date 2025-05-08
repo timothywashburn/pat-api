@@ -41,27 +41,30 @@ export const itemDeadlineNotification: NotificationHandler<ItemDeadlineNotificat
                 return;
             }
 
-            const notificationID = randomBytes(16).toString('base64url');
-            // const scheduledTime = item.dueDate.getTime() - 60 * 60 * 1000;
-            const scheduledTime = new Date().getTime() + 10 * 60 * 1000;
+            // const dueDate = item.dueDate.getTime();
+            let scheduledTime = new Date().getTime() + 20 * 60 * 1000;
 
-            const data: ItemDeadlineNotificationData = {
-                itemId,
-                userId,
-                scheduledTime,
-                devName: item.name
-            };
+            for (let i = 0; i < 1; i++, scheduledTime += 5 * 1000) {
+                const notificationID = randomBytes(16).toString('base64url');
 
-            const client = RedisManager.getInstance().getClient();
-            await client.hSet(`notification:${notificationID}`, { ...data });
-            await client.zAdd(`user:${userId}:notifications`, {
-                value: notificationID,
-                score: scheduledTime
-            });
-            await client.zAdd('global:notifications', {
-                value: notificationID,
-                score: scheduledTime
-            });
+                const data: ItemDeadlineNotificationData = {
+                    itemId,
+                    userId,
+                    scheduledTime,
+                    devName: `${i}. ${item.name}`
+                };
+
+                const client = RedisManager.getInstance().getClient();
+                await client.hSet(`notification:${notificationID}`, { ...data });
+                await client.zAdd(`user:${userId}:notifications`, {
+                    value: notificationID,
+                    score: scheduledTime
+                });
+                await client.zAdd('global:notifications', {
+                    value: notificationID,
+                    score: scheduledTime
+                });
+            }
         } catch (error) {
             console.log(`error scheduling notifications: ${error}`)
         }
