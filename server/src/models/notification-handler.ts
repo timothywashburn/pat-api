@@ -59,8 +59,8 @@ export abstract class NotificationHandler<
         }
 
         await client.del(`notification:${notification.id}`);
-        await client.zRem(`user:${notification.data.userId}:notifications`, notification.id);
-        await client.zRem('global:notifications', notification.id);
+        await client.zrem(`user:${notification.data.userId}:notifications`, notification.id);
+        await client.zrem('global:notifications', notification.id);
 
         await this.onPostSend(notification.data.userId);
     }

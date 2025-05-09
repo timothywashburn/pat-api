@@ -104,15 +104,9 @@ export default class NotificationManager {
         const notificationID = randomBytes(16).toString('base64url');
         const client = RedisManager.getInstance().getClient();
 
-        await client.hSet(`notification:${notificationID}`, { ...data });
-        await client.zAdd(`user:${data.userId}:notifications`, {
-            value: notificationID,
-            score: data.scheduledTime
-        });
-        await client.zAdd('global:notifications', {
-            value: notificationID,
-            score: data.scheduledTime
-        });
+        await client.hset(`notification:${notificationID}`, { ...data });
+        await client.zadd(`user:${data.userId}:notifications`, data.scheduledTime, notificationID);
+        await client.zadd('global:notifications', data.scheduledTime, notificationID);
     }
 
     async fetchDueNotifications(timeAhead: number): Promise<QueuedNotification[]> {
@@ -122,7 +116,7 @@ export default class NotificationManager {
         const now = Date.now();
         const futureTime = now + timeAhead;
 
-        const dueNotificationRefs = await client.zRangeByScore(
+        const dueNotificationRefs = await client.zrangebyscore(
             'global:notifications',
             now,
             futureTime
@@ -136,7 +130,7 @@ export default class NotificationManager {
             dueNotificationRefs.map(async (ref) => {
                 const id = ref as NotificationId;
                 for (let queuedNotification of this.queue) if (queuedNotification.id === id) return null;
-                const data = await client.hGetAll(`notification:${id}`) as unknown as NotificationData;
+                const data = await client.hgetall(`notification:${id}`) as unknown as NotificationData;
 
                 if (Object.keys(data).length === 0) {
                     console.log(`notification ${id} not found in hash store`);
@@ -157,7 +151,15 @@ export default class NotificationManager {
     async fetchUserNotifications(userId: UserId): Promise<QueuedNotification[]> {
         const client = RedisManager.getInstance().getClient();
 
-        const userNotifications = await client.zRangeWithScores(`user:${userId}:notifications`, 0, -1);
+        const result = await client.zrange(`user:${userId}:notifications`, 0, -1, 'WITHSCORES');
+
+        const userNotifications = [];
+        for (let i = 0; i < result.length; i += 2) {
+            userNotifications.push({
+                value: result[i],
+                score: parseInt(result[i + 1])
+            });
+        }
 
         console.log(`found ${userNotifications.length} notifications for user ${userId}`);
 
@@ -166,7 +168,7 @@ export default class NotificationManager {
         const notifications = await Promise.all(
             userNotifications.map(async ({ value: idString }) => {
                 const id = idString as NotificationId;
-                const data = await client.hGetAll(`notification:${id}`) as unknown as NotificationData;
+                const data = await client.hgetall(`notification:${id}`) as unknown as NotificationData;
 
                 if (Object.keys(data).length === 0) {
                     console.log(`notification ${id} not found in hash store`);
@@ -241,7 +243,7 @@ export default class NotificationManager {
     }
 
     private async handlePushNotificationTickets(tickets: ExpoPushTicket[]): Promise<void> {
-    //     TODO: DO NOT IMPLEMENT YET
+        //     TODO: DO NOT IMPLEMENT YET
     }
 
     private insertSorted(notification: QueuedNotification) {
