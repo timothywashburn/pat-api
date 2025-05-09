@@ -64,18 +64,8 @@ export default class UserManager {
             .then(result => result.deletedCount > 0);
     }
 
-    // Legacy support for Discord commands
-    async discordExists(discordID: string): Promise<boolean> {
-        return UserConfigModel.exists({ discordID })
-            .then(result => result !== null);
-    }
-
-    async getByDiscordID(discordID: string): Promise<UserData | null> {
-        return UserConfigModel.findOne({ discordID });
-    }
-
-    async getAllWithTracking(): Promise<UserData[]> {
-        return UserConfigModel.find({ itemListTracking: { $exists: true, $ne: null } });
+    async getAllWithNotifications(): Promise<UserData[]> {
+        return UserConfigModel.find({ "sandbox.devices.0": { $exists: true } });
     }
 
     static getInstance(): UserManager {

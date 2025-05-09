@@ -3,7 +3,7 @@ import {
     NotificationData,
     NotificationType, ScheduleDataResult
 } from "../models/notification-handler";
-import { UserId } from "@timothyw/pat-common";
+import { UserData, UserId } from "@timothyw/pat-common";
 import UserManager from "../controllers/user-manager";
 import ThoughtManager from "../controllers/thought-manager";
 
@@ -42,9 +42,12 @@ export class ClearInboxNotificationHandler extends NotificationHandler {
         }
     }
 
+    async onApiStart(): Promise<void> {
+        const users: UserData[] = await UserManager.getInstance().getAllWithNotifications();
+        for (const user of users) await this.schedule(String(user._id) as UserId, {});
+    }
+
     protected async onPostSend(userId: UserId): Promise<void> {
-        await this.schedule(userId, {});
+        // await this.schedule(userId, {});
     }
 }
-
-export const clearInboxNotificationHandler = new ClearInboxNotificationHandler();

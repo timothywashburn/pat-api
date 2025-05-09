@@ -1,4 +1,4 @@
-import NotificationManager, { NotificationId, QueuedNotification } from "../controllers/notification-manager";
+import NotificationManager, { QueuedNotification } from "../controllers/notification-manager";
 import { UserId } from "@timothyw/pat-common";
 import RedisManager from "../controllers/redis-manager";
 
@@ -18,7 +18,7 @@ export interface NotificationContent {
 export enum NotificationType {
     ITEM_DEADLINE = 'task_deadline',
     CLEAR_INBOX = 'clear_inbox',
-    TODAY_TODO = 'today_todo',
+    // TODAY_TODO = 'today_todo',
 }
 
 export type ScheduleDataResult<U extends NotificationData> = Promise<Omit<U, 'type'>[] | undefined>;
@@ -29,13 +29,10 @@ export abstract class NotificationHandler<
 > {
     abstract type: NotificationType;
 
-    constructor() {
-        NotificationManager.handlers.push(this);
-    }
-
     protected abstract getScheduleData(userId: UserId, context: T): ScheduleDataResult<U>;
     protected abstract getContent(userId: UserId, data: U): Promise<NotificationContent>;
 
+    async onApiStart(): Promise<void> {}
     protected async onPostSend(userId: UserId): Promise<void> {}
 
     async schedule(userId: UserId, context: T) {

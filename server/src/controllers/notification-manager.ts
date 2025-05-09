@@ -1,11 +1,20 @@
 import ConfigManager from "./config-manager";
 import UserManager from "./user-manager";
 import { ItemId, UserId } from "@timothyw/pat-common";
-import { Expo, ExpoPushMessage, ExpoPushTicket, ExpoPushReceipt } from 'expo-server-sdk';
+import { Expo, ExpoPushMessage, ExpoPushTicket } from 'expo-server-sdk';
 import { randomBytes } from 'crypto';
-import ItemManager from "./item-manager";
 import RedisManager from "./redis-manager";
-import { NotificationHandler, NotificationData, NotificationType } from "../models/notification-handler";
+import {
+    NotificationHandler,
+    NotificationData,
+    NotificationType,
+} from "../models/notification-handler";
+import {
+    ItemDeadlineNotificationHandler,
+} from "../notifications/item-deadline-notification";
+import {
+    ClearInboxNotificationHandler,
+} from "../notifications/clear-inbox-notification";
 
 // TODO: move this to utils
 const isNotNull = <T>(value: T | null): value is T => value != null;
@@ -17,9 +26,15 @@ export type QueuedNotification = {
     data: NotificationData
 }
 
+type NotificationHandlerMap = {
+    [NotificationType.ITEM_DEADLINE]: ItemDeadlineNotificationHandler;
+    [NotificationType.CLEAR_INBOX]: ClearInboxNotificationHandler;
+    // [NotificationType.TODAY_TODO]: TodayTodoNotificationHandler;
+};
+
 export default class NotificationManager {
     private static instance: NotificationManager;
-    static handlers: NotificationHandler[] = [];
+    static handlers = new Map<NotificationType, NotificationHandler>();
 
     private _expoToken: string;
     private expo: Expo;
@@ -29,12 +44,37 @@ export default class NotificationManager {
         this._expoToken = ConfigManager.getConfig().expo.token;
         this.expo = new Expo();
 
+        this.registerHandlers();
+
         this.enqueueNotifications().then();
         // setInterval(() => this.enqueueNotifications(), 10 * 60 * 1000);
         setInterval(() => this.enqueueNotifications(), 5 * 1000);
 
         this.sendNotifications().then();
         setInterval(() => this.sendNotifications(), 1000);
+    }
+
+    static async init(): Promise<void> {
+        if (NotificationManager.instance) throw new Error("NotificationManager is already initialized");
+        NotificationManager.instance = new NotificationManager();
+        for (let handler of NotificationManager.handlers.values()) await handler.onApiStart();
+    }
+
+    registerHandlers() {
+        this.registerHandler(new ItemDeadlineNotificationHandler());
+        this.registerHandler(new ClearInboxNotificationHandler());
+    }
+
+    registerHandler<T extends NotificationType>(handler: NotificationHandlerMap[T]) {
+        NotificationManager.handlers.set(handler.type, handler);
+    }
+
+    static getHandler<T extends NotificationType>(type: T): NotificationHandlerMap[T] {
+        const handler = NotificationManager.handlers.get(type) as NotificationHandlerMap[T];
+        if (!handler) {
+            throw new Error(`notification handler for type ${type} not found`);
+        }
+        return handler;
     }
 
     async enqueueNotifications() {
@@ -88,7 +128,7 @@ export default class NotificationManager {
             futureTime
         );
 
-        console.log(`${dueNotificationRefs.length} notifications due`);
+        console.log(`${dueNotificationRefs.length} notification${dueNotificationRefs.length == 1 ? "" : "s"} due`);
 
         if (dueNotificationRefs.length === 0) return [];
 
@@ -211,17 +251,6 @@ export default class NotificationManager {
         } else {
             this.queue.splice(index, 0, notification);
         }
-    }
-
-    static getHandler(type: NotificationType): NotificationHandler {
-        const handler = NotificationManager.handlers.find(handler => handler.type === type);
-        if (!handler) throw new Error(`Notification handler for type ${type} not found`);
-        return handler;
-    }
-
-    static async init(): Promise<void> {
-        if (NotificationManager.instance) throw new Error("NotificationManager is already initialized");
-        NotificationManager.instance = new NotificationManager();
     }
 
     static getInstance(): NotificationManager {

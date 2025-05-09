@@ -6,7 +6,6 @@ import {
 import { ItemId, UserId } from "@timothyw/pat-common";
 import UserManager from "../controllers/user-manager";
 import ItemManager from "../controllers/item-manager";
-import NotificationManager from "../controllers/notification-manager";
 
 export interface ItemDeadlineNotificationContext {
     itemId: ItemId
@@ -80,5 +79,3 @@ export class ItemDeadlineNotificationHandler extends NotificationHandler<ItemDea
         }
     }
 }
-
-export const itemDeadlineNotificationHandler = new ItemDeadlineNotificationHandler();

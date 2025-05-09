@@ -1,9 +1,8 @@
 import { CommandInteraction } from 'discord.js';
 import Command from "../models/command";
-import SocketManager from "../../controllers/socket-manager";
-import NotificationManager from "../../controllers/notification-manager";
 import { UserId } from "@timothyw/pat-common";
-import { clearInboxNotificationHandler } from "../../notifications/clear-inbox-notification";
+import NotificationManager from "../../controllers/notification-manager";
+import { NotificationType } from "../../models/notification-handler";
 
 const ADMIN_DISCORD_ID = '458458767634464792';
 
@@ -31,7 +30,7 @@ export default class TestCommand extends Command {
         //     "This is a test notification sent from the test command!"
         // );
 
-        await clearInboxNotificationHandler.schedule(userId, {});
+        await NotificationManager.getHandler(NotificationType.CLEAR_INBOX).schedule(userId, {});
 
         await interaction.editReply("Done");
     }
