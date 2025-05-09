@@ -40,6 +40,7 @@ services:
       - pat-network
     depends_on:
       - mongodb
+      - redis
 
   mongodb:
     image: mongo:latest
@@ -56,6 +57,18 @@ services:
     networks:
       - pat-network
 
+  redis:
+    image: redis:alpine
+    container_name: pat-redis
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    networks:
+      - pat-network
+    command: redis-server --appendonly yes
+
 networks:
   pat-network:
     name: pat-network
@@ -66,4 +79,6 @@ volumes:
     name: pat-mongodb-data
   mongodb_config:
     name: pat-mongodb-config
+  redis_data:
+    name: pat-redis-data
   webroot:
