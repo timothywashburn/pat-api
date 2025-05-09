@@ -1,15 +1,18 @@
-import { NotificationId } from "../controllers/notification-manager";
+import NotificationManager, { NotificationId, QueuedNotification } from "../controllers/notification-manager";
 import { UserId } from "@timothyw/pat-common";
+import RedisManager from "../controllers/redis-manager";
 
-export type Notification<T extends NotificationData = NotificationData> = {
-    id: NotificationId;
-    data: T
-}
+export interface NotificationContext {}
 
 export interface NotificationData {
+    type: NotificationType;
     userId: UserId;
     scheduledTime: number;
-    devName: string;
+}
+
+export interface NotificationContent {
+    title: string;
+    body: string;
 }
 
 export enum NotificationType {
@@ -18,7 +21,48 @@ export enum NotificationType {
     TODAY_TODO = 'today_todo',
 }
 
-export interface NotificationHandler<T> {
-    type: NotificationType;
-    schedule: (userId: UserId, data: T) => Promise<void>;
+export type ScheduleDataResult<U extends NotificationData> = Promise<Omit<U, 'type'>[] | undefined>;
+
+export abstract class NotificationHandler<
+    T extends NotificationContext = NotificationContext,
+    U extends NotificationData = NotificationData
+> {
+    abstract type: NotificationType;
+
+    constructor() {
+        NotificationManager.handlers.push(this);
+    }
+
+    protected abstract getScheduleData(userId: UserId, context: T): ScheduleDataResult<U>;
+    protected abstract getContent(userId: UserId, data: U): Promise<NotificationContent>;
+
+    protected async onPostSend(userId: UserId): Promise<void> {}
+
+    async schedule(userId: UserId, context: T) {
+        const notificationManager = NotificationManager.getInstance();
+        const schedules = await this.getScheduleData(userId, context);
+        if (!schedules) return;
+        await Promise.all(schedules.map(data => notificationManager.scheduleNotification({
+            type: this.type,
+            ...data
+        })));
+    }
+
+    async sendNotification(notification: QueuedNotification) {
+        console.log(`sending notification ${notification.id}`);
+        const client = RedisManager.getInstance().getClient();
+
+        const content = await this.getContent(notification.data.userId, notification.data as U);
+        await NotificationManager.getInstance().sendToUser(
+            notification.data.userId,
+            content.title,
+            content.body
+        );
+
+        await client.del(`notification:${notification.id}`);
+        await client.zRem(`user:${notification.data.userId}:notifications`, notification.id);
+        await client.zRem('global:notifications', notification.id);
+
+        await this.onPostSend(notification.data.userId);
+    }
 }

@@ -3,6 +3,7 @@ import Command from "../models/command";
 import SocketManager from "../../controllers/socket-manager";
 import NotificationManager from "../../controllers/notification-manager";
 import { UserId } from "@timothyw/pat-common";
+import { clearInboxNotificationHandler } from "../../notifications/clear-inbox-notification";
 
 const ADMIN_DISCORD_ID = '458458767634464792';
 
@@ -20,14 +21,17 @@ export default class TestCommand extends Command {
             return;
         }
 
-        await interaction.deferReply({ ephemeral: true });
+        await interaction.deferReply();
 
         const userId = "68142858a2fa4d2f7546a9a9" as UserId;
-        await NotificationManager.getInstance().sendToUser(
-            userId,
-            "Test Notification",
-            "This is a test notification sent from the test command!"
-        );
+
+        // await NotificationManager.getInstance().sendToUser(
+        //     userId,
+        //     "Test Notification",
+        //     "This is a test notification sent from the test command!"
+        // );
+
+        await clearInboxNotificationHandler.schedule(userId, {});
 
         await interaction.editReply("Done");
     }

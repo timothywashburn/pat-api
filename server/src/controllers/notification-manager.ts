@@ -5,38 +5,45 @@ import { Expo, ExpoPushMessage, ExpoPushTicket, ExpoPushReceipt } from 'expo-ser
 import { randomBytes } from 'crypto';
 import ItemManager from "./item-manager";
 import RedisManager from "./redis-manager";
-import { Notification, NotificationData } from "../models/notification-handler";
+import { NotificationHandler, NotificationData, NotificationType } from "../models/notification-handler";
 
 // TODO: move this to utils
 const isNotNull = <T>(value: T | null): value is T => value != null;
 
 export type NotificationId = string & { readonly __brand: "NotificationId" };
 
+export type QueuedNotification = {
+    id: NotificationId;
+    data: NotificationData
+}
+
 export default class NotificationManager {
     private static instance: NotificationManager;
+    static handlers: NotificationHandler[] = [];
+
     private _expoToken: string;
     private expo: Expo;
-    private queue: Notification[] = [];
+    private queue: QueuedNotification[] = [];
 
     private constructor() {
         this._expoToken = ConfigManager.getConfig().expo.token;
         this.expo = new Expo();
 
         this.enqueueNotifications().then();
-        setInterval(() => this.enqueueNotifications(), 10 * 60 * 1000);
+        // setInterval(() => this.enqueueNotifications(), 10 * 60 * 1000);
+        setInterval(() => this.enqueueNotifications(), 5 * 1000);
 
         this.sendNotifications().then();
         setInterval(() => this.sendNotifications(), 1000);
     }
 
     async enqueueNotifications() {
-        const notifications: Notification[] = await this.fetchDueNotifications(15 * 60 * 1000);
+        const notifications: QueuedNotification[] = await this.fetchDueNotifications(15 * 60 * 1000);
         for (const notification of notifications) this.insertSorted(notification);
     }
 
     async sendNotifications() {
         const now = Date.now();
-        const client = RedisManager.getInstance().getClient();
 
         while (this.queue.length > 0) {
             const nextNotification = this.queue[0];
@@ -46,31 +53,29 @@ export default class NotificationManager {
                 break;
             }
 
-            console.log(`sending notification ${nextNotification.id}`);
-            await this.sendToUser(
-                nextNotification.data.userId,
-                nextNotification.data.devName,
-                "This thing is due soon!"
-            );
-
-            await client.del(`notification:${nextNotification.id}`);
-            await client.zRem(`user:${nextNotification.data.userId}:notifications`, nextNotification.id);
-            await client.zRem('global:notifications', nextNotification.id);
+            const handler = NotificationManager.getHandler(nextNotification.data.type);
+            handler.sendNotification(nextNotification).then();
 
             this.queue.shift();
         }
     }
 
-    private insertSorted(notification: Notification) {
-        const index = this.queue.findIndex(n => n.data.scheduledTime > notification.data.scheduledTime);
-        if (index === -1) {
-            this.queue.push(notification);
-        } else {
-            this.queue.splice(index, 0, notification);
-        }
+    async scheduleNotification(data: NotificationData): Promise<void> {
+        const notificationID = randomBytes(16).toString('base64url');
+        const client = RedisManager.getInstance().getClient();
+
+        await client.hSet(`notification:${notificationID}`, { ...data });
+        await client.zAdd(`user:${data.userId}:notifications`, {
+            value: notificationID,
+            score: data.scheduledTime
+        });
+        await client.zAdd('global:notifications', {
+            value: notificationID,
+            score: data.scheduledTime
+        });
     }
 
-    async fetchDueNotifications(timeAhead: number): Promise<Notification[]> {
+    async fetchDueNotifications(timeAhead: number): Promise<QueuedNotification[]> {
         // console.log(`fetching notifications due in the next ${timeAhead}ms`);
         const client = RedisManager.getInstance().getClient();
 
@@ -109,7 +114,7 @@ export default class NotificationManager {
     }
 
     // TODO: implement later when notifications become configurable
-    async fetchUserNotifications(userId: UserId): Promise<Notification[]> {
+    async fetchUserNotifications(userId: UserId): Promise<QueuedNotification[]> {
         const client = RedisManager.getInstance().getClient();
 
         const userNotifications = await client.zRangeWithScores(`user:${userId}:notifications`, 0, -1);
@@ -197,6 +202,21 @@ export default class NotificationManager {
 
     private async handlePushNotificationTickets(tickets: ExpoPushTicket[]): Promise<void> {
     //     TODO: DO NOT IMPLEMENT YET
+    }
+
+    private insertSorted(notification: QueuedNotification) {
+        const index = this.queue.findIndex(n => n.data.scheduledTime > notification.data.scheduledTime);
+        if (index === -1) {
+            this.queue.push(notification);
+        } else {
+            this.queue.splice(index, 0, notification);
+        }
+    }
+
+    static getHandler(type: NotificationType): NotificationHandler {
+        const handler = NotificationManager.handlers.find(handler => handler.type === type);
+        if (!handler) throw new Error(`Notification handler for type ${type} not found`);
+        return handler;
     }
 
     static async init(): Promise<void> {
