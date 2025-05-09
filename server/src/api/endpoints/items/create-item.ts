@@ -25,9 +25,9 @@ export const createItemEndpoint: ApiEndpoint<CreateItemRequest, CreateItemRespon
             });
 
             // TODO: figure out a better way to handle objectids as itemids
-            await NotificationManager.getHandler(NotificationType.ITEM_DEADLINE).schedule(userId, {
-                itemId: String(item._id) as ItemId
-            });
+            // await NotificationManager.getHandler(NotificationType.ITEM_DEADLINE).schedule(userId, {
+            //     itemId: String(item._id) as ItemId
+            // });
 
             res.json({
                 success: true,

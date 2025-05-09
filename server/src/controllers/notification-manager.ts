@@ -47,8 +47,8 @@ export default class NotificationManager {
         this.registerHandlers();
 
         this.enqueueNotifications().then();
-        // setInterval(() => this.enqueueNotifications(), 10 * 60 * 1000);
-        setInterval(() => this.enqueueNotifications(), 5 * 1000);
+        setInterval(() => this.enqueueNotifications(), 10 * 60 * 1000);
+        // setInterval(() => this.enqueueNotifications(), 5 * 1000);
 
         this.sendNotifications().then();
         setInterval(() => this.sendNotifications(), 1000);
@@ -128,7 +128,7 @@ export default class NotificationManager {
             futureTime
         );
 
-        console.log(`${dueNotificationRefs.length} notification${dueNotificationRefs.length == 1 ? "" : "s"} due`);
+        console.log(`${dueNotificationRefs.length} notification${dueNotificationRefs.length == 1 ? "" : "s"} queued`);
 
         if (dueNotificationRefs.length === 0) return [];
 
@@ -215,7 +215,7 @@ export default class NotificationManager {
                 messages.push({
                     to: pushToken,
                     sound: 'default',
-                    title,
+                    title: (process.env.NODE_ENV === 'development' ? "(Dev) " : "") + title,
                     body,
                     data
                 });

@@ -1,16 +1,17 @@
 import {
     NotificationHandler, NotificationContent,
     NotificationData,
-    NotificationType, ScheduleDataResult
+    NotificationType, ScheduleDataResult, NotificationContext
 } from "../models/notification-handler";
 import { UserData, UserId } from "@timothyw/pat-common";
 import UserManager from "../controllers/user-manager";
 import ThoughtManager from "../controllers/thought-manager";
+import { DateUtils } from "../utils/date-utils";
 
 export class ClearInboxNotificationHandler extends NotificationHandler {
     type = NotificationType.CLEAR_INBOX;
 
-    protected async getScheduleData(userId: UserId): ScheduleDataResult<NotificationData> {
+    protected async getScheduleData(userId: UserId, _context: NotificationContext): ScheduleDataResult<NotificationData> {
         console.log(`scheduling clear inbox notification for user ${userId}`);
         try {
             const user = await UserManager.getInstance().getById(userId);
@@ -20,11 +21,12 @@ export class ClearInboxNotificationHandler extends NotificationHandler {
                 return;
             }
 
-            let scheduledTime = new Date().getTime() + 30 * 1000;
+            let date = DateUtils.setTime(new Date(), 21, 0);
+            if (DateUtils.inPast(date)) date = DateUtils.addDays(date, 1);
 
             const data = {
                 userId,
-                scheduledTime
+                scheduledTime: date.getTime()
             };
 
             return [data];
@@ -33,12 +35,17 @@ export class ClearInboxNotificationHandler extends NotificationHandler {
         }
     }
 
-    protected async getContent(userId: UserId): Promise<NotificationContent> {
+    protected async getContent(userId: UserId, _data: NotificationData): Promise<NotificationContent | null> {
         const thoughts = await ThoughtManager.getInstance().getAllByUser(userId);
+
+        if (thoughts.length === 0) {
+            console.log(`user ${userId} has no thoughts; cancelling notification`);
+            return null;
+        }
 
         return {
             title: "Clear your inbox!",
-            body: `You have ${thoughts.length} thoughts in your inbox.`
+            body: `You have ${thoughts.length} thought${thoughts.length == 1 ? "" : "s"} in your inbox.`
         }
     }
 
@@ -48,6 +55,6 @@ export class ClearInboxNotificationHandler extends NotificationHandler {
     }
 
     protected async onPostSend(userId: UserId): Promise<void> {
-        // await this.schedule(userId, {});
+        await this.schedule(userId, {});
     }
 }

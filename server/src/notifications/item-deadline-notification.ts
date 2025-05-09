@@ -61,16 +61,12 @@ export class ItemDeadlineNotificationHandler extends NotificationHandler<ItemDea
         }
     }
 
-    protected async getContent(userId: UserId, data: ItemDeadlineNotificationData): Promise<NotificationContent> {
+    protected async getContent(userId: UserId, data: ItemDeadlineNotificationData): Promise<NotificationContent | null> {
         const item = await ItemManager.getInstance().getById(data.itemId);
 
-        // TODO: cancel notification instead (this should trigger if you delete the item after a notification is queued or tbh scheduled rn
         if (!item) {
             console.log(`item ${data.itemId} not found`);
-            return {
-                title: "Item not found",
-                body: "The item you are trying to access does not exist."
-            };
+            return null;
         }
 
         return {

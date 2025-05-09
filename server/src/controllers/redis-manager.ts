@@ -12,6 +12,9 @@ export default class RedisManager {
 
         RedisManager.instance = new RedisManager();
         await RedisManager.instance.connect();
+
+        console.log('flushing redis');
+        await RedisManager.instance.client.flushAll();
     }
 
     private async connect(): Promise<void> {

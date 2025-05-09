@@ -30,7 +30,7 @@ export abstract class NotificationHandler<
     abstract type: NotificationType;
 
     protected abstract getScheduleData(userId: UserId, context: T): ScheduleDataResult<U>;
-    protected abstract getContent(userId: UserId, data: U): Promise<NotificationContent>;
+    protected abstract getContent(userId: UserId, data: U): Promise<NotificationContent | null>;
 
     async onApiStart(): Promise<void> {}
     protected async onPostSend(userId: UserId): Promise<void> {}
@@ -50,11 +50,13 @@ export abstract class NotificationHandler<
         const client = RedisManager.getInstance().getClient();
 
         const content = await this.getContent(notification.data.userId, notification.data as U);
-        await NotificationManager.getInstance().sendToUser(
-            notification.data.userId,
-            content.title,
-            content.body
-        );
+        if (content) {
+            await NotificationManager.getInstance().sendToUser(
+                notification.data.userId,
+                content.title,
+                content.body
+            );
+        }
 
         await client.del(`notification:${notification.id}`);
         await client.zRem(`user:${notification.data.userId}:notifications`, notification.id);

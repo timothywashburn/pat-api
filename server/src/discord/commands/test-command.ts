@@ -24,13 +24,11 @@ export default class TestCommand extends Command {
 
         const userId = "68142858a2fa4d2f7546a9a9" as UserId;
 
-        // await NotificationManager.getInstance().sendToUser(
-        //     userId,
-        //     "Test Notification",
-        //     "This is a test notification sent from the test command!"
-        // );
-
-        await NotificationManager.getHandler(NotificationType.CLEAR_INBOX).schedule(userId, {});
+        await NotificationManager.getInstance().sendToUser(
+            userId,
+            "Test Notification",
+            "This is a test notification sent from the test command!"
+        );
 
         await interaction.editReply("Done");
     }
