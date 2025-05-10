@@ -45,12 +45,20 @@ export abstract class NotificationHandler<
         })));
     }
 
+    async unscheduleAllForUser(userId: UserId) {
+        const client = RedisManager.getInstance().getClient();
+        const keys = await client.keys(`user:${userId}:notifications`);
+        await Promise.all(keys.map(key => client.del(key)));
+        await client.zrem(`global:notifications`, keys);
+    }
+
     async sendNotification(notification: QueuedNotification) {
         console.log(`sending notification ${notification.id}`);
         const client = RedisManager.getInstance().getClient();
 
         const content = await this.getContent(notification.data.userId, notification.data as U);
         if (content) {
+            // TODO: next: update to new send method in notification-sender
             await NotificationManager.getInstance().sendToUser(
                 notification.data.userId,
                 content.title,
