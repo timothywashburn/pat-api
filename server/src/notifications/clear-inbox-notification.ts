@@ -27,6 +27,7 @@ export class ClearInboxNotificationHandler extends NotificationHandler {
             const data = {
                 userId,
                 scheduledTime: date.getTime()
+                // scheduledTime: new Date().getTime() + 5 * 1000
             };
 
             return [data];
@@ -35,7 +36,7 @@ export class ClearInboxNotificationHandler extends NotificationHandler {
         }
     }
 
-    protected async getContent(userId: UserId, _data: NotificationData): Promise<NotificationContent | null> {
+    async getContent(userId: UserId, _data: NotificationData): Promise<NotificationContent | null> {
         const thoughts = await ThoughtManager.getInstance().getAllByUser(userId);
 
         if (thoughts.length === 0) {

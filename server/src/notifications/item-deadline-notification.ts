@@ -61,7 +61,7 @@ export class ItemDeadlineNotificationHandler extends NotificationHandler<ItemDea
         }
     }
 
-    protected async getContent(userId: UserId, data: ItemDeadlineNotificationData): Promise<NotificationContent | null> {
+    async getContent(_userId: UserId, data: ItemDeadlineNotificationData): Promise<NotificationContent | null> {
         const item = await ItemManager.getInstance().getById(data.itemId);
 
         if (!item) {

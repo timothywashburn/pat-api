@@ -30,7 +30,7 @@ export abstract class NotificationHandler<
     abstract type: NotificationType;
 
     protected abstract getScheduleData(userId: UserId, context: T): ScheduleDataResult<U>;
-    protected abstract getContent(userId: UserId, data: U): Promise<NotificationContent | null>;
+    abstract getContent(userId: UserId, data: U): Promise<NotificationContent | null>;
 
     async onApiStart(): Promise<void> {}
     protected async onPostSend(userId: UserId): Promise<void> {}
@@ -50,26 +50,5 @@ export abstract class NotificationHandler<
         const keys = await client.keys(`user:${userId}:notifications`);
         await Promise.all(keys.map(key => client.del(key)));
         await client.zrem(`global:notifications`, keys);
-    }
-
-    async sendNotification(notification: QueuedNotification) {
-        console.log(`sending notification ${notification.id}`);
-        const client = RedisManager.getInstance().getClient();
-
-        const content = await this.getContent(notification.data.userId, notification.data as U);
-        if (content) {
-            // TODO: next: update to new send method in notification-sender
-            await NotificationManager.getInstance().sendToUser(
-                notification.data.userId,
-                content.title,
-                content.body
-            );
-        }
-
-        await client.del(`notification:${notification.id}`);
-        await client.zrem(`user:${notification.data.userId}:notifications`, notification.id);
-        await client.zrem('global:notifications', notification.id);
-
-        await this.onPostSend(notification.data.userId);
     }
 }

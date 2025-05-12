@@ -1,7 +1,8 @@
 import NotificationManager, { NotificationId, QueuedNotification } from "./notification-manager";
 import RedisManager from "./redis-manager";
-import { NotificationData } from "../models/notification-handler";
+import { NotificationData, NotificationHandler, NotificationType } from "../models/notification-handler";
 import { isNotNull } from "../utils/misc";
+import { UserId } from "@timothyw/pat-common";
 
 export default class NotificationRunner {
     private notificationManager: NotificationManager;
@@ -26,6 +27,7 @@ export default class NotificationRunner {
     async sendNotifications() {
         const now = Date.now();
 
+        const dueNotifications: QueuedNotification[] = [];
         while (this.queue.length > 0) {
             const nextNotification = this.queue[0];
 
@@ -34,15 +36,25 @@ export default class NotificationRunner {
                 break;
             }
 
-            const handler = NotificationManager.getHandler(nextNotification.data.type);
-            handler.sendNotification(nextNotification).then();
-
-            this.queue.shift();
+            dueNotifications.push(this.queue.shift()!);
         }
+
+        if (dueNotifications.length === 0) return;
+
+        const toSend = [];
+        for (let notification of dueNotifications) {
+            const content = await notification.handler.getContent(notification.data.userId, notification.data);
+            if (!content) {
+                console.log(`notification ${notification.id} cancelled`);
+                continue;
+            }
+
+            toSend.push({ notification, content });
+        }
+        await NotificationManager.getInstance().sender.send(toSend);
     }
 
     async fetchDueNotifications(timeAhead: number): Promise<QueuedNotification[]> {
-        // console.log(`fetching notifications due in the next ${timeAhead}ms`);
         const client = RedisManager.getInstance().getClient();
 
         const now = Date.now();
@@ -69,8 +81,11 @@ export default class NotificationRunner {
                     return null;
                 }
 
+                const handler = NotificationManager.getHandler(data.type);
+
                 return {
                     id,
+                    handler,
                     data
                 };
             })

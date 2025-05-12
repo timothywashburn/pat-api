@@ -20,6 +20,7 @@ export type NotificationId = string & { readonly __brand: "NotificationId" };
 
 export type QueuedNotification = {
     id: NotificationId;
+    handler: NotificationHandler;
     data: NotificationData
 }
 
