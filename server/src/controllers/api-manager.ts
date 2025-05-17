@@ -1,6 +1,6 @@
 import express, { Router, Request, Response, NextFunction, RequestHandler } from 'express';
 import { ApiEndpoint, ApiRequest, ApiResponse } from '../api/types';
-import { loginEndpoint } from "../api/endpoints/auth/login";
+import { signInEndpoint } from "../api/endpoints/auth/sign-in";
 import { getItemsEndpoint } from "../api/endpoints/items/get-items";
 import AuthManager from './auth-manager';
 import {createItemEndpoint} from "../api/endpoints/items/create-item";
@@ -9,7 +9,7 @@ import {refreshAuthEndpoint} from "../api/endpoints/auth/refresh-auth";
 import {completeItemEndpoint} from "../api/endpoints/items/complete-item";
 import {updateUserEndpoint} from "../api/endpoints/account/update-user-config";
 import {getUserEndpoint} from "../api/endpoints/account/get-user";
-import {registerEndpoint} from "../api/endpoints/auth/register";
+import {createAccountEndpoint} from "../api/endpoints/auth/create-account";
 import {resendVerificationEndpoint} from "../api/endpoints/auth/resend-verification";
 import {verifyEmailEndpoint} from "../api/endpoints/auth/verify-email";
 import {AuthDataModel} from "../models/mongo/auth-data";
@@ -38,9 +38,9 @@ export default class ApiManager {
         this.addEndpoint(getUserEndpoint);
         this.addEndpoint(updateUserEndpoint);
 
-        this.addEndpoint(loginEndpoint);
+        this.addEndpoint(signInEndpoint);
         this.addEndpoint(refreshAuthEndpoint);
-        this.addEndpoint(registerEndpoint);
+        this.addEndpoint(createAccountEndpoint);
         this.addEndpoint(resendVerificationEndpoint);
         this.addEndpoint(verifyEmailEndpoint);
 

@@ -7,7 +7,7 @@ import MailjetManager from "./mailjet-manager";
 import {
     AuthData, AuthId,
     AuthTokens,
-    LoginResponse, RefreshAuthResponse,
+    SignInResponse, RefreshAuthResponse,
     RefreshTokenPayload,
     TokenPayload,
     toPublicAuthData, UserData, UserId
@@ -38,7 +38,7 @@ export default class AuthManager {
         };
     }
 
-    async register(name: string, email: string, password: string): Promise<{ tokenData: AuthTokens; authData: AuthData; user: UserData }> {
+    async createAccount(name: string, email: string, password: string): Promise<{ tokenData: AuthTokens; authData: AuthData; user: UserData }> {
         const existingAuth = await AuthDataModel.findOne({ email });
         if (existingAuth) {
             throw new Error('Email already exists');
@@ -61,7 +61,7 @@ export default class AuthManager {
         };
     }
 
-    async login(email: string, password: string): Promise<LoginResponse | null> {
+    async signIn(email: string, password: string): Promise<SignInResponse | null> {
         const authData: AuthData | null = await AuthDataModel.findOne({ email });
         if (!authData) return null;
 

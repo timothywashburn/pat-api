@@ -1,15 +1,15 @@
 import { ApiEndpoint } from '../../types';
 import AuthManager from '../../../controllers/auth-manager';
 import { z } from 'zod';
-import { LoginRequest, loginRequestSchema, LoginResponse } from "@timothyw/pat-common";
+import { SignInRequest, signInRequestSchema, SignInResponse } from "@timothyw/pat-common";
 
-export const loginEndpoint: ApiEndpoint<LoginRequest, LoginResponse> = {
-    path: '/api/auth/login',
+export const signInEndpoint: ApiEndpoint<SignInRequest, SignInResponse> = {
+    path: '/api/auth/sign-in',
     method: 'post',
     handler: async (req, res) => {
         try {
-            const data = loginRequestSchema.parse(req.body);
-            const result = await AuthManager.getInstance().login(
+            const data = signInRequestSchema.parse(req.body);
+            const result = await AuthManager.getInstance().signIn(
                 data.email,
                 data.password
             );
@@ -22,14 +22,14 @@ export const loginEndpoint: ApiEndpoint<LoginRequest, LoginResponse> = {
                 return;
             }
 
-            console.log(`User ${data.email} logged in successfully`);
+            console.log(`User ${data.email} signed in successfully`);
 
             res.json({
                 success: true,
                 data: result
             });
         } catch (error) {
-            let message = 'Login failed';
+            let message = 'Sign in failed';
 
             if (error instanceof z.ZodError) {
                 message = error.errors[0].message;

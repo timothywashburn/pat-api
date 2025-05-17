@@ -2,8 +2,8 @@ import mongoose from 'mongoose';
 import { config } from 'dotenv';
 import { resolve } from 'path';
 import chalk from 'chalk';
-import { runCreateAccountTest } from './unit/api/auth/register.test';
-import { runLoginTest } from './unit/api/auth/login.test';
+import { runCreateAccountTest } from './unit/api/auth/create-account.test';
+import { runSignInTest } from './unit/api/auth/sign-in.test';
 import { runGetItemsTest } from './unit/api/items/get-items.test';
 import { runSetupDiscordConfigTest } from "./unit/create-config";
 import { runCreateItemsTest } from "./unit/api/items/create-items.test";
@@ -53,7 +53,7 @@ interface Test {
 const tests: Test[] = [
     { name: 'setup config', run: runSetupDiscordConfigTest },
     { name: 'create account', run: runCreateAccountTest },
-    { name: 'login', run: runLoginTest },
+    { name: 'sign in', run: runSignInTest },
     // { name: 'resend verification', run: runResendVerificationTest },
     { name: 'verify email', run: runVerifyEmailTest },
     { name: 'refresh token', run: runRefreshTokenTest },

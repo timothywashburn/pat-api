@@ -1,16 +1,16 @@
 import axios from 'axios';
 import { TestContext } from '../../../main';
 import { ApiResponseBody } from "../../../../src/api/types";
-import { LoginResponse } from "@timothyw/pat-common";
+import { SignInResponse } from "@timothyw/pat-common";
 
-export async function runLoginTest(context: TestContext) {
-    const response = await axios.post<ApiResponseBody<LoginResponse>>(
-        `${context.baseUrl}/api/auth/login`,
+export async function runSignInTest(context: TestContext) {
+    const response = await axios.post<ApiResponseBody<SignInResponse>>(
+        `${context.baseUrl}/api/auth/sign-in`,
         context.account
     );
 
     if (!response.data.success) {
-        throw new Error('login failed');
+        throw new Error('sign in failed');
     }
 
     context.authToken = response.data.data!.tokenData.accessToken;

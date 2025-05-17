@@ -1,11 +1,11 @@
 import axios from 'axios';
 import { TestContext } from '../../../main';
-import { RegisterResponse, UserId } from "@timothyw/pat-common";
+import { CreateAccountResponse, UserId } from "@timothyw/pat-common";
 import { ApiResponseBody } from "../../../../src/api/types";
 
 export async function runCreateAccountTest(context: TestContext) {
-    const response = await axios.post<ApiResponseBody<RegisterResponse>>(
-        `${context.baseUrl}/api/auth/register`,
+    const response = await axios.post<ApiResponseBody<CreateAccountResponse>>(
+        `${context.baseUrl}/api/auth/create-account`,
         {
             name: context.account.name,
             email: context.account.email,

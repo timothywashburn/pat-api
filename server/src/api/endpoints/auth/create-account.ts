@@ -3,14 +3,14 @@ import AuthManager from '../../../controllers/auth-manager';
 import { z } from 'zod';
 import MailjetManager from "../../../controllers/mailjet-manager";
 import ConfigManager from '../../../controllers/config-manager';
-import { RegisterRequest, registerRequestSchema, RegisterResponse } from "@timothyw/pat-common";
+import { CreateAccountRequest, createAccountRequestSchema, CreateAccountResponse } from "@timothyw/pat-common";
 
-export const registerEndpoint: ApiEndpoint<RegisterRequest, RegisterResponse> = {
-    path: '/api/auth/register',
+export const createAccountEndpoint: ApiEndpoint<CreateAccountRequest, CreateAccountResponse> = {
+    path: '/api/auth/create-account',
     method: 'post',
     handler: async (req, res) => {
         try {
-            const data = registerRequestSchema.parse(req.body);
+            const data = createAccountRequestSchema.parse(req.body);
 
             const config = ConfigManager.getConfig();
             const authorizedEmails = config.dev?.authorizedEmails || [];
@@ -18,12 +18,12 @@ export const registerEndpoint: ApiEndpoint<RegisterRequest, RegisterResponse> = 
             if (!authorizedEmails.includes(data.email.toLowerCase())) {
                 res.status(403).json({
                     success: false,
-                    error: "You are not authorized to register. Contact me and I'll add you."
+                    error: "You are not authorized to create an account. Contact me and I'll add you."
                 });
                 return;
             }
 
-            const { tokenData, authData, user } = await AuthManager.getInstance().register(
+            const { tokenData, authData, user } = await AuthManager.getInstance().createAccount(
                 data.name,
                 data.email,
                 data.password
