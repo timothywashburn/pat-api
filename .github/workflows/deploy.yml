@@ -45,6 +45,7 @@ jobs:
           JWT_SECRET=${{ secrets.JWT_SECRET }}
           REFRESH_SECRET=${{ secrets.REFRESH_SECRET }}
           API_URL=${{ secrets.API_URL }}
+          MONGO_PASS=${{ secrets.MONGO_PASS }}
           EOL
           
           # Debug: Show file contents (excluding sensitive values)
