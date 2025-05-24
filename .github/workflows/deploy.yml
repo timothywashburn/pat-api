@@ -46,6 +46,7 @@ jobs:
           REFRESH_SECRET=${{ secrets.REFRESH_SECRET }}
           API_URL=${{ secrets.API_URL }}
           MONGO_PASS=${{ secrets.MONGO_PASS }}
+          REDIS_PASS=${{ secrets.REDIS_PASS }}
           EOL
           
           # Debug: Show file contents (excluding sensitive values)
