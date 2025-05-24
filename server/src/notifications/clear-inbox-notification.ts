@@ -6,7 +6,8 @@ import {
 import { UserData, UserId } from "@timothyw/pat-common";
 import UserManager from "../controllers/user-manager";
 import ThoughtManager from "../controllers/thought-manager";
-import { DateUtils } from "../utils/date-utils";
+import { fromZonedTime, toZonedTime } from 'date-fns-tz';
+import { setHours, setMinutes, setSeconds, addDays, isAfter, setMilliseconds } from 'date-fns';
 
 export class ClearInboxNotificationHandler extends NotificationHandler {
     type = NotificationType.CLEAR_INBOX;
@@ -21,13 +22,22 @@ export class ClearInboxNotificationHandler extends NotificationHandler {
                 return;
             }
 
-            let date = DateUtils.setTime(new Date(), 21, 0);
-            if (DateUtils.inPast(date)) date = DateUtils.addDays(date, 1);
+            const userTimezone = user.timezone || 'America/New_York';
+
+            const now = new Date();
+            const userNow = toZonedTime(now, userTimezone);
+
+            let scheduledDate = setHours(setMinutes(setSeconds(setMilliseconds(userNow, 0), 0), 0), 21);
+
+            if (isAfter(userNow, scheduledDate)) {
+                scheduledDate = addDays(scheduledDate, 1);
+            }
+
+            const utcScheduledTime = fromZonedTime(scheduledDate, userTimezone);
 
             const data = {
                 userId,
-                scheduledTime: date.getTime()
-                // scheduledTime: new Date().getTime() + 5 * 1000
+                scheduledTime: utcScheduledTime.getTime()
             };
 
             return [data];

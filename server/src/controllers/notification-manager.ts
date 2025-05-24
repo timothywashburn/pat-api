@@ -82,46 +82,6 @@ export default class NotificationManager {
         await client.zadd('global:notifications', data.scheduledTime, notificationID);
     }
 
-    // TODO: implement later when notifications become configurable
-    // async fetchUserNotifications(userId: UserId): Promise<QueuedNotification[]> {
-    //     const client = RedisManager.getInstance().getClient();
-    //
-    //     const result = await client.zrange(`user:${userId}:notifications`, 0, -1, 'WITHSCORES');
-    //
-    //     const userNotifications = [];
-    //     for (let i = 0; i < result.length; i += 2) {
-    //         userNotifications.push({
-    //             value: result[i],
-    //             score: parseInt(result[i + 1])
-    //         });
-    //     }
-    //
-    //     console.log(`found ${userNotifications.length} notifications for user ${userId}`);
-    //
-    //     if (userNotifications.length === 0) return [];
-    //
-    //     const notifications = await Promise.all(
-    //         userNotifications.map(async ({ value: idString }) => {
-    //             const id = idString as NotificationId;
-    //             const data = await client.hgetall(`notification:${id}`) as unknown as NotificationData;
-    //
-    //             if (Object.keys(data).length === 0) {
-    //                 console.log(`notification ${id} not found in hash store`);
-    //                 return null;
-    //             }
-    //
-    //             return {
-    //                 id,
-    //                 data
-    //             };
-    //         })
-    //     );
-    //
-    //     return notifications
-    //         .filter(isNotNull)
-    //         .sort((a, b) => a.data.scheduledTime - b.data.scheduledTime);
-    // }
-
     static getInstance(): NotificationManager {
         if (!NotificationManager.instance) throw new Error('NotificationManager not initialized.');
         return NotificationManager.instance;
