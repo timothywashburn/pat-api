@@ -111,6 +111,11 @@ export default class AuthManager {
         }
     }
 
+    async isVerified(authId: AuthId): Promise<boolean> {
+        const result = await AuthDataModel.findById(authId);
+        return result !== null && result.emailVerified;
+    }
+
     async verifyEmail(authId: AuthId): Promise<boolean> {
         const result = await AuthDataModel.findByIdAndUpdate(
             authId,

@@ -1,8 +1,8 @@
 import { ApiEndpoint } from '../../types';
 import AuthManager from '../../../controllers/auth-manager';
 import SocketManager from "../../../controllers/socket-manager";
-import {AuthDataModel} from "../../../models/mongo/auth-data";
-import { VerifyEmailQuery } from "@timothyw/pat-common";
+import { AuthDataModel } from "../../../models/mongo/auth-data";
+import { SocketMessageType, VerifyEmailQuery } from "@timothyw/pat-common";
 
 export const verifyEmailEndpoint: ApiEndpoint = {
     path: '/api/auth/verify-email',
@@ -39,7 +39,7 @@ export const verifyEmailEndpoint: ApiEndpoint = {
                 return;
             }
 
-            SocketManager.getInstance().emitToUser(decoded.userId, "emailVerified");
+            SocketManager.getInstance().emitToUser(decoded.userId, SocketMessageType.CLIENT_VERIFY_EMAIL_RESPONSE);
 
             res.redirect(`https://${process.env.API_URL}/verify-success`);
         } catch (error) {

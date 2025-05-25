@@ -1,13 +1,15 @@
 import { Server as HttpServer } from 'http';
 import { Server, Socket } from 'socket.io';
 import { verify } from 'jsonwebtoken';
-import { TokenPayload, UserId } from "@timothyw/pat-common";
-
-export interface SocketMessage<T = any> {
-    type: string;
-    userId: string;
-    data: T;
-}
+import {
+    TokenPayload,
+    UserId,
+    SocketMessage,
+    SocketMessageType,
+    ServerHeartbeatData,
+    ClientVerifyEmailResponseData
+} from "@timothyw/pat-common";
+import AuthManager from "./auth-manager";
 
 export default class SocketManager {
     private static instance: SocketManager;
@@ -42,6 +44,7 @@ export default class SocketManager {
                 }
 
                 const decoded = verify(token, process.env.JWT_SECRET!) as TokenPayload;
+                socket.data.authId = decoded.authId;
                 socket.data.userId = decoded.userId;
                 console.log(`[socket] auth success for socket ${socket.id} user ${decoded.userId}`);
                 next();
@@ -57,9 +60,19 @@ export default class SocketManager {
 
             socket.join(`user:${userId}`);
 
-            socket.on('heartbeat', (data) => {
-                console.log(`[socket] heartbeat from ${socket.id}`);
-                socket.emit('heartbeat_ack', { id: data.id });
+            socket.on(SocketMessageType.SERVER_HEARTBEAT, (message: SocketMessage<ServerHeartbeatData>) => {
+                console.log(`[socket] heartbeat from ${socket.id} at ${message.data.timestamp}`);
+                this.emitToUser(socket.data.userId, SocketMessageType.CLIENT_HEARTBEAT_ACK);
+            });
+
+            socket.on(SocketMessageType.SERVER_VERIFY_EMAIL_CHECK, async (_message) => {
+                console.log(`[socket] verify email check from ${socket.id}`);
+
+                let emailVerified = await AuthManager.getInstance().isVerified(socket.data.authId);
+                let data: ClientVerifyEmailResponseData = {
+                    emailVerified
+                };
+                this.emitToUser(socket.data.userId, SocketMessageType.CLIENT_VERIFY_EMAIL_RESPONSE, data);
             });
 
             socket.on('disconnect', (reason) => {
@@ -72,9 +85,9 @@ export default class SocketManager {
         });
     }
 
-    emitToUser<T extends object>(userId: UserId, type: string, data: T = {} as T) {
+    emitToUser<T>(userId: UserId, type: SocketMessageType, data: T = {} as T) {
         let message: SocketMessage<T> = {type, userId, data}
-        console.log(`[socket] sending to user ${userId}:`, message);
+        // console.log(`[socket] sending to user ${userId}:`, message);
         this.io.to(`user:${userId}`).emit('message', message);
     }
 

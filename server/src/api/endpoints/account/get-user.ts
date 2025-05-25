@@ -9,7 +9,7 @@ const isValidModule = (module: Module | null | undefined): module is Module => {
 export const getUserEndpoint: ApiEndpoint<undefined, GetUserResponse> = {
     path: '/api/account',
     method: 'get',
-    auth: 'verifiedEmail',
+    auth: 'authenticated',
     handler: async (req, res) => {
         try {
             const user = await UserManager.getInstance().getById(req.auth!.userId!);
