@@ -1,8 +1,7 @@
 import NotificationManager, { NotificationId, QueuedNotification } from "./notification-manager";
 import RedisManager from "./redis-manager";
-import { NotificationData, NotificationHandler, NotificationType } from "../models/notification-handler";
+import { NotificationData } from "../models/notification-handler";
 import { isNotNull } from "../utils/misc";
-import { UserId } from "@timothyw/pat-common";
 
 export default class NotificationRunner {
     private notificationManager: NotificationManager;
@@ -22,6 +21,7 @@ export default class NotificationRunner {
     async enqueueNotifications() {
         const notifications: QueuedNotification[] = await this.fetchDueNotifications(15 * 60 * 1000);
         for (const notification of notifications) this.insertSorted(notification);
+        console.log(`${notifications.length} notification${notifications.length == 1 ? "" : "s"} queued`);
     }
 
     async sendNotifications() {
@@ -51,7 +51,12 @@ export default class NotificationRunner {
 
             toSend.push({ notification, content });
         }
-        await NotificationManager.getInstance().sender.send(toSend);
+        await this.notificationManager.sender.send(toSend);
+
+        await Promise.all(dueNotifications.map(notification => this.notificationManager.removeNotification(notification.id)));
+        for (let notification of dueNotifications) await notification.handler.onPostSend(notification.data.userId);
+
+        console.log(`finished sending ${dueNotifications.length} notification${dueNotifications.length == 1 ? "" : "s"}`);
     }
 
     async fetchDueNotifications(timeAhead: number): Promise<QueuedNotification[]> {
@@ -65,8 +70,6 @@ export default class NotificationRunner {
             now,
             futureTime
         );
-
-        console.log(`${dueNotificationRefs.length} notification${dueNotificationRefs.length == 1 ? "" : "s"} queued`);
 
         if (dueNotificationRefs.length === 0) return [];
 
@@ -101,5 +104,9 @@ export default class NotificationRunner {
         } else {
             this.queue.splice(index, 0, notification);
         }
+    }
+
+    public getQueue(): QueuedNotification[] {
+        return this.queue;
     }
 }

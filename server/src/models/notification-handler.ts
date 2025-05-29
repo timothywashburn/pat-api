@@ -1,4 +1,4 @@
-import NotificationManager, { QueuedNotification } from "../controllers/notification-manager";
+import NotificationManager from "../controllers/notification-manager";
 import { UserId } from "@timothyw/pat-common";
 import RedisManager from "../controllers/redis-manager";
 
@@ -33,7 +33,7 @@ export abstract class NotificationHandler<
     abstract getContent(userId: UserId, data: U): Promise<NotificationContent | null>;
 
     async onApiStart(): Promise<void> {}
-    protected async onPostSend(userId: UserId): Promise<void> {}
+    async onPostSend(userId: UserId): Promise<void> {}
 
     async schedule(userId: UserId, context: T) {
         const notificationManager = NotificationManager.getInstance();

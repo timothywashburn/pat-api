@@ -1,4 +1,3 @@
-import { UserId } from "@timothyw/pat-common";
 import UserManager from "./user-manager";
 import { Expo, ExpoPushMessage, ExpoPushTicket } from "expo-server-sdk";
 import { QueuedNotification } from "./notification-manager";

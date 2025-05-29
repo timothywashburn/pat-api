@@ -82,6 +82,20 @@ export default class NotificationManager {
         await client.zadd('global:notifications', data.scheduledTime, notificationID);
     }
 
+    async removeNotification(id: NotificationId): Promise<void> {
+        const client = RedisManager.getInstance().getClient();
+        const data = await client.hgetall(`notification:${id}`) as unknown as NotificationData;
+
+        if (!data) {
+            console.log(`notification ${id} not found`);
+            return;
+        }
+
+        await client.del(`notification:${id}`);
+        await client.zrem(`user:${data.userId}:notifications`, id);
+        await client.zrem('global:notifications', id);
+    }
+
     static getInstance(): NotificationManager {
         if (!NotificationManager.instance) throw new Error('NotificationManager not initialized.');
         return NotificationManager.instance;

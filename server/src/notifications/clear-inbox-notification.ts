@@ -38,6 +38,7 @@ export class ClearInboxNotificationHandler extends NotificationHandler {
             const data = {
                 userId,
                 scheduledTime: utcScheduledTime.getTime()
+                // scheduledTime: new Date().getTime() + 10_000
             };
 
             return [data];
@@ -65,7 +66,7 @@ export class ClearInboxNotificationHandler extends NotificationHandler {
         for (const user of users) await this.schedule(String(user._id) as UserId, {});
     }
 
-    protected async onPostSend(userId: UserId): Promise<void> {
+    async onPostSend(userId: UserId): Promise<void> {
         await this.schedule(userId, {});
     }
 }
