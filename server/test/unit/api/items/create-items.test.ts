@@ -12,8 +12,26 @@ export async function runCreateItemsTest(context: TestContext) {
 
     await createItem(context, {
         name: 'Second item',
-        notes: 'Second item for testing',
+        notes: 'Description for second item',
         dueDate: new Date(Date.now() + 60 * 60 * 1000 + 10 * 1000),
+        category: 'Category 1',
+        type: 'Type 2',
+        urgent: true
+    });
+
+    await createItem(context, {
+        name: 'Third item',
+        notes: 'Description for third item',
+        category: 'Category 2',
+        urgent: true
+    });
+
+    await createItem(context, {
+        name: 'Fourth item',
+        notes: 'Description for fourth item',
+        dueDate: new Date(Date.now() + 100 * 24 * 60 * 60 * 1000),
+        category: 'Category 1',
+        type: 'Type 1',
     });
 
     await createItem(context, {
