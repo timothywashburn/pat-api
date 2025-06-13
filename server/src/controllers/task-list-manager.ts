@@ -52,10 +52,7 @@ export default class TaskListManager {
     }
 
     async delete(taskListId: TaskListId): Promise<boolean> {
-        // First delete all tasks in this task list
         await TaskManager.getInstance().deleteAllForTaskList(taskListId);
-        
-        // Then delete the task list itself
         return TaskListModel.deleteOne({ _id: taskListId })
             .then(result => result.deletedCount > 0);
     }
