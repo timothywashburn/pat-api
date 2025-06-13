@@ -13,7 +13,7 @@ export async function runCreateItemsTest(context: TestContext) {
     await createItem(context, {
         name: 'Second item',
         notes: 'Second item for testing',
-        dueDate: new Date(Date.now() + 1000 * 60 * 60 + 1000 * 30),
+        dueDate: new Date(Date.now() + 60 * 60 * 1000 + 10 * 1000),
     });
 
     await createItem(context, {

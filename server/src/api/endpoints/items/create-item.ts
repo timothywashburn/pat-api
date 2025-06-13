@@ -1,7 +1,9 @@
 import { ApiEndpoint } from '../../types';
 import ItemManager from '../../../controllers/item-manager';
 import { z } from 'zod';
-import { CreateItemRequest, createItemRequestSchema, CreateItemResponse } from "@timothyw/pat-common";
+import { CreateItemRequest, createItemRequestSchema, CreateItemResponse, ItemId } from "@timothyw/pat-common";
+import NotificationManager from "../../../controllers/notification-manager";
+import { NotificationType } from "../../../models/notification-handler";
 
 export const createItemEndpoint: ApiEndpoint<CreateItemRequest, CreateItemResponse> = {
     path: '/api/items',
@@ -22,9 +24,10 @@ export const createItemEndpoint: ApiEndpoint<CreateItemRequest, CreateItemRespon
             });
 
             // TODO: figure out a better way to handle objectids as itemids
-            // await NotificationManager.getHandler(NotificationType.ITEM_DEADLINE).schedule(userId, {
-            //     itemId: String(item._id) as ItemId
-            // });
+            await NotificationManager.getHandler(NotificationType.ITEM_DEADLINE).schedule(userId, {
+                itemId: String(item._id) as ItemId,
+                notificationNumber: 1
+            });
 
             res.json({
                 success: true,

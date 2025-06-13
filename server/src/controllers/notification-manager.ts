@@ -74,7 +74,7 @@ export default class NotificationManager {
     }
 
     async scheduleNotification(data: NotificationData): Promise<void> {
-        const notificationID = randomBytes(16).toString('base64url');
+        const notificationID = data.type.toString() + '_' + randomBytes(16).toString('base64url');
         const client = RedisManager.getInstance().getClient();
 
         await client.hset(`notification:${notificationID}`, { ...data });

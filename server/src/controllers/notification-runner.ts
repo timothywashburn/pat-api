@@ -31,7 +31,7 @@ export default class NotificationRunner {
         while (this.queue.length > 0) {
             const nextNotification = this.queue[0];
 
-            if (nextNotification.data.scheduledTime > now) {
+            if (Number(nextNotification.data.scheduledTime) > now) {
                 // console.log(`next notification not due yet. scheduled for ${nextNotification.data.scheduledTime}, current time ${now}`);
                 break;
             }
@@ -54,7 +54,7 @@ export default class NotificationRunner {
         await this.notificationManager.sender.send(toSend);
 
         await Promise.all(dueNotifications.map(notification => this.notificationManager.removeNotification(notification.id)));
-        for (let notification of dueNotifications) await notification.handler.onPostSend(notification.data.userId);
+        for (let notification of dueNotifications) await notification.handler.onPostSend(notification.data);
 
         console.log(`finished sending ${dueNotifications.length} notification${dueNotifications.length == 1 ? "" : "s"}`);
     }

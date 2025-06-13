@@ -3,17 +3,19 @@ import {
     NotificationData,
     NotificationType, ScheduleDataResult
 } from "../models/notification-handler";
-import { ItemId, UserId } from "@timothyw/pat-common";
+import { ItemId, UserData, UserId } from "@timothyw/pat-common";
 import UserManager from "../controllers/user-manager";
 import ItemManager from "../controllers/item-manager";
 
 export interface ItemDeadlineNotificationContext {
-    itemId: ItemId
+    itemId: ItemId,
+    notificationNumber: number
 }
 
 export interface ItemDeadlineNotificationData extends NotificationData {
     itemId: ItemId,
-    title: string
+    title: string,
+    notificationNumber: string
 }
 
 export class ItemDeadlineNotificationHandler extends NotificationHandler<ItemDeadlineNotificationContext, ItemDeadlineNotificationData> {
@@ -41,20 +43,28 @@ export class ItemDeadlineNotificationHandler extends NotificationHandler<ItemDea
                 return;
             }
 
-            // const dueDate = item.dueDate.getTime();
-            let scheduledTime = new Date().getTime() + 20 * 60 * 1000;
-
-            const data = []
-            for (let i = 0; i < 1; i++, scheduledTime += 5 * 1000) {
-                const dataItem = {
-                    userId,
-                    scheduledTime,
-                    itemId,
-                    title: `${i}. ${item.name}`,
-                };
-
-                data.push(dataItem);
+            let scheduledTime = item.dueDate.getTime();
+            if (context.notificationNumber === 1) {
+                scheduledTime -= 60 * 60 * 1000;
+            } else if (context.notificationNumber === 2) {
+                scheduledTime -= 15 * 60 * 1000;
+            } else if (context.notificationNumber === 3) {
+                scheduledTime -= 3 * 60 * 1000;
+            } else {
+                console.log(`notification number ${context.notificationNumber} is not valid, cancelling notification`);
+                return;
             }
+
+            const data = [];
+            const dataItem = {
+                userId,
+                scheduledTime: String(scheduledTime),
+                itemId,
+                title: `${context.notificationNumber}. ${item.name}`,
+                notificationNumber: String(context.notificationNumber)
+            };
+
+            data.push(dataItem);
             return data;
         } catch (error) {
             console.log(`error scheduling notifications: ${error}`)
@@ -69,9 +79,61 @@ export class ItemDeadlineNotificationHandler extends NotificationHandler<ItemDea
             return null;
         }
 
-        return {
-            title: data.title,
-            body: `The item "${item.name}" is due soon.`
+        if (!item.dueDate) {
+            console.log(`item ${data.itemId} does not have a due date, cancelling notification`);
+            return null;
         }
+
+        if (item.completed) {
+            console.log(`item ${data.itemId} is completed, cancelling notification`);
+            return null;
+        }
+
+        let title;
+        let body;
+        if (data.notificationNumber === "1") {
+            title = `1 Hour Reminder`;
+            body = `"${item.name}" is due in 1 hour`;
+        } else if (data.notificationNumber === "2") {
+            title = `15 Minutes Warning!!!`;
+            body = `"${item.name}" is due in 15 minutes`;
+        } else if (data.notificationNumber === "3") {
+            title = `This is your last chance.`;
+            body = `"${item.name}" is due in 3 minutes`;
+        } else {
+            console.log(`notification number ${data.notificationNumber} is not valid, cancelling notification`);
+            return null;
+        }
+
+        return {
+            title,
+            body
+        }
+    }
+
+    async onApiStart(): Promise<void> {
+        const users: UserData[] = await UserManager.getInstance().getAllWithNotifications();
+        for (const user of users) {
+            const items = await ItemManager.getInstance().getAllByUser(user._id as UserId);
+            for (const item of items) {
+                if (item.dueDate) {
+                    await this.schedule(String(user._id) as UserId, {
+                        itemId: item._id,
+                        notificationNumber: 1
+                    });
+                } else {
+                    console.log(`item ${item._id} does not have a due date, skipping notification`);
+                }
+            }
+        }
+    }
+
+    async onPostSend(data: ItemDeadlineNotificationData): Promise<void> {
+        const notificationNumber = Number(data.notificationNumber);
+        if (notificationNumber >= 3) return;
+        await this.schedule(data.userId, {
+            itemId: data.itemId,
+            notificationNumber: notificationNumber + 1
+        });
     }
 }

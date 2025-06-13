@@ -7,7 +7,7 @@ export interface NotificationContext {}
 export interface NotificationData {
     type: NotificationType;
     userId: UserId;
-    scheduledTime: number;
+    scheduledTime: string;
 }
 
 export interface NotificationContent {
@@ -33,7 +33,7 @@ export abstract class NotificationHandler<
     abstract getContent(userId: UserId, data: U): Promise<NotificationContent | null>;
 
     async onApiStart(): Promise<void> {}
-    async onPostSend(userId: UserId): Promise<void> {}
+    async onPostSend(data: U): Promise<void> {}
 
     async schedule(userId: UserId, context: T) {
         const notificationManager = NotificationManager.getInstance();

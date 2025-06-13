@@ -6,7 +6,7 @@ import {
 import { UserData, UserId } from "@timothyw/pat-common";
 import UserManager from "../controllers/user-manager";
 import ThoughtManager from "../controllers/thought-manager";
-import { fromZonedTime, toZonedTime } from 'date-fns-tz';
+import { toZonedTime } from 'date-fns-tz';
 import { setHours, setMinutes, setSeconds, addDays, isAfter, setMilliseconds } from 'date-fns';
 
 export class ClearInboxNotificationHandler extends NotificationHandler {
@@ -35,7 +35,7 @@ export class ClearInboxNotificationHandler extends NotificationHandler {
 
             const data = {
                 userId,
-                scheduledTime: scheduledDate.getTime()
+                scheduledTime: String(scheduledDate.getTime())
                 // scheduledTime: new Date().getTime() + 10_000
             };
 
@@ -64,7 +64,7 @@ export class ClearInboxNotificationHandler extends NotificationHandler {
         for (const user of users) await this.schedule(String(user._id) as UserId, {});
     }
 
-    async onPostSend(userId: UserId): Promise<void> {
-        await this.schedule(userId, {});
+    async onPostSend(data: NotificationData): Promise<void> {
+        await this.schedule(data.userId, {});
     }
 }
