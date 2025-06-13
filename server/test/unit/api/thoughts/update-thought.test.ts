@@ -11,7 +11,7 @@ export async function runUpdateThoughtTest(context: TestContext) {
     }
 
     const updates = {
-        content: 'fruit is yummy yayayyayay'
+        content: 'First thought'
     };
 
     const updateResponse = await axios.put<ApiResponseBody<UpdateThoughtResponse>>(

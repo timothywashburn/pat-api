@@ -6,42 +6,29 @@ import { CreateThoughtResponse, ThoughtId } from "@timothyw/pat-common";
 import { ApiResponseBody } from "../../../../src/api/types";
 
 export async function runCreateThoughtsTest(context: TestContext) {
-    const thought1Response = await axios.post<ApiResponseBody<CreateThoughtResponse>>(
-        `${context.baseUrl}/api/thoughts`,
-        {
-            content: 'fruit is yummy'
-        },
-        {
-            headers: {
-                Authorization: `Bearer ${context.authToken}`
-            }
-        }
-    );
-
-    if (!thought1Response.data.success) throw new Error('failed to create first thought');
-
-    const thought2Response = await axios.post<ApiResponseBody<CreateThoughtResponse>>(
-        `${context.baseUrl}/api/thoughts`,
-        {
-            content: 'aaaaaaaa'
-        },
-        {
-            headers: {
-                Authorization: `Bearer ${context.authToken}`
-            }
-        }
-    );
-
-    if (!thought2Response.data.success) throw new Error('failed to create second thought');
-
-    context.thoughtIds = [
-        thought1Response.data.data!.thought.id as ThoughtId,
-        thought2Response.data.data!.thought.id as ThoughtId
-    ];
+    await createThought(context, { content: 'Original first thought that should be updated later' });
+    await createThought(context, { content: 'Second thought' });
+    await createThought(context, { content: 'Thought to delete' });
 
     const thoughts = await ThoughtModel.find({
         userId: new Types.ObjectId(context.userId)
     });
 
-    if (thoughts.length !== 2) throw new Error(`expected 2 thoughts, found ${thoughts.length}`);
+    if (thoughts.length !== context.thoughtIds.length)
+        throw new Error(`expected ${context.thoughtIds.length === 1 ? "1 thought" : context.thoughtIds.length + " thoughts"}, found ${thoughts.length}`);
+}
+
+async function createThought(context: TestContext, data: Record<string, any>) {
+    const response = await axios.post<ApiResponseBody<CreateThoughtResponse>>(
+        `${context.baseUrl}/api/thoughts`,
+        { ...data },
+        {
+            headers: {
+                Authorization: `Bearer ${context.authToken}`
+            }
+        }
+    );
+
+    if (!response.data.success) throw new Error(`failed to create thought: ${data.content}`);
+    context.thoughtIds.push(response.data.data!.thought.id as ThoughtId);
 }

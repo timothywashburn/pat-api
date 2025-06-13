@@ -15,5 +15,9 @@ export async function runGetPeopleTest(context: TestContext) {
 
     if (!response.data.success) throw new Error('failed to fetch people');
     if (!Array.isArray(response.data.data!.people)) throw new Error('invalid people response format');
-    if (response.data.data!.people.length !== 1) throw new Error(`expected 1 person, found ${response.data.data!.people.length}`);
+
+    if (context.personIds && response.data.data!.people.length !== context.personIds.length) {
+        const count = context.personIds.length;
+        throw new Error(`expected ${count} ${count == 1 ? 'person' : 'people'}, found ${response.data.data!.people.length}`);
+    }
 }

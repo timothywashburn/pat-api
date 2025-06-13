@@ -10,12 +10,12 @@ export async function runUpdateItemTest(context: TestContext) {
     }
 
     const updates = {
-        name: 'Updated Item Name',
-        notes: 'Updated item notes'
+        name: 'First Item',
+        notes: 'New item description worked!'
     };
 
     const updateResponse = await axios.put<ApiResponseBody<UpdateItemResponse>>(
-        `${context.baseUrl}/api/items/${context.itemIds[1]}`,
+        `${context.baseUrl}/api/items/${context.itemIds[0]}`,
         updates,
         {
             headers: {
@@ -28,7 +28,7 @@ export async function runUpdateItemTest(context: TestContext) {
     if (updateResponse.data.data!.item.name !== updates.name) throw new Error('name not updated in response');
     if (updateResponse.data.data!.item.notes !== updates.notes) throw new Error('notes not updated in response');
 
-    const item = await ItemModel.findById(context.itemIds[1]);
+    const item = await ItemModel.findById(context.itemIds[0]);
     if (!item) throw new Error('item not found in database');
     if (item.name !== updates.name) throw new Error('name not updated in database');
     if (item.notes !== updates.notes) throw new Error('notes not updated in database');

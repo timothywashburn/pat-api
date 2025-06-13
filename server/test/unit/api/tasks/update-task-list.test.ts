@@ -11,11 +11,13 @@ export async function runUpdateTaskListTest(context: TestContext) {
 
     const taskListId = context.taskListIds[0];
 
+    const updates = {
+        name: 'Updated task list name'
+    };
+
     const response = await axios.put<ApiResponseBody<UpdateTaskListResponse>>(
         `${context.baseUrl}/api/tasks/lists/${taskListId}`,
-        {
-            name: 'Updated task list name'
-        },
+        updates,
         {
             headers: {
                 Authorization: `Bearer ${context.authToken}`
@@ -28,14 +30,7 @@ export async function runUpdateTaskListTest(context: TestContext) {
     }
 
     const updatedTaskList = response.data.data!.taskList;
-
-    if (updatedTaskList.name !== 'Updated task list name') {
-        throw new Error('Task list name was not updated correctly');
-    }
-
-    // Verify in database
+    if (updatedTaskList.name !== updates.name) throw new Error('Task list name was not updated correctly');
     const taskListInDb = await TaskListModel.findById(taskListId);
-    if (!taskListInDb || taskListInDb.name !== 'Updated task list name') {
-        throw new Error('Task list not properly updated in database');
-    }
+    if (!taskListInDb || taskListInDb.name !== updates.name) throw new Error('Task list not properly updated in database');
 }

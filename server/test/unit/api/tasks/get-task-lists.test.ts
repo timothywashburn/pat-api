@@ -19,11 +19,11 @@ export async function runGetTaskListsTest(context: TestContext) {
 
     const taskLists = response.data.data!.taskLists;
 
-    if (taskLists.length !== 2) {
-        throw new Error(`Expected 2 task lists, got ${taskLists.length}`);
+    if (context.taskListIds && taskLists.length !== context.taskListIds.length) {
+        const count = context.taskListIds.length;
+        throw new Error(`Expected ${count} task list${count == 1 ? '' : 's'}, got ${taskLists.length}`);
     }
 
-    // Verify task list properties
     taskLists.forEach(taskList => {
         if (!taskList.id || !taskList.name) {
             throw new Error('Task list missing required properties');

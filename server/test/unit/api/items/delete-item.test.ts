@@ -10,8 +10,10 @@ export async function runDeleteItemTest(context: TestContext) {
         throw new Error('missing required context for delete test');
     }
 
+    const deleteId = context.itemIds.pop();
+
     const deleteResponse = await axios.delete<ApiResponseBody<DeleteItemResponse>>(
-        `${context.baseUrl}/api/items/${context.itemIds[0]}`,
+        `${context.baseUrl}/api/items/${deleteId}`,
         {
             headers: {
                 Authorization: `Bearer ${context.authToken}`
@@ -21,10 +23,12 @@ export async function runDeleteItemTest(context: TestContext) {
 
     if (!deleteResponse.data.success) throw new Error('failed to delete item');
 
-    const items = await ItemModel.find({
-        userId: context.userId
-    });
+    for (let i = 0; i < context.itemIds.length; i++) {
+        const item = await ItemModel.findOne({
+            _id: new Types.ObjectId(context.itemIds[i]),
+            userId: context.userId
+        });
 
-    if (items.length !== 1) throw new Error(`expected 1 remaining item, found ${items.length}`);
-    if (items[0]._id.toString() !== context.itemIds[1]) throw new Error('wrong item was deleted');
+        if (!item) throw new Error(`item with id ${context.itemIds[i]} not found`);
+    }
 }

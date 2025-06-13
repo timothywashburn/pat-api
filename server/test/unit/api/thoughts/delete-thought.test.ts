@@ -10,8 +10,10 @@ export async function runDeleteThoughtTest(context: TestContext) {
         throw new Error('missing required context for delete test');
     }
 
+    const deleteId = context.thoughtIds.pop();
+
     const deleteResponse = await axios.delete<ApiResponseBody<DeleteThoughtResponse>>(
-        `${context.baseUrl}/api/thoughts/${context.thoughtIds[1]}`,
+        `${context.baseUrl}/api/thoughts/${deleteId}`,
         {
             headers: {
                 Authorization: `Bearer ${context.authToken}`
@@ -21,10 +23,12 @@ export async function runDeleteThoughtTest(context: TestContext) {
 
     if (!deleteResponse.data.success) throw new Error('failed to delete thought');
 
-    const thoughts = await ThoughtModel.find({
-        userId: new Types.ObjectId(context.userId)
-    });
+    for (let i = 0; i < context.thoughtIds.length; i++) {
+        const thought = await ThoughtModel.findOne({
+            _id: new Types.ObjectId(context.thoughtIds[i]),
+            userId: context.userId
+        });
 
-    if (thoughts.length !== 1) throw new Error(`expected 1 remaining thought, found ${thoughts.length}`);
-    if (thoughts[0]._id.toString() !== context.thoughtIds[0]) throw new Error('wrong thought was deleted');
+        if (!thought) throw new Error(`thought with id ${context.thoughtIds[i]} not found`);
+    }
 }

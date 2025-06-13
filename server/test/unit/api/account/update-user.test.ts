@@ -20,7 +20,7 @@ export async function runUpdateUserConfigTest(context: TestContext) {
     }
 
     const updates = {
-        name: 'Updated Test User'
+        name: 'Test'
     };
 
     const response = await axios.put<ApiResponseBody<UpdateUserResponse>>(

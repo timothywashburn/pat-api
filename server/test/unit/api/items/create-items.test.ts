@@ -1,53 +1,48 @@
 import axios from 'axios';
 import { TestContext } from '../../../main';
-import { Types } from 'mongoose';
-import {ItemModel} from "../../../../src/models/mongo/item-data";
+import { ItemModel } from "../../../../src/models/mongo/item-data";
 import { ApiResponseBody } from "../../../../src/api/types";
 import { CreateItemResponse, ItemId } from "@timothyw/pat-common";
 
 export async function runCreateItemsTest(context: TestContext) {
-    const item1Response = await axios.post<ApiResponseBody<CreateItemResponse>>(
-        `${context.baseUrl}/api/items`,
-        {
-            name: 'First test item',
-            userId: context.userId,
-            notes: 'First task for testing'
-        },
-        {
-            headers: {
-                Authorization: `Bearer ${context.authToken}`
-            }
-        }
-    );
+    await createItem(context, {
+        name: 'First item (to update)',
+        notes: 'This description should get changed',
+    });
 
-    if (!item1Response.data.success) throw new Error('failed to create first item');
+    await createItem(context, {
+        name: 'Second item',
+        notes: 'Second item for testing',
+        dueDate: new Date(Date.now() + 1000 * 60 * 60 + 1000 * 30),
+    });
 
-    const item2Response = await axios.post<ApiResponseBody<CreateItemResponse>>(
-        `${context.baseUrl}/api/items`,
-        {
-            name: 'Second test item',
-            userId: context.userId,
-            notes: 'Second item for testing'
-        },
-        {
-            headers: {
-                Authorization: `Bearer ${context.authToken}`
-            }
-        }
-    );
-
-    if (!item2Response.data.success) throw new Error('failed to create second item');
-
-    context.itemIds = [
-        item1Response.data.data!.item.id as ItemId,
-        item2Response.data.data!.item.id as ItemId
-    ];
+    await createItem(context, {
+        name: 'To delete item',
+        notes: 'This item should get deleted',
+    });
 
     const items = await ItemModel.find({
         userId: context.userId
     });
 
-    if (items.length !== 2) {
-        throw new Error(`expected 2 items, found ${items.length}`);
-    }
+    if (items.length !== context.itemIds.length)
+        throw new Error(`expected ${context.itemIds.length} item${context.itemIds.length === 1 ? "" : "s"}, found ${items.length}`);
+}
+
+async function createItem(context: TestContext, data: Record<string, any>) {
+    const response = await axios.post<ApiResponseBody<CreateItemResponse>>(
+        `${context.baseUrl}/api/items`,
+        {
+            ...data,
+            userId: context.userId
+        },
+        {
+            headers: {
+                Authorization: `Bearer ${context.authToken}`
+            }
+        }
+    );
+
+    if (!response.data.success) throw new Error(`failed to create item: ${data.name}`);
+    context.itemIds.push(response.data.data!.item.id as ItemId);
 }

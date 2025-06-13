@@ -1,7 +1,7 @@
 import axios from 'axios';
 import { TestContext } from '../../../main';
 import { Types } from 'mongoose';
-import {PersonModel} from "../../../../src/models/mongo/person.data";
+import { PersonModel } from "../../../../src/models/mongo/person.data";
 import { ApiResponseBody } from "../../../../src/api/types";
 import { UpdatePersonResponse } from "@timothyw/pat-common";
 
@@ -11,17 +11,19 @@ export async function runUpdatePersonTest(context: TestContext) {
     }
 
     const updates = {
-        name: 'Updated Person Name',
+        name: 'First Person',
         properties: [
-            { key: 'email', value: 'updated@example.com' },
+            { key: 'email', value: 'first@example.com' },
             { key: 'phone', value: '123-456-7890' }
         ],
         notes: [
-            { content: 'Updated test note' },
-            { content: 'Another updated note' },
-            { content: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. ' +
+            { content: 'New test note' },
+            { content: 'Another new note' },
+            {
+                content: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. ' +
                     'Curabitur sed gravida erat. Fusce a auctor magna. Vivamus eget ' +
-                    'diam et mauris pretium auctor. Mauris ac vestibulum erat. Maecenas ac metus enim.' }
+                    'diam et mauris pretium auctor. Mauris ac vestibulum erat. Maecenas ac metus enim.'
+            }
         ]
     };
 

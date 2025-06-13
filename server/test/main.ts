@@ -45,11 +45,11 @@ export interface TestContext {
     authToken?: string;
     refreshToken?: string;
     emailVerificationToken?: string;
-    itemIds?: ItemId[];
-    thoughtIds?: ThoughtId[];
-    personIds?: PersonId[];
-    taskIds?: TaskId[];
-    taskListIds?: TaskListId[];
+    itemIds: ItemId[];
+    thoughtIds: ThoughtId[];
+    personIds: PersonId[];
+    taskIds: TaskId[];
+    taskListIds: TaskListId[];
     account: {
         name: string;
         email: string;
@@ -75,7 +75,7 @@ const tests: Test[] = [
 
     { name: 'create items', run: runCreateItemsTest },
     { name: 'delete item', run: runDeleteItemTest },
-    { name: 'complete item', run: runCompleteItemTest },
+    { name: 'complete & uncomplete item', run: runCompleteItemTest },
     { name: 'update item', run: runUpdateItemTest },
     { name: 'get items', run: runGetItemsTest },
 
@@ -107,8 +107,13 @@ async function runTests() {
     const context: TestContext = {
         baseUrl: 'https://mac.timothyw.dev',
         skipVerificationEmail: true,
+        itemIds: [],
+        thoughtIds: [],
+        personIds: [],
+        taskIds: [],
+        taskListIds: [],
         account: {
-            name: 'Test',
+            name: 'Before Updating Name',
             email: 'trwisinthehouse@gmail.com',
             password: 'pass'
         }

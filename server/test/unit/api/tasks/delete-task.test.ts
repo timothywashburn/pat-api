@@ -1,5 +1,6 @@
 import axios from 'axios';
 import { TestContext } from '../../../main';
+import { Types } from 'mongoose';
 import { TaskModel } from "../../../../src/models/mongo/task-data";
 import { ApiResponseBody } from "../../../../src/api/types";
 
@@ -8,10 +9,10 @@ export async function runDeleteTaskTest(context: TestContext) {
         throw new Error('Need at least 2 tasks for delete test');
     }
 
-    const taskId = context.taskIds[1]; // Delete the second task
+    const deleteId = context.taskIds.pop();
 
     const response = await axios.delete<ApiResponseBody<{ success: boolean }>>(
-        `${context.baseUrl}/api/tasks/${taskId}`,
+        `${context.baseUrl}/api/tasks/${deleteId}`,
         {
             headers: {
                 Authorization: `Bearer ${context.authToken}`
@@ -23,21 +24,17 @@ export async function runDeleteTaskTest(context: TestContext) {
         throw new Error('Failed to delete task');
     }
 
-    // Verify task is deleted from database
-    const taskInDb = await TaskModel.findById(taskId);
+    const taskInDb = await TaskModel.findById(deleteId);
     if (taskInDb) {
         throw new Error('Task should have been deleted from database');
     }
 
-    // Remove from context
-    context.taskIds = context.taskIds.filter(id => id !== taskId);
+    for (let i = 0; i < context.taskIds.length; i++) {
+        const task = await TaskModel.findOne({
+            _id: new Types.ObjectId(context.taskIds[i]),
+            userId: context.userId
+        });
 
-    // Verify remaining tasks still exist
-    const remainingTasks = await TaskModel.find({
-        userId: context.userId
-    });
-
-    if (remainingTasks.length !== 1) {
-        throw new Error(`Expected 1 remaining task, found ${remainingTasks.length}`);
+        if (!task) throw new Error(`Task with id ${context.taskIds[i]} not found`);
     }
 }

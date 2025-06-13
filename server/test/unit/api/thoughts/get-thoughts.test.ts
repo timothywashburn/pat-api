@@ -15,5 +15,9 @@ export async function runGetThoughtsTest(context: TestContext) {
 
     if (!response.data.success) throw new Error('failed to fetch thoughts');
     if (!Array.isArray(response.data.data!.thoughts)) throw new Error('invalid thoughts response format');
-    if (response.data.data!.thoughts.length !== 1) throw new Error(`expected 1 thought, found ${response.data.data!.thoughts.length}`);
+
+    if (context.thoughtIds && response.data.data!.thoughts.length !== context.thoughtIds.length) {
+        const count = context.thoughtIds.length;
+        throw new Error(`expected ${count} thought${count == 1 ? '' : 's'}, found ${response.data.data!.thoughts.length}`);
+    }
 }

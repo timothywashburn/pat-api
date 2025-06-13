@@ -11,12 +11,14 @@ export async function runUpdateTaskTest(context: TestContext) {
 
     const taskId = context.taskIds[0];
 
+    const updates = {
+        name: 'Updated task name',
+        notes: 'Updated task notes'
+    };
+
     const response = await axios.put<ApiResponseBody<UpdateTaskResponse>>(
         `${context.baseUrl}/api/tasks/${taskId}`,
-        {
-            name: 'Updated task name',
-            notes: 'Updated task notes'
-        },
+        updates,
         {
             headers: {
                 Authorization: `Bearer ${context.authToken}`
@@ -29,18 +31,10 @@ export async function runUpdateTaskTest(context: TestContext) {
     }
 
     const updatedTask = response.data.data!.task;
-
-    if (updatedTask.name !== 'Updated task name') {
-        throw new Error('Task name was not updated correctly');
-    }
-
-    if (updatedTask.notes !== 'Updated task notes') {
-        throw new Error('Task notes were not updated correctly');
-    }
-
-    // Verify in database
+    if (updatedTask.name !== updates.name) throw new Error('Task name was not updated correctly');
+    if (updatedTask.notes !== updates.notes) throw new Error('Task notes were not updated correctly');
     const taskInDb = await TaskModel.findById(taskId);
-    if (!taskInDb || taskInDb.name !== 'Updated task name') {
+    if (!taskInDb || taskInDb.name !== updates.name) {
         throw new Error('Task not properly updated in database');
     }
 }
