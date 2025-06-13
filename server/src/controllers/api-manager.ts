@@ -78,6 +78,8 @@ export default class ApiManager {
         this.addEndpoint(updateTaskEndpoint);
         this.addEndpoint(completeTaskEndpoint);
         this.addEndpoint(deleteTaskEndpoint);
+
+        console.log(`registered ${this.endpoints.length} api endpoints`);
     }
 
     private setupMiddleware() {
@@ -173,7 +175,6 @@ export default class ApiManager {
         handlers.push(endpoint.handler);
 
         this.router[endpoint.method](endpoint.path, ...handlers);
-        console.log(`registered api endpoint: ${endpoint.method.toUpperCase()} ${endpoint.path}`);
     }
 
     getRouter(): Router {
