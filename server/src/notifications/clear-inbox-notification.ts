@@ -22,7 +22,7 @@ export class ClearInboxNotificationHandler extends NotificationHandler {
                 return;
             }
 
-            const userTimezone = user.timezone || 'America/New_York';
+            const userTimezone = user.timezone || 'America/Los_Angeles';
 
             const now = new Date();
             const userNow = toZonedTime(now, userTimezone);
@@ -33,11 +33,9 @@ export class ClearInboxNotificationHandler extends NotificationHandler {
                 scheduledDate = addDays(scheduledDate, 1);
             }
 
-            const utcScheduledTime = fromZonedTime(scheduledDate, userTimezone);
-
             const data = {
                 userId,
-                scheduledTime: utcScheduledTime.getTime()
+                scheduledTime: scheduledDate.getTime()
                 // scheduledTime: new Date().getTime() + 10_000
             };
 
