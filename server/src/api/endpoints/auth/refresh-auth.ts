@@ -16,6 +16,7 @@ export const refreshAuthEndpoint: ApiEndpoint<RefreshAuthRequest, RefreshAuthRes
                     success: false,
                     error: 'Invalid refresh token'
                 });
+
                 return;
             }
 

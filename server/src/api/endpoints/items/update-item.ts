@@ -1,6 +1,5 @@
 import { ApiEndpoint } from '../../types';
 import ItemManager from '../../../controllers/item-manager';
-import { Types } from 'mongoose';
 import { z } from 'zod';
 import { ItemId, UpdateItemRequest, updateItemRequestSchema, UpdateItemResponse } from "@timothyw/pat-common";
 

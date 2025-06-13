@@ -1,10 +1,7 @@
 import { ApiEndpoint } from '../../types';
 import ItemManager from '../../../controllers/item-manager';
 import { z } from 'zod';
-import { CreateItemRequest, createItemRequestSchema, CreateItemResponse, ItemId } from "@timothyw/pat-common";
-import NotificationManager from "../../../controllers/notification-manager";
-import { NotificationType } from "../../../models/notification-handler";
-// import { itemDeadlineNotificationHandler } from "../../../notifications/item-deadline-notification";
+import { CreateItemRequest, createItemRequestSchema, CreateItemResponse } from "@timothyw/pat-common";
 
 export const createItemEndpoint: ApiEndpoint<CreateItemRequest, CreateItemResponse> = {
     path: '/api/items',

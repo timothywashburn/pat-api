@@ -24,6 +24,16 @@ import {runDeletePersonTest} from "./unit/api/person/delete-person.test";
 import {runUpdatePersonTest} from "./unit/api/person/update-person.test";
 import {runGetPeopleTest} from "./unit/api/person/get-people.test";
 import { ItemId, PersonId, ThoughtId, UserId } from "@timothyw/pat-common";
+import { TaskId, TaskListId } from "../src/temp/task-types";
+import { runCreateTaskListsTest } from "./unit/api/tasks/create-task-lists.test";
+import { runCreateTasksTest } from "./unit/api/tasks/create-tasks.test";
+import { runGetTaskListsTest } from "./unit/api/tasks/get-task-lists.test";
+import { runGetTasksTest } from "./unit/api/tasks/get-tasks.test";
+import { runCompleteTaskTest } from "./unit/api/tasks/complete-task.test";
+import { runUpdateTaskTest } from "./unit/api/tasks/update-task.test";
+import { runUpdateTaskListTest } from "./unit/api/tasks/update-task-list.test";
+import { runDeleteTaskTest } from "./unit/api/tasks/delete-task.test";
+import { runDeleteTaskListTest } from "./unit/api/tasks/delete-task-list.test";
 
 config({ path: resolve(__dirname, '../../.env') });
 
@@ -38,6 +48,8 @@ export interface TestContext {
     itemIds?: ItemId[];
     thoughtIds?: ThoughtId[];
     personIds?: PersonId[];
+    taskIds?: TaskId[];
+    taskListIds?: TaskListId[];
     account: {
         name: string;
         email: string;
@@ -75,7 +87,17 @@ const tests: Test[] = [
     { name: 'create people', run: runCreatePeopleTest },
     { name: 'delete person', run: runDeletePersonTest },
     { name: 'update person', run: runUpdatePersonTest },
-    { name: 'get people', run: runGetPeopleTest }
+    { name: 'get people', run: runGetPeopleTest },
+
+    { name: 'create task lists', run: runCreateTaskListsTest },
+    { name: 'create tasks', run: runCreateTasksTest },
+    { name: 'get task lists', run: runGetTaskListsTest },
+    { name: 'get tasks', run: runGetTasksTest },
+    { name: 'complete task', run: runCompleteTaskTest },
+    { name: 'update task', run: runUpdateTaskTest },
+    { name: 'update task list', run: runUpdateTaskListTest },
+    { name: 'delete task', run: runDeleteTaskTest },
+    { name: 'delete task list', run: runDeleteTaskListTest }
 ];
 
 async function runTests() {

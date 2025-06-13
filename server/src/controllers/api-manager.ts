@@ -22,6 +22,15 @@ import {createPersonEndpoint} from "../api/endpoints/people/create-person";
 import {deletePersonEndpoint} from "../api/endpoints/people/delete-person";
 import {getPeopleEndpoint} from "../api/endpoints/people/get-people";
 import {updatePersonEndpoint} from "../api/endpoints/people/update-person";
+import {createTaskEndpoint} from "../api/endpoints/tasks/create-task";
+import {createTaskListEndpoint} from "../api/endpoints/tasks/create-task-list";
+import {getTasksEndpoint} from "../api/endpoints/tasks/get-tasks";
+import {getTaskListsEndpoint} from "../api/endpoints/tasks/get-task-lists";
+import {updateTaskEndpoint} from "../api/endpoints/tasks/update-task";
+import {updateTaskListEndpoint} from "../api/endpoints/tasks/update-task-list";
+import {completeTaskEndpoint} from "../api/endpoints/tasks/complete-task";
+import {deleteTaskEndpoint} from "../api/endpoints/tasks/delete-task";
+import {deleteTaskListEndpoint} from "../api/endpoints/tasks/delete-task-list";
 
 export default class ApiManager {
     private static instance: ApiManager;
@@ -59,6 +68,16 @@ export default class ApiManager {
         this.addEndpoint(deletePersonEndpoint);
         this.addEndpoint(getPeopleEndpoint);
         this.addEndpoint(updatePersonEndpoint);
+
+        this.addEndpoint(createTaskListEndpoint);
+        this.addEndpoint(getTaskListsEndpoint);
+        this.addEndpoint(updateTaskListEndpoint);
+        this.addEndpoint(deleteTaskListEndpoint);
+        this.addEndpoint(createTaskEndpoint);
+        this.addEndpoint(getTasksEndpoint);
+        this.addEndpoint(updateTaskEndpoint);
+        this.addEndpoint(completeTaskEndpoint);
+        this.addEndpoint(deleteTaskEndpoint);
     }
 
     private setupMiddleware() {

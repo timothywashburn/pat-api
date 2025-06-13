@@ -1,6 +1,5 @@
 import { ApiEndpoint } from '../../types';
 import ItemManager from '../../../controllers/item-manager';
-import { Types } from 'mongoose';
 import { DeleteItemResponse, ItemId } from "@timothyw/pat-common";
 
 export const deleteItemEndpoint: ApiEndpoint<undefined, DeleteItemResponse> = {

@@ -1,0 +1,32 @@
+import axios from 'axios';
+import { TestContext } from '../../../main';
+import { ApiResponseBody } from "../../../../src/api/types";
+import { GetTaskListsResponse } from "../../../../src/temp/task-types";
+
+export async function runGetTaskListsTest(context: TestContext) {
+    const response = await axios.get<ApiResponseBody<GetTaskListsResponse>>(
+        `${context.baseUrl}/api/tasks/lists`,
+        {
+            headers: {
+                Authorization: `Bearer ${context.authToken}`
+            }
+        }
+    );
+
+    if (!response.data.success) {
+        throw new Error('Failed to get task lists');
+    }
+
+    const taskLists = response.data.data!.taskLists;
+
+    if (taskLists.length !== 2) {
+        throw new Error(`Expected 2 task lists, got ${taskLists.length}`);
+    }
+
+    // Verify task list properties
+    taskLists.forEach(taskList => {
+        if (!taskList.id || !taskList.name) {
+            throw new Error('Task list missing required properties');
+        }
+    });
+}
