@@ -2,7 +2,7 @@ import axios from 'axios';
 import { TestContext } from '../../../main';
 import { TaskListModel } from "../../../../src/models/mongo/task-list-data";
 import { ApiResponseBody } from "../../../../src/api/types";
-import { CreateTaskListResponse, TaskListId } from "../../../../src/temp/task-types";
+import { CreateTaskListResponse, TaskListId } from "@timothyw/pat-common";
 
 export async function runCreateTaskListsTest(context: TestContext) {
     const taskList1Response = await axios.post<ApiResponseBody<CreateTaskListResponse>>(

@@ -2,7 +2,7 @@ import axios from 'axios';
 import { TestContext } from '../../../main';
 import { TaskModel } from "../../../../src/models/mongo/task-data";
 import { ApiResponseBody } from "../../../../src/api/types";
-import { CreateTaskResponse, TaskId } from "../../../../src/temp/task-types";
+import { CreateTaskResponse, TaskId } from "@timothyw/pat-common";
 
 export async function runCreateTasksTest(context: TestContext) {
     // First create a task list for our tasks

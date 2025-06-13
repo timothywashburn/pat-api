@@ -24,7 +24,7 @@ import {runDeletePersonTest} from "./unit/api/person/delete-person.test";
 import {runUpdatePersonTest} from "./unit/api/person/update-person.test";
 import {runGetPeopleTest} from "./unit/api/person/get-people.test";
 import { ItemId, PersonId, ThoughtId, UserId } from "@timothyw/pat-common";
-import { TaskId, TaskListId } from "../src/temp/task-types";
+import { TaskId, TaskListId } from "@timothyw/pat-common";
 import { runCreateTaskListsTest } from "./unit/api/tasks/create-task-lists.test";
 import { runCreateTasksTest } from "./unit/api/tasks/create-tasks.test";
 import { runGetTaskListsTest } from "./unit/api/tasks/get-task-lists.test";

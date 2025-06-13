@@ -2,7 +2,7 @@ import axios from 'axios';
 import { TestContext } from '../../../main';
 import { TaskListModel } from "../../../../src/models/mongo/task-list-data";
 import { ApiResponseBody } from "../../../../src/api/types";
-import { UpdateTaskListResponse } from "../../../../src/temp/task-types";
+import { UpdateTaskListResponse } from "@timothyw/pat-common";
 
 export async function runUpdateTaskListTest(context: TestContext) {
     if (!context.taskListIds || context.taskListIds.length === 0) {

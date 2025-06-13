@@ -1,7 +1,7 @@
 import axios from 'axios';
 import { TestContext } from '../../../main';
 import { ApiResponseBody } from "../../../../src/api/types";
-import { GetTaskListsResponse } from "../../../../src/temp/task-types";
+import { GetTaskListsResponse } from "@timothyw/pat-common";
 
 export async function runGetTaskListsTest(context: TestContext) {
     const response = await axios.get<ApiResponseBody<GetTaskListsResponse>>(
