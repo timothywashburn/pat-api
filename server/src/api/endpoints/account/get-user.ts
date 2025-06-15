@@ -6,6 +6,22 @@ const isValidModule = (module: Module | null | undefined): module is Module => {
     return module != null && Object.values(ModuleType).includes(module.type);
 };
 
+const ensureCompleteModules = (userModules: Module[]): Module[] => {
+    const existingModules = userModules
+        .filter(isValidModule)
+        .map(module => ({
+            type: module.type,
+            visible: module.visible ?? true
+        }));
+
+    const existingTypes = new Set(existingModules.map(m => m.type));
+    const missingModules = Object.values(ModuleType)
+        .filter(type => !existingTypes.has(type))
+        .map(type => ({ type, visible: true }));
+
+    return [...existingModules, ...missingModules];
+};
+
 export const getUserEndpoint: ApiEndpoint<undefined, GetUserResponse> = {
     path: '/api/account',
     method: 'get',
@@ -30,17 +46,9 @@ export const getUserEndpoint: ApiEndpoint<undefined, GetUserResponse> = {
                 return;
             }
 
-            const transformedModules = user.config.modules.map(module => {
-                if (!isValidModule(module)) {
-                    return null;
-                }
-                return {
-                    type: module.type,
-                    visible: module.visible ?? true
-                };
-            }).filter((module): module is Module => module !== null);
+            const completeModules = ensureCompleteModules(user.config.modules);
 
-            if (transformedModules.length === 0) {
+            if (completeModules.length === 0) {
                 res.status(500).json({
                     success: false,
                     error: 'No valid module configuration found'
@@ -48,14 +56,14 @@ export const getUserEndpoint: ApiEndpoint<undefined, GetUserResponse> = {
                 return;
             }
 
+            user.config.modules = completeModules;
+
             res.json({
                 success: true,
-                data: {
-                    user
-                }
+                data: { user }
             });
         } catch (error) {
-            console.error('[config] Error in getUserConfig:', error);
+            console.error('[config] error in getUserConfig:', error);
             res.status(500).json({
                 success: false,
                 error: 'Failed to fetch user configuration'
