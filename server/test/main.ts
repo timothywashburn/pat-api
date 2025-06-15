@@ -34,6 +34,12 @@ import { runUpdateTaskTest } from "./unit/api/tasks/update-task.test";
 import { runUpdateTaskListTest } from "./unit/api/tasks/update-task-list.test";
 import { runDeleteTaskTest } from "./unit/api/tasks/delete-task.test";
 import { runDeleteTaskListTest } from "./unit/api/tasks/delete-task-list.test";
+import { runCreateHabitsTest } from "./unit/api/habits/create-habits.test";
+import { runGetHabitsTest } from "./unit/api/habits/get-habits.test";
+import { runUpdateHabitTest } from "./unit/api/habits/update-habit.test";
+import { runCreateHabitEntriesTest } from "./unit/api/habits/create-habit-entries.test";
+import { runDeleteHabitEntryTest } from "./unit/api/habits/delete-habit-entry.test";
+import { runDeleteHabitTest } from "./unit/api/habits/delete-habit.test";
 
 config({ path: resolve(__dirname, '../../.env') });
 
@@ -50,6 +56,7 @@ export interface TestContext {
     personIds: PersonId[];
     taskIds: TaskId[];
     taskListIds: TaskListId[];
+    habitIds: string[];
     account: {
         name: string;
         email: string;
@@ -97,7 +104,14 @@ const tests: Test[] = [
     { name: 'update task', run: runUpdateTaskTest },
     { name: 'update task list', run: runUpdateTaskListTest },
     { name: 'delete task', run: runDeleteTaskTest },
-    { name: 'delete task list', run: runDeleteTaskListTest }
+    { name: 'delete task list', run: runDeleteTaskListTest },
+
+    { name: 'create habits', run: runCreateHabitsTest },
+    { name: 'get habits', run: runGetHabitsTest },
+    { name: 'update habit', run: runUpdateHabitTest },
+    { name: 'create habit entries', run: runCreateHabitEntriesTest },
+    { name: 'delete habit entry', run: runDeleteHabitEntryTest },
+    { name: 'delete habit', run: runDeleteHabitTest }
 ];
 
 async function runTests() {
@@ -112,6 +126,7 @@ async function runTests() {
         personIds: [],
         taskIds: [],
         taskListIds: [],
+        habitIds: [],
         account: {
             name: 'Before Updating Name',
             email: 'trwisinthehouse@gmail.com',

@@ -1,0 +1,39 @@
+import { Schema, model } from 'mongoose';
+import { HabitData } from "@timothyw/pat-common/dist/types/models/habit-data";
+
+const habitSchema = new Schema<HabitData>({
+    userId: {
+        type: String,
+        required: true,
+        index: true,
+    },
+    name: {
+        type: String,
+        required: true,
+        trim: true,
+    },
+    description: {
+        type: String,
+        trim: true,
+    },
+    frequency: {
+        type: String,
+        required: true,
+        enum: ['daily'],
+        default: 'daily'
+    },
+    rolloverTime: {
+        type: String,
+        required: true,
+        validate: {
+            validator: function(v: string) {
+                return /^([01]?[0-9]|2[0-3]):[0-5][0-9]$/.test(v);
+            },
+            message: 'rolloverTime must be in HH:MM format'
+        }
+    }
+}, {
+    timestamps: true,
+});
+
+export const HabitModel = model<HabitData>('Habit', habitSchema);

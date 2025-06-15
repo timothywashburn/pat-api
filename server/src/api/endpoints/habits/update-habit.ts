@@ -1,0 +1,59 @@
+import { ApiEndpoint } from '../../types';
+import HabitManager from '../../../controllers/habit-manager';
+import { z } from 'zod';
+import { UpdateHabitRequest, updateHabitRequestSchema, UpdateHabitResponse } from "@timothyw/pat-common";
+
+export const updateHabitEndpoint: ApiEndpoint<UpdateHabitRequest, UpdateHabitResponse> = {
+    path: '/api/habits/:habitId',
+    method: 'put',
+    auth: 'verifiedEmail',
+    handler: async (req, res) => {
+        try {
+            const data = updateHabitRequestSchema.parse(req.body);
+            const userId = req.auth!.userId!;
+            const habitId = req.params.habitId;
+
+            if (!habitId) {
+                res.status(400).json({
+                    success: false,
+                    error: 'Habit ID is required'
+                });
+                return;
+            }
+
+            const updatedHabit = await HabitManager.getInstance().update(habitId, userId, data);
+
+            if (!updatedHabit) {
+                res.status(404).json({
+                    success: false,
+                    error: 'Habit not found'
+                });
+                return;
+            }
+
+            const habitWithEntries = await HabitManager.getInstance().getByIdWithEntries(habitId);
+
+            if (!habitWithEntries) {
+                throw new Error('Failed to retrieve updated habit');
+            }
+
+            res.json({
+                success: true,
+                data: {
+                    habit: habitWithEntries
+                }
+            });
+        } catch (error) {
+            let message = 'Failed to update habit';
+
+            if (error instanceof z.ZodError) {
+                message = error.errors[0].message;
+            }
+
+            res.status(400).json({
+                success: false,
+                error: message
+            });
+        }
+    }
+};

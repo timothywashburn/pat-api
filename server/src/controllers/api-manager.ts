@@ -31,6 +31,12 @@ import {updateTaskListEndpoint} from "../api/endpoints/tasks/update-task-list";
 import {completeTaskEndpoint} from "../api/endpoints/tasks/complete-task";
 import {deleteTaskEndpoint} from "../api/endpoints/tasks/delete-task";
 import {deleteTaskListEndpoint} from "../api/endpoints/tasks/delete-task-list";
+import {getHabitsEndpoint} from "../api/endpoints/habits/get-habits";
+import {createHabitEndpoint} from "../api/endpoints/habits/create-habit";
+import {updateHabitEndpoint} from "../api/endpoints/habits/update-habit";
+import {deleteHabitEndpoint} from "../api/endpoints/habits/delete-habit";
+import {createHabitEntryEndpoint} from "../api/endpoints/habits/create-habit-entry";
+import {deleteHabitEntryEndpoint} from "../api/endpoints/habits/delete-habit-entry";
 
 export default class ApiManager {
     private static instance: ApiManager;
@@ -78,6 +84,13 @@ export default class ApiManager {
         this.addEndpoint(updateTaskEndpoint);
         this.addEndpoint(completeTaskEndpoint);
         this.addEndpoint(deleteTaskEndpoint);
+
+        this.addEndpoint(getHabitsEndpoint);
+        this.addEndpoint(createHabitEndpoint);
+        this.addEndpoint(updateHabitEndpoint);
+        this.addEndpoint(deleteHabitEndpoint);
+        this.addEndpoint(createHabitEntryEndpoint);
+        this.addEndpoint(deleteHabitEntryEndpoint);
 
         console.log(`registered ${this.endpoints.length} api endpoints`);
     }
