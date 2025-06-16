@@ -6,16 +6,16 @@ import { CreateHabitResponse } from "@timothyw/pat-common";
 
 export async function runCreateHabitsTest(context: TestContext) {
     await createHabit(context, {
-        name: 'Drink Water',
-        description: 'Drink 8 glasses of water daily',
+        name: 'To Update',
+        description: 'This should get updated',
         frequency: 'daily',
-        rolloverTime: '06:00'
+        rolloverTime: '00:00'
     });
 
     await createHabit(context, {
         name: 'Exercise',
         frequency: 'daily',
-        rolloverTime: '05:30'
+        rolloverTime: '06:00'
     });
 
     await createHabit(context, {
