@@ -1,6 +1,6 @@
 import axios from 'axios';
 import { TestContext } from '../../../main';
-import { UpdateUserRequest, UpdateUserResponse, UserData } from "@timothyw/pat-common";
+import { ModuleType, UpdateUserRequest, UpdateUserResponse } from "@timothyw/pat-common";
 import { ApiResponseBody } from "../../../../src/api/types";
 
 export async function runUpdateUserConfigTest(context: TestContext) {
@@ -14,6 +14,38 @@ export async function runUpdateUserConfigTest(context: TestContext) {
             devices: [{
                 pushToken: process.env.TEST_EXPONENT_TOKEN
             }]
+        },
+        config: {
+            modules: [
+                {
+                    type: ModuleType.AGENDA,
+                    visible: true,
+                },
+                {
+                    type: ModuleType.INBOX,
+                    visible: true,
+                },
+                {
+                    type: ModuleType.TASKS,
+                    visible: true,
+                },
+                {
+                    type: ModuleType.HABITS,
+                    visible: true,
+                },
+                {
+                    type: ModuleType.SETTINGS,
+                    visible: true,
+                },
+                {
+                    type: ModuleType.DEV,
+                    visible: true
+                },
+                {
+                    type: ModuleType.PEOPLE,
+                    visible: false,
+                },
+            ]
         }
     };
 
