@@ -1,5 +1,5 @@
 import { Schema, model } from 'mongoose';
-import { HabitData } from "@timothyw/pat-common/dist/types/models/habit-data";
+import { HabitData, HabitFrequency } from "@timothyw/pat-common/dist/types/models/habit-data";
 
 const habitSchema = new Schema<HabitData>({
     userId: {
@@ -19,8 +19,8 @@ const habitSchema = new Schema<HabitData>({
     frequency: {
         type: String,
         required: true,
-        enum: ['daily'],
-        default: 'daily'
+        enum: Object.values(HabitFrequency),
+        default: HabitFrequency.DAILY
     },
     rolloverTime: {
         type: String,

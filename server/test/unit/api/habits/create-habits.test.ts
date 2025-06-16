@@ -2,7 +2,7 @@ import axios from 'axios';
 import { TestContext } from '../../../main';
 import { HabitModel } from "../../../../src/models/mongo/habit-data";
 import { ApiResponseBody } from "../../../../src/api/types";
-import { CreateHabitResponse } from "../../../../src/api/endpoints/habits/create-habit";
+import { CreateHabitResponse } from "@timothyw/pat-common";
 
 export async function runCreateHabitsTest(context: TestContext) {
     await createHabit(context, {
@@ -45,5 +45,5 @@ async function createHabit(context: TestContext, data: Record<string, any>) {
     );
 
     if (!response.data.success) throw new Error(`failed to create habit: ${data.name}`);
-    context.habitIds.push(response.data.data!.habit.id);
+    context.habitIds.push(response.data.data!.habit._id);
 }

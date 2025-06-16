@@ -1,11 +1,7 @@
 import { HabitModel } from '../models/mongo/habit-data';
 import { HabitEntryModel } from '../models/mongo/habit-entry-data';
-import {
-    HabitData,
-    HabitEntryData,
-    HabitStats,
-    HabitWithEntries
-} from "@timothyw/pat-common/dist/types/models/habit-data";
+import { Habit, HabitData, HabitStats, toDateString, toHabit } from "@timothyw/pat-common";
+import { HabitEntryData } from "@timothyw/pat-common/dist/types/models/habit-data";
 
 export default class HabitManager {
     private static instance: HabitManager;
@@ -33,55 +29,35 @@ export default class HabitManager {
     }
 
     async getById(habitId: string): Promise<HabitData | null> {
-        return HabitModel.findById(habitId);
+        return HabitModel.findById(habitId).lean();
     }
 
     async getAllByUser(userId: string): Promise<HabitData[]> {
-        return HabitModel.find({ userId });
+        return HabitModel.find({ userId }).lean();
     }
 
-    async getAllByUserWithEntries(userId: string): Promise<HabitWithEntries[]> {
-        const habits = await this.getAllByUser(userId);
-        const habitsWithEntries: HabitWithEntries[] = [];
+    async getAllByUserWithEntries(userId: string): Promise<Habit[]> {
+        const habitDataList = await this.getAllByUser(userId);
+        const habits: Habit[] = [];
 
-        for (const habit of habits) {
-            const entries = await HabitEntryModel.find({ habitId: habit._id.toString() });
+        for (const habit of habitDataList) {
+            const entries = await HabitEntryModel.find({ habitId: habit._id.toString() }).lean();
             const stats = this.calculateStats(habit, entries);
-            
-            habitsWithEntries.push({
-                id: habit._id.toString(),
-                name: habit.name,
-                description: habit.description,
-                frequency: habit.frequency,
-                rolloverTime: habit.rolloverTime,
-                createdAt: habit.createdAt,
-                updatedAt: habit.updatedAt,
-                entries,
-                stats
-            });
+
+            habits.push(toHabit(habit, entries, stats));
         }
 
-        return habitsWithEntries;
+        return habits;
     }
 
-    async getByIdWithEntries(habitId: string): Promise<HabitWithEntries | null> {
+    async getByIdWithEntries(habitId: string): Promise<Habit | null> {
         const habit = await this.getById(habitId);
         if (!habit) return null;
 
-        const entries = await HabitEntryModel.find({ habitId });
+        const entries = await HabitEntryModel.find({ habitId }).lean();
         const stats = this.calculateStats(habit, entries);
 
-        return {
-            id: habit._id.toString(),
-            name: habit.name,
-            description: habit.description,
-            frequency: habit.frequency,
-            rolloverTime: habit.rolloverTime,
-            createdAt: habit.createdAt,
-            updatedAt: habit.updatedAt,
-            entries,
-            stats
-        };
+        return toHabit(habit, entries, stats);
     }
 
     async update(habitId: string, userId: string, data: Partial<{

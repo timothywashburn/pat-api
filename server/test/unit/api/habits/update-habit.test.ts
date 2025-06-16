@@ -1,7 +1,7 @@
 import axios from 'axios';
 import { TestContext } from '../../../main';
 import { ApiResponseBody } from "../../../../src/api/types";
-import { UpdateHabitResponse } from "../../../../src/api/endpoints/habits/update-habit";
+import { UpdateHabitResponse } from "@timothyw/pat-common";
 
 export async function runUpdateHabitTest(context: TestContext) {
     if (context.habitIds.length === 0) {

@@ -3,7 +3,7 @@ import { TestContext } from '../../../main';
 import { HabitModel } from "../../../../src/models/mongo/habit-data";
 import { HabitEntryModel } from "../../../../src/models/mongo/habit-entry-data";
 import { ApiResponseBody } from "../../../../src/api/types";
-import { DeleteHabitResponse } from "../../../../src/api/endpoints/habits/delete-habit";
+import { DeleteHabitResponse } from "@timothyw/pat-common";
 
 export async function runDeleteHabitTest(context: TestContext) {
     if (context.habitIds.length === 0) {

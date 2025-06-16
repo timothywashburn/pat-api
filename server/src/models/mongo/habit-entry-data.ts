@@ -1,5 +1,5 @@
 import { Schema, model } from 'mongoose';
-import { HabitEntryData } from "@timothyw/pat-common/dist/types/models/habit-data";
+import { HabitEntryData, HabitEntryStatus } from "@timothyw/pat-common/dist/types/models/habit-data";
 
 const habitEntrySchema = new Schema<HabitEntryData>({
     habitId: {
@@ -14,7 +14,7 @@ const habitEntrySchema = new Schema<HabitEntryData>({
     status: {
         type: String,
         required: true,
-        enum: ['completed', 'excused']
+        enum: Object.values(HabitEntryStatus)
     }
 }, {
     timestamps: true,

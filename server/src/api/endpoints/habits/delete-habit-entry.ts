@@ -1,7 +1,7 @@
 import { ApiEndpoint } from '../../types';
 import HabitManager from '../../../controllers/habit-manager';
 import HabitEntryManager from '../../../controllers/habit-entry-manager';
-import { DeleteHabitEntryResponse } from "@timothyw/pat-common";
+import { DateString, DeleteHabitEntryResponse, fromDateString } from "@timothyw/pat-common";
 
 export const deleteHabitEntryEndpoint: ApiEndpoint<undefined, DeleteHabitEntryResponse> = {
     path: '/api/habits/:habitId/entries/:date',
@@ -11,7 +11,8 @@ export const deleteHabitEntryEndpoint: ApiEndpoint<undefined, DeleteHabitEntryRe
         try {
             const userId = req.auth!.userId!;
             const habitId = req.params.habitId;
-            const date = req.params.date;
+            const date: Date = fromDateString(req.params.date as DateString);
+            date.setHours(0, 0, 0, 0);
 
             if (!habitId) {
                 res.status(400).json({
@@ -25,15 +26,6 @@ export const deleteHabitEntryEndpoint: ApiEndpoint<undefined, DeleteHabitEntryRe
                 res.status(400).json({
                     success: false,
                     error: 'Date is required'
-                });
-                return;
-            }
-
-            // Validate date format
-            if (!/^\d{4}-\d{2}-\d{2}$/.test(date)) {
-                res.status(400).json({
-                    success: false,
-                    error: 'Date must be in YYYY-MM-DD format'
                 });
                 return;
             }

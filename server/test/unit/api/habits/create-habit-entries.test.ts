@@ -1,37 +1,43 @@
 import axios from 'axios';
 import { TestContext } from '../../../main';
 import { ApiResponseBody } from "../../../../src/api/types";
-import { CreateHabitEntryResponse } from "../../../../src/api/endpoints/habits/create-habit-entry";
+import {
+    CreateHabitEntryRequest,
+    CreateHabitEntryResponse,
+    GetHabitsResponse,
+    Habit,
+    toDateString
+} from "@timothyw/pat-common";
+import { HabitEntryStatus } from "@timothyw/pat-common/dist/types/models/habit-data";
 
 export async function runCreateHabitEntriesTest(context: TestContext) {
     if (context.habitIds.length === 0) {
         throw new Error('no habits available to create entries for');
     }
 
-    const habitId = context.habitIds[0];
     const today = new Date();
     
     // Only create entries for today since we just created the habit
     // Create completed entry for today
-    await createHabitEntry(context, habitId, {
-        date: today.toISOString().split('T')[0],
-        status: 'completed'
+    await createHabitEntry(context, context.habitIds[0], {
+        date: toDateString(today),
+        status: HabitEntryStatus.COMPLETED
     });
 
     // Test updating the same entry
-    await createHabitEntry(context, habitId, {
-        date: today.toISOString().split('T')[0],
-        status: 'missed'
+    await createHabitEntry(context, context.habitIds[1], {
+        date: toDateString(today),
+        status: HabitEntryStatus.EXCUSED
     });
 
     // Create another completed entry for today to test final state
-    await createHabitEntry(context, habitId, {
-        date: today.toISOString().split('T')[0],
-        status: 'completed'
+    await createHabitEntry(context, context.habitIds[2], {
+        date: toDateString(today),
+        status: HabitEntryStatus.COMPLETED
     });
 
     // Verify the final state
-    const response = await axios.get<ApiResponseBody<any>>(
+    const response = await axios.get<ApiResponseBody<GetHabitsResponse>>(
         `${context.baseUrl}/api/habits`,
         {
             headers: {
@@ -40,7 +46,7 @@ export async function runCreateHabitEntriesTest(context: TestContext) {
         }
     );
 
-    const habit = response.data.data!.habits.find((h: any) => h.id === habitId);
+    const habit = response.data.data!.habits.find((h: Habit) => h._id === context.habitIds[0]);
     if (!habit) throw new Error('habit not found');
     
     if (habit.entries.length !== 1) {
@@ -62,7 +68,7 @@ export async function runCreateHabitEntriesTest(context: TestContext) {
     }
 }
 
-async function createHabitEntry(context: TestContext, habitId: string, data: Record<string, any>) {
+async function createHabitEntry(context: TestContext, habitId: string, data: CreateHabitEntryRequest) {
     const response = await axios.post<ApiResponseBody<CreateHabitEntryResponse>>(
         `${context.baseUrl}/api/habits/${habitId}/entries`,
         data,

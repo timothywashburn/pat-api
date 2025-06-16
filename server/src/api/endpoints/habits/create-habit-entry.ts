@@ -32,15 +32,11 @@ export const createHabitEntryEndpoint: ApiEndpoint<CreateHabitEntryRequest, Crea
                 return;
             }
 
-            // Validate date is not before habit creation and not in the future
             const entryDate = new Date(data.date);
-            const habitCreated = new Date(habit.createdAt);
-            const today = new Date();
-            
-            // Set time to start of day for comparison
             entryDate.setHours(0, 0, 0, 0);
-            habitCreated.setHours(0, 0, 0, 0);
-            today.setHours(23, 59, 59, 999);
+
+            const endOfDay = new Date();
+            endOfDay.setHours(23, 59, 59, 999);
 
             // if (entryDate < habitCreated) {
             //     res.status(400).json({
@@ -50,7 +46,7 @@ export const createHabitEntryEndpoint: ApiEndpoint<CreateHabitEntryRequest, Crea
             //     return;
             // }
 
-            if (entryDate > today) {
+            if (entryDate > endOfDay) {
                 res.status(400).json({
                     success: false,
                     error: 'Cannot create entry for future dates'
@@ -59,7 +55,7 @@ export const createHabitEntryEndpoint: ApiEndpoint<CreateHabitEntryRequest, Crea
             }
 
             // Create or update the entry
-            await HabitEntryManager.getInstance().createOrUpdate(habitId, data.date, data.status);
+            await HabitEntryManager.getInstance().createOrUpdate(habitId, entryDate, data.status);
 
             // Return the updated habit with entries and stats
             const habitWithEntries = await HabitManager.getInstance().getByIdWithEntries(habitId);
