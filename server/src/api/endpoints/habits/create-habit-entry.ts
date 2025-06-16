@@ -35,16 +35,19 @@ export const createHabitEntryEndpoint: ApiEndpoint<CreateHabitEntryRequest, Crea
             const entryDate = new Date(data.date);
             entryDate.setHours(0, 0, 0, 0);
 
+            const firstDay = new Date(habit.createdAt);
+            firstDay.setHours(0, 0, 0, 0);
+
             const endOfDay = new Date();
             endOfDay.setHours(23, 59, 59, 999);
 
-            // if (entryDate < habitCreated) {
-            //     res.status(400).json({
-            //         success: false,
-            //         error: 'Cannot create entry before habit was created'
-            //     });
-            //     return;
-            // }
+            if (entryDate < firstDay) {
+                res.status(400).json({
+                    success: false,
+                    error: 'Cannot create entry before habit was created'
+                });
+                return;
+            }
 
             if (entryDate > endOfDay) {
                 res.status(400).json({
