@@ -72,16 +72,24 @@ export class ClearInboxNotificationHandler extends NotificationHandler<ClearInbo
             await this.schedule(String(user._id) as UserId, {
                 dateString: localDate.toLocalYYYYMMDD()
             });
+
+            console.log(`[notifications] starting with dateString ${localDate.toLocalYYYYMMDD()} for user ${user._id}`);
         }
     }
 
     async onPostSend(data: ClearInboxNotificationData): Promise<void> {
         const user = await UserManager.getInstance().getById(data.userId);
         if (!user) return;
+        console.log(`[notifications] rescheduling clear inbox notification for user ${data.userId} with dateString ${data.dateString}`);
+        console.log(`[notifications] user timezone: ${user.timezone || 'America/Los_Angeles'}`);
         const localDate = LocalDate.fromDateString(data.dateString, user.timezone || 'America/Los_Angeles');
+        console.log(`[notifications] current date (pre): ${localDate.date.getDate()}`);
         localDate.date.setDate(localDate.date.getDate() + 1);
+        console.log(`[notifications] current date (post): ${localDate.date.getDate()}`);
         await this.schedule(data.userId, {
             dateString: localDate.toLocalYYYYMMDD()
         });
+
+        console.log(`[notifications] rescheduled clear inbox notification for user ${data.userId} with dateString ${localDate.toLocalYYYYMMDD()}`);
     }
 }
