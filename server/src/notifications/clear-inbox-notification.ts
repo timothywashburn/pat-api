@@ -6,8 +6,8 @@ import {
 import { UserData, UserId } from "@timothyw/pat-common";
 import UserManager from "../controllers/user-manager";
 import ThoughtManager from "../controllers/thought-manager";
-import { isBefore } from 'date-fns';
-import LocalDate from "../utils/local-date";
+import { isBefore, format, addDays } from 'date-fns';
+import { fromZonedTime, toZonedTime } from 'date-fns-tz';
 
 export interface ClearInboxNotificationContext {
     dateString: string;
@@ -15,6 +15,46 @@ export interface ClearInboxNotificationContext {
 
 export interface ClearInboxNotificationData extends NotificationData {
     dateString: string;
+}
+
+/**
+ * Creates a UTC Date representing 9 PM on the given date in the specified timezone
+ */
+function get9PMInTimezone(dateString: string, timezone: string): Date {
+    // Create a local date at 9 PM
+    const localDateTime = new Date(`${dateString}T21:00:00`);
+    // Convert to UTC
+    return fromZonedTime(localDateTime, timezone);
+}
+
+/**
+ * Gets the next 9 PM in the user's timezone (today if we haven't passed it, tomorrow if we have)
+ */
+function getNext9PMInTimezone(timezone: string): { utcDate: Date, dateString: string } {
+    const now = new Date();
+    const localNow = toZonedTime(now, timezone);
+    
+    // Get today at 9 PM in the user's timezone
+    const todayDateString = format(localNow, 'yyyy-MM-dd');
+    const today9PM = get9PMInTimezone(todayDateString, timezone);
+    
+    // If 9 PM today hasn't passed yet, schedule for today
+    if (!isBefore(today9PM, now)) {
+        return {
+            utcDate: today9PM,
+            dateString: todayDateString
+        };
+    }
+    
+    // Otherwise schedule for tomorrow
+    const tomorrow = addDays(localNow, 1);
+    const tomorrowDateString = format(tomorrow, 'yyyy-MM-dd');
+    const tomorrow9PM = get9PMInTimezone(tomorrowDateString, timezone);
+    
+    return {
+        utcDate: tomorrow9PM,
+        dateString: tomorrowDateString
+    };
 }
 
 export class ClearInboxNotificationHandler extends NotificationHandler<ClearInboxNotificationContext, ClearInboxNotificationData> {
@@ -31,14 +71,12 @@ export class ClearInboxNotificationHandler extends NotificationHandler<ClearInbo
             }
 
             const userTimezone = user.timezone || 'America/Los_Angeles';
-
-            const localDate = LocalDate.fromDateString(context.dateString, userTimezone);
-            localDate.date.setHours(21, 0, 0, 0);
+            const utc9PM = get9PMInTimezone(context.dateString, userTimezone);
 
             const data = {
                 userId,
-                scheduledTime: String(localDate.toUTCTime()),
-                dateString: localDate.toLocalYYYYMMDD()
+                scheduledTime: String(utc9PM.getTime()),
+                dateString: context.dateString
             };
 
             return [data];
@@ -64,32 +102,36 @@ export class ClearInboxNotificationHandler extends NotificationHandler<ClearInbo
     async onApiStart(): Promise<void> {
         const users: UserData[] = await UserManager.getInstance().getAllWithNotifications();
         for (const user of users) {
-            const localDate = LocalDate.now(user.timezone || 'America/Los_Angeles');
-            localDate.date.setHours(21, 0, 0, 0);
-
-            if (isBefore(localDate.toUTCDate(), new Date())) localDate.date.setDate(localDate.date.getDate() + 1);
+            const userTimezone = user.timezone || 'America/Los_Angeles';
+            const { dateString } = getNext9PMInTimezone(userTimezone);
 
             await this.schedule(String(user._id) as UserId, {
-                dateString: localDate.toLocalYYYYMMDD()
+                dateString
             });
 
-            console.log(`[notifications] starting with dateString ${localDate.toLocalYYYYMMDD()} for user ${user._id}`);
+            console.log(`[notifications] starting with dateString ${dateString} for user ${user._id}`);
         }
     }
 
     async onPostSend(data: ClearInboxNotificationData): Promise<void> {
         const user = await UserManager.getInstance().getById(data.userId);
         if (!user) return;
+        
+        const userTimezone = user.timezone || 'America/Los_Angeles';
         console.log(`[notifications] rescheduling clear inbox notification for user ${data.userId} with dateString ${data.dateString}`);
-        console.log(`[notifications] user timezone: ${user.timezone || 'America/Los_Angeles'}`);
-        const localDate = LocalDate.fromDateString(data.dateString, user.timezone || 'America/Los_Angeles');
-        console.log(`[notifications] current date (pre): ${localDate.date.getDate()}`);
-        localDate.date.setDate(localDate.date.getDate() + 1);
-        console.log(`[notifications] current date (post): ${localDate.date.getDate()}`);
+        console.log(`[notifications] user timezone: ${userTimezone}`);
+        
+        // Add one day to the current date string
+        const currentDate = new Date(`${data.dateString}T00:00:00`);
+        const nextDate = addDays(currentDate, 1);
+        const nextDateString = format(nextDate, 'yyyy-MM-dd');
+        
+        console.log(`[notifications] scheduling for next date: ${nextDateString}`);
+        
         await this.schedule(data.userId, {
-            dateString: localDate.toLocalYYYYMMDD()
+            dateString: nextDateString
         });
 
-        console.log(`[notifications] rescheduled clear inbox notification for user ${data.userId} with dateString ${localDate.toLocalYYYYMMDD()}`);
+        console.log(`[notifications] rescheduled clear inbox notification for user ${data.userId} with dateString ${nextDateString}`);
     }
 }
