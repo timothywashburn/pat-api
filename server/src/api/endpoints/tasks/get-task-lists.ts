@@ -14,7 +14,7 @@ export const getTaskListsEndpoint: ApiEndpoint<undefined, GetTaskListsResponse> 
                 success: true,
                 data: {
                     taskLists: taskLists.map(taskList => ({
-                        id: taskList._id.toString(),
+                        id: taskList._id,
                         name: taskList.name,
                         createdAt: taskList.createdAt.toISOString(),
                         updatedAt: taskList.updatedAt.toISOString()

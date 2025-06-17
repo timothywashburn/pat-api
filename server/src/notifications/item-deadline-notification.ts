@@ -117,9 +117,19 @@ export class ItemDeadlineNotificationHandler extends NotificationHandler<ItemDea
             const items = await ItemManager.getInstance().getAllByUser(user._id as UserId);
             for (const item of items) {
                 if (item.dueDate) {
+                    let notificationNumber;
+                    const timeRemaining = item.dueDate.getTime() - Date.now();
+                    if (timeRemaining <= 2 * 60 * 1000) continue;
+                    if (timeRemaining <= 15 * 60 * 1000) {
+                        notificationNumber = 3;
+                    } else if (timeRemaining <= 60 * 60 * 1000) {
+                        notificationNumber = 2;
+                    } else {
+                        notificationNumber = 1;
+                    }
                     await this.schedule(String(user._id) as UserId, {
                         itemId: item._id,
-                        notificationNumber: 1
+                        notificationNumber: notificationNumber
                     });
                 } else {
                     console.log(`item ${item._id} does not have a due date, skipping notification`);

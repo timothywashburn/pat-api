@@ -20,7 +20,7 @@ export const createTaskListEndpoint: ApiEndpoint<CreateTaskListRequest, CreateTa
                 success: true,
                 data: {
                     taskList: {
-                        id: taskList._id.toString(),
+                        id: taskList._id,
                         name: taskList.name,
                         createdAt: taskList.createdAt.toISOString(),
                         updatedAt: taskList.updatedAt.toISOString()

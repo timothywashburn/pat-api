@@ -10,11 +10,9 @@ export default class NotificationRunner {
     constructor(notificationManager: NotificationManager) {
         this.notificationManager = notificationManager;
 
-        this.enqueueNotifications().then();
         setInterval(() => this.enqueueNotifications(), 10 * 60 * 1000);
         // setInterval(() => this.enqueueNotifications(), 5 * 1000);
 
-        this.sendNotifications().then();
         setInterval(() => this.sendNotifications(), 1000);
     }
 
@@ -62,8 +60,10 @@ export default class NotificationRunner {
     async fetchDueNotifications(timeAhead: number): Promise<QueuedNotification[]> {
         const client = RedisManager.getInstance().getClient();
 
-        const now = Date.now();
-        const futureTime = now + timeAhead;
+        // const now = Date.now();
+        // const futureTime = now + timeAhead;
+        const now = 0;
+        const futureTime = Date.now() + timeAhead;
 
         const dueNotificationRefs = await client.zrangebyscore(
             'global:notifications',

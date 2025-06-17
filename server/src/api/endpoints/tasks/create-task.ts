@@ -22,7 +22,7 @@ export const createTaskEndpoint: ApiEndpoint<CreateTaskRequest, CreateTaskRespon
                 success: true,
                 data: {
                     task: {
-                        id: task._id.toString(),
+                        id: task._id,
                         name: task.name,
                         notes: task.notes,
                         completed: task.completed,

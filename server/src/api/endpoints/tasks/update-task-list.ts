@@ -31,7 +31,7 @@ export const updateTaskListEndpoint: ApiEndpoint<UpdateTaskListRequest, UpdateTa
                 success: true,
                 data: {
                     taskList: {
-                        id: taskList._id.toString(),
+                        id: taskList._id,
                         name: taskList.name,
                         createdAt: taskList.createdAt.toISOString(),
                         updatedAt: taskList.updatedAt.toISOString()

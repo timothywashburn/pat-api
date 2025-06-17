@@ -1,18 +1,26 @@
 import {
     NotificationHandler, NotificationContent,
     NotificationData,
-    NotificationType, ScheduleDataResult, NotificationContext
+    NotificationType, ScheduleDataResult
 } from "../models/notification-handler";
 import { UserData, UserId } from "@timothyw/pat-common";
 import UserManager from "../controllers/user-manager";
 import ThoughtManager from "../controllers/thought-manager";
-import { toZonedTime } from 'date-fns-tz';
-import { setHours, setMinutes, setSeconds, addDays, isAfter, setMilliseconds } from 'date-fns';
+import { isBefore } from 'date-fns';
+import LocalDate from "../utils/local-date";
 
-export class ClearInboxNotificationHandler extends NotificationHandler {
+export interface ClearInboxNotificationContext {
+    dateString: string;
+}
+
+export interface ClearInboxNotificationData extends NotificationData {
+    dateString: string;
+}
+
+export class ClearInboxNotificationHandler extends NotificationHandler<ClearInboxNotificationContext, ClearInboxNotificationData> {
     type = NotificationType.CLEAR_INBOX;
 
-    protected async getScheduleData(userId: UserId, _context: NotificationContext): ScheduleDataResult<NotificationData> {
+    protected async getScheduleData(userId: UserId, context: ClearInboxNotificationContext): ScheduleDataResult<ClearInboxNotificationData> {
         console.log(`scheduling clear inbox notification for user ${userId}`);
         try {
             const user = await UserManager.getInstance().getById(userId);
@@ -24,19 +32,13 @@ export class ClearInboxNotificationHandler extends NotificationHandler {
 
             const userTimezone = user.timezone || 'America/Los_Angeles';
 
-            const now = new Date();
-            const userNow = toZonedTime(now, userTimezone);
-
-            let scheduledDate = setHours(setMinutes(setSeconds(setMilliseconds(userNow, 0), 0), 0), 21);
-
-            if (isAfter(userNow, scheduledDate)) {
-                scheduledDate = addDays(scheduledDate, 1);
-            }
+            const localDate = LocalDate.fromDateString(context.dateString, userTimezone);
+            localDate.date.setHours(21, 0, 0, 0);
 
             const data = {
                 userId,
-                scheduledTime: String(scheduledDate.getTime())
-                // scheduledTime: new Date().getTime() + 10_000
+                scheduledTime: String(localDate.toUTCTime()),
+                dateString: localDate.toLocalYYYYMMDD()
             };
 
             return [data];
@@ -45,7 +47,7 @@ export class ClearInboxNotificationHandler extends NotificationHandler {
         }
     }
 
-    async getContent(userId: UserId, _data: NotificationData): Promise<NotificationContent | null> {
+    async getContent(userId: UserId, _data: ClearInboxNotificationData): Promise<NotificationContent | null> {
         const thoughts = await ThoughtManager.getInstance().getAllByUser(userId);
 
         if (thoughts.length === 0) {
@@ -61,10 +63,25 @@ export class ClearInboxNotificationHandler extends NotificationHandler {
 
     async onApiStart(): Promise<void> {
         const users: UserData[] = await UserManager.getInstance().getAllWithNotifications();
-        for (const user of users) await this.schedule(String(user._id) as UserId, {});
+        for (const user of users) {
+            const localDate = LocalDate.now(user.timezone || 'America/Los_Angeles');
+            localDate.date.setHours(21, 0, 0, 0);
+
+            if (isBefore(localDate.toUTCDate(), new Date())) localDate.date.setDate(localDate.date.getDate() + 1);
+
+            await this.schedule(String(user._id) as UserId, {
+                dateString: localDate.toLocalYYYYMMDD()
+            });
+        }
     }
 
-    async onPostSend(data: NotificationData): Promise<void> {
-        await this.schedule(data.userId, {});
+    async onPostSend(data: ClearInboxNotificationData): Promise<void> {
+        const user = await UserManager.getInstance().getById(data.userId);
+        if (!user) return;
+        const localDate = LocalDate.fromDateString(data.dateString, user.timezone || 'America/Los_Angeles');
+        localDate.date.setDate(localDate.date.getDate() + 1);
+        await this.schedule(data.userId, {
+            dateString: localDate.toLocalYYYYMMDD()
+        });
     }
 }

@@ -26,7 +26,7 @@ export const completeTaskEndpoint: ApiEndpoint<CompleteTaskRequest, CompleteTask
                 success: true,
                 data: {
                     task: {
-                        id: task._id.toString(),
+                        id: task._id,
                         name: task.name,
                         notes: task.notes,
                         completed: task.completed,

@@ -14,7 +14,7 @@ export const getTasksEndpoint: ApiEndpoint<undefined, GetTasksResponse> = {
                 success: true,
                 data: {
                     tasks: tasks.map(task => ({
-                        id: task._id.toString(),
+                        id: task._id,
                         name: task.name,
                         notes: task.notes,
                         completed: task.completed,
