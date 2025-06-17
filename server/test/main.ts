@@ -5,7 +5,7 @@ import chalk from 'chalk';
 import { runCreateAccountTest } from './unit/api/auth/create-account.test';
 import { runSignInTest } from './unit/api/auth/sign-in.test';
 import { runGetItemsTest } from './unit/api/items/get-items.test';
-import { runSetupDiscordConfigTest } from "./unit/create-config";
+import { runCreateConfigTest } from "./unit/create-config";
 import { runCreateItemsTest } from "./unit/api/items/create-items.test";
 import { runDeleteItemTest } from "./unit/api/items/delete-item.test";
 import { runRefreshTokenTest } from "./unit/api/auth/refresh-auth.test";
@@ -40,6 +40,7 @@ import { runUpdateHabitTest } from "./unit/api/habits/update-habit.test";
 import { runCreateHabitEntriesTest } from "./unit/api/habits/create-habit-entries.test";
 import { runDeleteHabitEntryTest } from "./unit/api/habits/delete-habit-entry.test";
 import { runDeleteHabitTest } from "./unit/api/habits/delete-habit.test";
+import { runVersionTest } from "./unit/api/misc/version.test";
 
 config({ path: resolve(__dirname, '../../.env') });
 
@@ -70,7 +71,10 @@ interface Test {
 }
 
 const tests: Test[] = [
-    { name: 'setup config', run: runSetupDiscordConfigTest },
+    { name: 'create config', run: runCreateConfigTest },
+
+    { name: 'check version', run: runVersionTest },
+
     { name: 'create account', run: runCreateAccountTest },
     { name: 'sign in', run: runSignInTest },
     // { name: 'resend verification', run: runResendVerificationTest },

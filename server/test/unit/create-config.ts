@@ -1,7 +1,7 @@
 import {ProgramConfigModel} from "../../src/models/mongo/program-config";
 import {TestContext} from '../main';
 
-export async function runSetupDiscordConfigTest(context: TestContext) {
+export async function runCreateConfigTest(context: TestContext) {
     const config = await ProgramConfigModel.create({
         dev: {
             authorizedEmails: [

@@ -37,6 +37,7 @@ import {updateHabitEndpoint} from "../api/endpoints/habits/update-habit";
 import {deleteHabitEndpoint} from "../api/endpoints/habits/delete-habit";
 import {createHabitEntryEndpoint} from "../api/endpoints/habits/create-habit-entry";
 import {deleteHabitEntryEndpoint} from "../api/endpoints/habits/delete-habit-entry";
+import { versionEndpoint } from "../api/endpoints/misc/version";
 
 export default class ApiManager {
     private static instance: ApiManager;
@@ -50,6 +51,8 @@ export default class ApiManager {
     }
 
     private registerEndpoints() {
+        this.addEndpoint(versionEndpoint);
+
         this.addEndpoint(getUserEndpoint);
         this.addEndpoint(updateUserEndpoint);
 
