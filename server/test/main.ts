@@ -170,7 +170,7 @@ async function runTests() {
         }
 
         console.log('\n----------------------------------------');
-        console.log(`${chalk.green('all unit completed successfully')} ${chalk.magenta(`(${totalTests} total)`)}`)
+        console.log(`${chalk.green('all tests completed successfully')} ${chalk.magenta(`(${totalTests} total)`)}`)
         console.log('----------------------------------------');
     } catch (error) {
         console.log('\n----------------------------------------');
