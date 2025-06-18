@@ -3,6 +3,9 @@ import HabitManager from '../../../controllers/habit-manager';
 import HabitEntryManager from '../../../controllers/habit-entry-manager';
 import { z } from 'zod';
 import { CreateHabitEntryRequest, createHabitEntryRequestSchema, CreateHabitEntryResponse } from "@timothyw/pat-common";
+import { isBefore, isAfter } from 'date-fns';
+import DateUtils from "../../../utils/date-utils";
+import UserManager from "../../../controllers/user-manager";
 
 export const createHabitEntryEndpoint: ApiEndpoint<CreateHabitEntryRequest, CreateHabitEntryResponse> = {
     path: '/api/habits/:habitId/entries',
@@ -32,16 +35,16 @@ export const createHabitEntryEndpoint: ApiEndpoint<CreateHabitEntryRequest, Crea
                 return;
             }
 
-            const entryDate = new Date(data.date);
-            entryDate.setHours(0, 0, 0, 0);
+            const user = await UserManager.getInstance().getById(userId);
+            if (!user) {
+                res.status(404).json({
+                    success: false,
+                    error: 'User not found'
+                });
+                return;
+            }
 
-            const firstDay = new Date(habit.createdAt);
-            firstDay.setHours(0, 0, 0, 0);
-
-            const endOfDay = new Date();
-            endOfDay.setHours(23, 59, 59, 999);
-
-            if (entryDate < firstDay) {
+            if (isBefore(data.date, habit.firstDay)) {
                 res.status(400).json({
                     success: false,
                     error: 'Cannot create entry before habit was created'
@@ -49,7 +52,8 @@ export const createHabitEntryEndpoint: ApiEndpoint<CreateHabitEntryRequest, Crea
                 return;
             }
 
-            if (entryDate > endOfDay) {
+            const todayDateOnlyString = DateUtils.toLocalDateOnlyString(new Date(), user.timezone || 'America/Los_Angeles');
+            if (isAfter(data.date, todayDateOnlyString)) {
                 res.status(400).json({
                     success: false,
                     error: 'Cannot create entry for future dates'
@@ -58,7 +62,7 @@ export const createHabitEntryEndpoint: ApiEndpoint<CreateHabitEntryRequest, Crea
             }
 
             // Create or update the entry
-            await HabitEntryManager.getInstance().createOrUpdate(habitId, entryDate, data.status);
+            await HabitEntryManager.getInstance().createOrUpdate(habitId, data.date, data.status);
 
             // Return the updated habit with entries and stats
             const habitWithEntries = await HabitManager.getInstance().getByIdWithEntries(habitId);

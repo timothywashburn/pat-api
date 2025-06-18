@@ -16,6 +16,10 @@ const habitSchema = new Schema<HabitData>({
         type: String,
         trim: true,
     },
+    notes: {
+        type: String,
+        trim: true,
+    },
     frequency: {
         type: String,
         required: true,
@@ -30,6 +34,16 @@ const habitSchema = new Schema<HabitData>({
                 return /^([01]?[0-9]|2[0-3]):[0-5][0-9]$/.test(v);
             },
             message: 'rolloverTime must be in HH:MM format'
+        }
+    },
+    firstDay: {
+        type: String,
+        required: true,
+        validate: {
+            validator: function(v: string) {
+                return /^\d{4}-\d{2}-\d{2}$/.test(v);
+            },
+            message: 'firstDay must be in YYYY-MM-DD format'
         }
     }
 }, {

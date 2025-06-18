@@ -1,7 +1,8 @@
 import axios from 'axios';
 import { TestContext } from '../../../main';
 import { ApiResponseBody } from "../../../../src/api/types";
-import { DeleteHabitEntryResponse, toDateString } from "@timothyw/pat-common";
+import { DeleteHabitEntryResponse } from "@timothyw/pat-common";
+import DateUtils from "../../../../src/utils/date-utils";
 
 export async function runDeleteHabitEntryTest(context: TestContext) {
     if (context.habitIds.length === 0) {
@@ -9,11 +10,11 @@ export async function runDeleteHabitEntryTest(context: TestContext) {
     }
 
     const habitId = context.habitIds[context.habitIds.length - 1];
-    const dateString = toDateString(new Date());
+    const dateOnlyString = DateUtils.toLocalDateOnlyString(new Date(), 'America/Los_Angeles');
 
     // Delete the entry from today
     const response = await axios.delete<ApiResponseBody<DeleteHabitEntryResponse>>(
-        `${context.baseUrl}/api/habits/${habitId}/entries/${dateString}`,
+        `${context.baseUrl}/api/habits/${habitId}/entries/${dateOnlyString}`,
         {
             headers: {
                 Authorization: `Bearer ${context.authToken}`

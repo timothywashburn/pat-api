@@ -9,7 +9,9 @@ import {
     toDateString
 } from "@timothyw/pat-common";
 import { HabitEntryStatus } from "@timothyw/pat-common/dist/types/models/habit-data";
+import DateUtils from "../../../../src/utils/date-utils";
 
+// todo: this whole test is kinda cursed now because the habit cannot be marked done yesterday and the rollover could mean its only able to be marked done yesterday
 export async function runCreateHabitEntriesTest(context: TestContext) {
     if (context.habitIds.length === 0) {
         throw new Error('no habits available to create entries for');
@@ -20,19 +22,19 @@ export async function runCreateHabitEntriesTest(context: TestContext) {
     // Only create entries for today since we just created the habit
     // Create completed entry for today
     await createHabitEntry(context, context.habitIds[0], {
-        date: toDateString(today),
+        date: DateUtils.toLocalDateOnlyString(today, 'America/Los_Angeles'),
         status: HabitEntryStatus.COMPLETED
     });
 
     // Test updating the same entry
     await createHabitEntry(context, context.habitIds[1], {
-        date: toDateString(today),
+        date: DateUtils.toLocalDateOnlyString(today, 'America/Los_Angeles'),
         status: HabitEntryStatus.EXCUSED
     });
 
     // Create another completed entry for today to test final state
     await createHabitEntry(context, context.habitIds[2], {
-        date: toDateString(today),
+        date: DateUtils.toLocalDateOnlyString(today, 'America/Los_Angeles'),
         status: HabitEntryStatus.COMPLETED
     });
 

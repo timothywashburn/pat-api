@@ -1,18 +1,17 @@
 import { ApiEndpoint } from '../../types';
 import HabitManager from '../../../controllers/habit-manager';
 import HabitEntryManager from '../../../controllers/habit-entry-manager';
-import { DateString, DeleteHabitEntryResponse, fromDateString } from "@timothyw/pat-common";
+import { DateOnlyString, DeleteHabitEntryResponse } from "@timothyw/pat-common";
 
 export const deleteHabitEntryEndpoint: ApiEndpoint<undefined, DeleteHabitEntryResponse> = {
-    path: '/api/habits/:habitId/entries/:date',
+    path: '/api/habits/:habitId/entries/:dateString',
     method: 'delete',
     auth: 'verifiedEmail',
     handler: async (req, res) => {
         try {
             const userId = req.auth!.userId!;
             const habitId = req.params.habitId;
-            const date: Date = fromDateString(req.params.date as DateString);
-            date.setHours(0, 0, 0, 0);
+            const dateOnlyString = req.params.dateString as DateOnlyString;
 
             if (!habitId) {
                 res.status(400).json({
@@ -22,7 +21,7 @@ export const deleteHabitEntryEndpoint: ApiEndpoint<undefined, DeleteHabitEntryRe
                 return;
             }
 
-            if (!date) {
+            if (!dateOnlyString) {
                 res.status(400).json({
                     success: false,
                     error: 'Date is required'
@@ -41,7 +40,7 @@ export const deleteHabitEntryEndpoint: ApiEndpoint<undefined, DeleteHabitEntryRe
             }
 
             // Delete the entry
-            await HabitEntryManager.getInstance().deleteByDate(habitId, date);
+            await HabitEntryManager.getInstance().deleteByDate(habitId, dateOnlyString);
 
             // Return the updated habit with entries and stats
             const habitWithEntries = await HabitManager.getInstance().getByIdWithEntries(habitId);

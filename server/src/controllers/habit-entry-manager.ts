@@ -1,5 +1,6 @@
 import { HabitEntryModel } from '../models/mongo/habit-entry-data';
 import { HabitEntryData, HabitEntryStatus } from "@timothyw/pat-common/dist/types/models/habit-data";
+import { DateOnlyString } from "@timothyw/pat-common";
 
 export default class HabitEntryManager {
     private static instance: HabitEntryManager;
@@ -13,7 +14,7 @@ export default class HabitEntryManager {
         return HabitEntryManager.instance;
     }
 
-    async createOrUpdate(habitId: string, date: Date, status: HabitEntryStatus): Promise<HabitEntryData> {
+    async createOrUpdate(habitId: string, date: DateOnlyString, status: HabitEntryStatus): Promise<HabitEntryData> {
         return HabitEntryModel.findOneAndUpdate(
             { habitId, date },
             { status },
@@ -21,8 +22,8 @@ export default class HabitEntryManager {
         );
     }
 
-    async deleteByDate(habitId: string, date: Date): Promise<boolean> {
-        const result = await HabitEntryModel.findOneAndDelete({ habitId, date });
+    async deleteByDate(habitId: string, dateString: DateOnlyString): Promise<boolean> {
+        const result = await HabitEntryModel.findOneAndDelete({ habitId, date: dateString });
         return result !== null;
     }
 

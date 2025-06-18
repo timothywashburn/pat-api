@@ -1,7 +1,10 @@
 import { HabitModel } from '../models/mongo/habit-data';
 import { HabitEntryModel } from '../models/mongo/habit-entry-data';
-import { Habit, HabitData, HabitStats, toDateString, toHabit } from "@timothyw/pat-common";
+import { Habit, HabitData, HabitStats, toDateString, toHabit, UserId } from "@timothyw/pat-common";
 import { HabitEntryData } from "@timothyw/pat-common/dist/types/models/habit-data";
+import DateUtils from "../utils/date-utils";
+import UserManager from "./user-manager";
+import { isBefore } from "date-fns";
 
 export default class HabitManager {
     private static instance: HabitManager;
@@ -15,15 +18,19 @@ export default class HabitManager {
         return HabitManager.instance;
     }
 
-    async create(userId: string, data: {
+    async create(userId: UserId, data: {
         name: string;
         description?: string;
+        notes?: string;
         frequency: 'daily';
         rolloverTime: string;
     }): Promise<HabitData> {
+        const user = await UserManager.getInstance().getById(userId);
+        if (!user) throw new Error('User not found');
         const habit = new HabitModel({
             userId,
-            ...data
+            ...data,
+            firstDay: DateUtils.toLocalDateOnlyString(new Date(), user.timezone || 'America/Los_Angeles'),
         });
         return habit.save();
     }
@@ -42,7 +49,7 @@ export default class HabitManager {
 
         for (const habit of habitDataList) {
             const entries = await HabitEntryModel.find({ habitId: habit._id.toString() }).lean();
-            const stats = this.calculateStats(habit, entries);
+            const stats = await this.calculateStats(habit, entries);
 
             habits.push(toHabit(habit, entries, stats));
         }
@@ -55,7 +62,7 @@ export default class HabitManager {
         if (!habit) return null;
 
         const entries = await HabitEntryModel.find({ habitId }).lean();
-        const stats = this.calculateStats(habit, entries);
+        const stats = await this.calculateStats(habit, entries);
 
         return toHabit(habit, entries, stats);
     }
@@ -82,18 +89,29 @@ export default class HabitManager {
         return false;
     }
 
-    private calculateStats(habit: HabitData, entries: HabitEntryData[]): HabitStats {
+    private async calculateStats(habit: HabitData, entries: HabitEntryData[]): Promise<HabitStats> {
         const now = new Date();
-        const habitCreated = new Date(habit.createdAt);
-        
-        const daysDiff = Math.floor((now.getTime() - habitCreated.getTime()) / (1000 * 60 * 60 * 24));
-        const totalDays = Math.max(1, daysDiff + 1);
+
+        const user = await UserManager.getInstance().getById(habit.userId as UserId); // todo: fix
+        const timezone = user?.timezone || 'America/Los_Angeles';
+        const hours = Number(habit.rolloverTime.split(':')[0]);
+        const minutes = Number(habit.rolloverTime.split(':')[1]);
+
+        const firstDayTime = DateUtils.dateInTimezoneAsUTC(habit.firstDay, hours, minutes, 0, timezone);
+        let totalDays = Math.ceil((now.getTime() - firstDayTime.getTime()) / (1000 * 60 * 60 * 24));
+
+        const todayDateOnlyString = DateUtils.toLocalDateOnlyString(new Date(), timezone);
+        const yesterdayDateOnlyString = DateUtils.toLocalDateOnlyString(new Date(new Date().getTime() - 24 * 60 * 60 * 1000), timezone);
+        const rolloverDate = DateUtils.dateInTimezoneAsUTC(todayDateOnlyString, hours, minutes, 0, timezone);
+        const currentDateOnlyString = isBefore(new Date(), rolloverDate) ? yesterdayDateOnlyString : todayDateOnlyString;
+        const todayEntry = entries.find(e => e.date === currentDateOnlyString);
+        if (!todayEntry) totalDays--;
 
         const completedDays = entries.filter(e => e.status === 'completed').length;
         const excusedDays = entries.filter(e => e.status === 'excused').length;
-        const missedDays = totalDays - completedDays - excusedDays;
 
-        const completionRate = ((completedDays + excusedDays) / totalDays) * 100;
+        const missedDays = totalDays - completedDays - excusedDays;
+        const completionRate = totalDays == 0 ? -1 : ((completedDays + excusedDays) / totalDays) * 100;
 
         return {
             totalDays,

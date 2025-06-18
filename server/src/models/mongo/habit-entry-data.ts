@@ -8,8 +8,14 @@ const habitEntrySchema = new Schema<HabitEntryData>({
         ref: 'Habit'
     },
     date: {
-        type: Date,
+        type: String,
         required: true,
+        validate: {
+            validator: function(v: string) {
+                return /^\d{4}-\d{2}-\d{2}$/.test(v);
+            },
+            message: 'date must be in YYYY-MM-DD format'
+        }
     },
     status: {
         type: String,
