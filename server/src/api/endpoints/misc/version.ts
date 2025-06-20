@@ -1,7 +1,7 @@
 import { ApiEndpoint } from '../../types';
 import { VersionQuery, VersionResponse } from "@timothyw/pat-common";
 
-const MINIMUM_CLIENT_VERSION = 2;
+const MINIMUM_CLIENT_VERSION = 3;
 
 export const versionEndpoint: ApiEndpoint<undefined, VersionResponse> = {
     path: '/api/version',
