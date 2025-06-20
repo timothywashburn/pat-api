@@ -13,7 +13,7 @@ export const updatePersonEndpoint: ApiEndpoint<UpdatePersonRequest, UpdatePerson
             const data = updatePersonRequestSchema.parse(req.body);
             const personId = req.params.personId as PersonId;
 
-            const person = await PersonManager.getInstance().update(personId, data);
+            const person = await PersonManager.getInstance().update(req.auth!, personId, data);
 
             if (!person) {
                 res.status(404).json({ success: false, error: 'Person not found' });
@@ -27,11 +27,7 @@ export const updatePersonEndpoint: ApiEndpoint<UpdatePersonRequest, UpdatePerson
                         id: person._id.toString(),
                         name: person.name,
                         properties: person.properties,
-                        notes: person.notes.map(n => ({
-                            ...n,
-                            createdAt: n.createdAt.toISOString(),
-                            updatedAt: n.updatedAt.toISOString()
-                        }))
+                        notes: person.notes
                     }
                 }
             });

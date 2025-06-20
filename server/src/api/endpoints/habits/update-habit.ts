@@ -1,7 +1,14 @@
 import { ApiEndpoint } from '../../types';
 import HabitManager from '../../../controllers/habit-manager';
 import { z } from 'zod';
-import { UpdateHabitRequest, updateHabitRequestSchema, UpdateHabitResponse } from "@timothyw/pat-common";
+import {
+    Habit,
+    HabitId,
+    UpdateHabitRequest,
+    updateHabitRequestSchema,
+    UpdateHabitResponse
+} from "@timothyw/pat-common";
+import { HabitFrequency } from "@timothyw/pat-common/src/types/models";
 
 export const updateHabitEndpoint: ApiEndpoint<UpdateHabitRequest, UpdateHabitResponse> = {
     path: '/api/habits/:habitId',
@@ -10,8 +17,7 @@ export const updateHabitEndpoint: ApiEndpoint<UpdateHabitRequest, UpdateHabitRes
     handler: async (req, res) => {
         try {
             const data = updateHabitRequestSchema.parse(req.body);
-            const userId = req.auth!.userId!;
-            const habitId = req.params.habitId;
+            const habitId = req.params.habitId as HabitId;
 
             if (!habitId) {
                 res.status(400).json({
@@ -21,7 +27,7 @@ export const updateHabitEndpoint: ApiEndpoint<UpdateHabitRequest, UpdateHabitRes
                 return;
             }
 
-            const updatedHabit = await HabitManager.getInstance().update(habitId, userId, data);
+            const updatedHabit = await HabitManager.getInstance().update(req.auth!, habitId, data);
 
             if (!updatedHabit) {
                 res.status(404).json({

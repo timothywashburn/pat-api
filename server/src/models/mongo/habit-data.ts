@@ -50,4 +50,4 @@ const habitSchema = new Schema<HabitData>({
     timestamps: true,
 });
 
-export const HabitModel = model<HabitData>('Habit', habitSchema);
+export const HabitModel = model<HabitData>('Habit', habitSchema, 'habits');

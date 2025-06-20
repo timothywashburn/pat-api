@@ -16,4 +16,4 @@ const thoughtSchema = new Schema<ThoughtData>({
     timestamps: true,
 });
 
-export const ThoughtModel = model<ThoughtData>('Thought', thoughtSchema);
+export const ThoughtModel = model<ThoughtData>('Thought', thoughtSchema, 'thoughts');

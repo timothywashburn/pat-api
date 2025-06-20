@@ -17,7 +17,7 @@ export const updateTaskListEndpoint: ApiEndpoint<UpdateTaskListRequest, UpdateTa
             const taskListId = req.params.taskListId as TaskListId;
             const data = updateTaskListRequestSchema.parse(req.body);
 
-            const taskList = await TaskListManager.getInstance().update(taskListId, data);
+            const taskList = await TaskListManager.getInstance().update(req.auth!, taskListId, data);
 
             if (!taskList) {
                 res.status(404).json({

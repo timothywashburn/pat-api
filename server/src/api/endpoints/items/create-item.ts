@@ -36,7 +36,7 @@ export const createItemEndpoint: ApiEndpoint<CreateItemRequest, CreateItemRespon
                         id: item._id.toString(),
                         name: item.name,
                         dueDate: item.dueDate?.toISOString(),
-                        notes: item.notes,
+                        notes: item.notes ?? undefined,
                         completed: item.completed,
                         urgent: item.urgent,
                         category: item.category ?? undefined,

@@ -1,5 +1,8 @@
-import { TaskData, TaskId, UserId, TaskListId } from "@timothyw/pat-common";
+import { TaskData, TaskId, UserId, TaskListId, ItemId, UpdateItemRequest, ItemData } from "@timothyw/pat-common";
 import { TaskModel } from "../models/mongo/task-data";
+import { AuthInfo } from "../api/types";
+import { updateDocument } from "../utils/db-doc-utils";
+import { ItemModel } from "../models/mongo/item-data";
 
 export default class TaskManager {
     private static instance: TaskManager;
@@ -46,30 +49,38 @@ export default class TaskManager {
     }
 
     update(
+        auth: AuthInfo,
         taskId: TaskId,
-        updates: Partial<Omit<TaskData, '_id' | 'userId' | 'createdAt' | 'updatedAt'>>
+        updates: UpdateItemRequest
     ): Promise<TaskData | null> {
-        const set: any = {};
-        const unset: any = {};
-
-        Object.entries(updates).forEach(([key, value]) => {
-            if (value === null || value === undefined) {
-                unset[key] = "";
-            } else {
-                set[key] = value;
-            }
-        });
-
-        const updateOperation: any = {};
-        if (Object.keys(set).length > 0) updateOperation.$set = set;
-        if (Object.keys(unset).length > 0) updateOperation.$unset = unset;
-
-        return TaskModel.findByIdAndUpdate(
-            taskId,
-            updateOperation,
-            { new: true }
-        );
+        return updateDocument(auth, TaskModel, taskId, updates);
     }
+
+    // update(
+    //     taskId: TaskId,
+    //     updates: Partial<Omit<TaskData, '_id' | 'userId' | 'createdAt' | 'updatedAt'>>
+    // ): Promise<TaskData | null> {
+    //     const set: any = {};
+    //     const unset: any = {};
+    //
+    //     Object.entries(updates).forEach(([key, value]) => {
+    //         if (value === null || value === undefined) {
+    //             unset[key] = "";
+    //         } else {
+    //             set[key] = value;
+    //         }
+    //     });
+    //
+    //     const updateOperation: any = {};
+    //     if (Object.keys(set).length > 0) updateOperation.$set = set;
+    //     if (Object.keys(unset).length > 0) updateOperation.$unset = unset;
+    //
+    //     return TaskModel.findByIdAndUpdate(
+    //         taskId,
+    //         updateOperation,
+    //         { new: true }
+    //     );
+    // }
 
     async setCompleted(taskId: TaskId, completed: boolean): Promise<TaskData | null> {
         return TaskModel.findByIdAndUpdate(

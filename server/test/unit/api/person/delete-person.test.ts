@@ -1,7 +1,7 @@
 import axios from 'axios';
 import { TestContext } from '../../../main';
 import { Types } from 'mongoose';
-import { PersonModel } from "../../../../src/models/mongo/person.data";
+import { PersonModel } from "../../../../src/models/mongo/person-data";
 import { ApiResponseBody } from "../../../../src/api/types";
 import { DeletePersonResponse } from "@timothyw/pat-common";
 

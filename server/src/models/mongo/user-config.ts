@@ -77,4 +77,4 @@ const userDataSchema = new Schema<UserData>({
     timestamps: true,
 });
 
-export const UserConfigModel = model<UserData>('User', userDataSchema);
+export const UserConfigModel = model<UserData>('User', userDataSchema, 'users');

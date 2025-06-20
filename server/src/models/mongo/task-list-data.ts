@@ -16,4 +16,4 @@ const taskListSchema = new Schema<TaskListData>({
     timestamps: true,
 });
 
-export const TaskListModel = model<TaskListData>('TaskList', taskListSchema);
+export const TaskListModel = model<TaskListData>('TaskList', taskListSchema, 'task_lists');

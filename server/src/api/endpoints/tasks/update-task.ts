@@ -12,7 +12,7 @@ export const updateTaskEndpoint: ApiEndpoint<UpdateTaskRequest, UpdateTaskRespon
             const taskId = req.params.taskId as TaskId;
             const data = updateTaskRequestSchema.parse(req.body);
 
-            const task = await TaskManager.getInstance().update(taskId, data);
+            const task = await TaskManager.getInstance().update(req.auth!, taskId, data);
 
             if (!task) {
                 res.status(404).json({
@@ -28,7 +28,7 @@ export const updateTaskEndpoint: ApiEndpoint<UpdateTaskRequest, UpdateTaskRespon
                     task: {
                         id: task._id,
                         name: task.name,
-                        notes: task.notes,
+                        notes: task.notes ?? undefined,
                         completed: task.completed,
                         taskListId: task.taskListId,
                         createdAt: task.createdAt.toISOString(),

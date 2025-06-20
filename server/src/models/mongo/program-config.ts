@@ -56,7 +56,6 @@ const programConfigSchema = new Schema<ProgramConfigData>({
     }
 }, {
     timestamps: true,
-    collection: 'general'
 });
 
-export const ProgramConfigModel = model<ProgramConfigData>('ProgramConfig', programConfigSchema);
+export const ProgramConfigModel = model<ProgramConfigData>('ProgramConfig', programConfigSchema, 'a_program_config');

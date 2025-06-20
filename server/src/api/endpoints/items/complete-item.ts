@@ -30,7 +30,7 @@ export const completeItemEndpoint: ApiEndpoint<CompleteItemRequest, CompleteItem
                         name: item.name,
                         completed: item.completed,
                         dueDate: item.dueDate?.toISOString(),
-                        notes: item.notes
+                        notes: item.notes ?? undefined,
                     }
                 }
             });

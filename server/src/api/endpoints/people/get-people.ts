@@ -14,11 +14,7 @@ export const getPeopleEndpoint: ApiEndpoint<undefined, GetPeopleResponse> = {
                     id: p._id.toString(),
                     name: p.name,
                     properties: p.properties,
-                    notes: p.notes.map(n => ({
-                        content: n.content,
-                        createdAt: n.createdAt.toISOString(),
-                        updatedAt: n.updatedAt.toISOString()
-                    }))
+                    notes: p.notes
                 }))
             }
             res.json({

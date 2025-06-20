@@ -1,8 +1,7 @@
 import { ApiEndpoint } from '../../types';
 import PersonManager from '../../../controllers/person-manager';
-import { Types } from 'mongoose';
 import { z } from 'zod';
-import { CreatePersonRequest, createPersonRequestSchema, CreatePersonResponse, UserId } from "@timothyw/pat-common";
+import { CreatePersonRequest, createPersonRequestSchema, CreatePersonResponse } from "@timothyw/pat-common";
 
 export const createPersonEndpoint: ApiEndpoint<CreatePersonRequest, CreatePersonResponse> = {
     path: '/api/people',
@@ -22,11 +21,7 @@ export const createPersonEndpoint: ApiEndpoint<CreatePersonRequest, CreatePerson
                         id: person._id.toString(),
                         name: person.name,
                         properties: person.properties,
-                        notes: person.notes.map(n => ({
-                            ...n,
-                            createdAt: n.createdAt.toISOString(),
-                            updatedAt: n.updatedAt.toISOString()
-                        }))
+                        notes: person.notes
                     }
                 }
             });

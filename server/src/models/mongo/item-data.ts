@@ -39,4 +39,4 @@ const itemSchema = new Schema<ItemData>({
     timestamps: true,
 });
 
-export const ItemModel = model<ItemData>('Item', itemSchema);
+export const ItemModel = model<ItemData>('Item', itemSchema, 'items');

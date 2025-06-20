@@ -25,4 +25,4 @@ const authSchema = new Schema<AuthData>({
     timestamps: true
 });
 
-export const AuthDataModel = model<AuthData>('Auth', authSchema);
+export const AuthDataModel = model<AuthData>('Auth', authSchema, 'auths');

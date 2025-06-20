@@ -1,6 +1,8 @@
 import {Types} from "mongoose";
-import { ItemData, ItemId, UserId } from "@timothyw/pat-common";
+import { ItemData, ItemId, UpdateItemRequest, UserId } from "@timothyw/pat-common";
 import { ItemModel } from "../models/mongo/item-data";
+import { updateDocument } from "../utils/db-doc-utils";
+import { AuthInfo } from "../api/types";
 
 export default class ItemManager {
     private static instance: ItemManager;
@@ -50,31 +52,39 @@ export default class ItemManager {
     }
 
     update(
+        auth: AuthInfo,
         itemId: ItemId,
-        updates: Partial<Omit<ItemData, '_id' | 'userId' | 'createdAt' | 'updatedAt'>>
+        updates: UpdateItemRequest
     ): Promise<ItemData | null> {
-
-        const set: any = {};
-        const unset: any = {};
-
-        Object.entries(updates).forEach(([key, value]) => {
-            if (value === null) {
-                unset[key] = "";
-            } else {
-                set[key] = value;
-            }
-        });
-
-        const updateOperation: any = {};
-        if (Object.keys(set).length > 0) updateOperation.$set = set;
-        if (Object.keys(unset).length > 0) updateOperation.$unset = unset;
-
-        return ItemModel.findByIdAndUpdate(
-            itemId,
-            updateOperation,
-            { new: true }
-        );
+        return updateDocument(auth, ItemModel, itemId, updates);
     }
+
+    // update(
+    //     itemId: ItemId,
+    //     updates: Partial<Omit<ItemData, '_id' | 'userId' | 'createdAt' | 'updatedAt'>>
+    // ): Promise<ItemData | null> {
+    //
+    //     const set: any = {};
+    //     const unset: any = {};
+    //
+    //     Object.entries(updates).forEach(([key, value]) => {
+    //         if (value === null) {
+    //             unset[key] = "";
+    //         } else {
+    //             set[key] = value;
+    //         }
+    //     });
+    //
+    //     const updateOperation: any = {};
+    //     if (Object.keys(set).length > 0) updateOperation.$set = set;
+    //     if (Object.keys(unset).length > 0) updateOperation.$unset = unset;
+    //
+    //     return ItemModel.findByIdAndUpdate(
+    //         itemId,
+    //         updateOperation,
+    //         { new: true }
+    //     );
+    // }
 
     async setCompleted(itemId: ItemId, completed: boolean) {
         return ItemModel.findByIdAndUpdate(

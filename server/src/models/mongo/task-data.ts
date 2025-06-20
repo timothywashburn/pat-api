@@ -29,4 +29,4 @@ const taskSchema = new Schema<TaskData>({
     timestamps: true,
 });
 
-export const TaskModel = model<TaskData>('Task', taskSchema);
+export const TaskModel = model<TaskData>('Task', taskSchema, 'tasks');

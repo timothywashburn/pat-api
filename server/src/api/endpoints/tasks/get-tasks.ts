@@ -16,7 +16,7 @@ export const getTasksEndpoint: ApiEndpoint<undefined, GetTasksResponse> = {
                     tasks: tasks.map(task => ({
                         id: task._id,
                         name: task.name,
-                        notes: task.notes,
+                        notes: task.notes ?? undefined,
                         completed: task.completed,
                         taskListId: task.taskListId,
                         createdAt: task.createdAt.toISOString(),

@@ -28,4 +28,4 @@ const habitEntrySchema = new Schema<HabitEntryData>({
 
 habitEntrySchema.index({ habitId: 1, date: 1 }, { unique: true });
 
-export const HabitEntryModel = model<HabitEntryData>('HabitEntry', habitEntrySchema);
+export const HabitEntryModel = model<HabitEntryData>('HabitEntry', habitEntrySchema, 'habit_entries');

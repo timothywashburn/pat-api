@@ -3,6 +3,8 @@ import ItemManager from '../../../controllers/item-manager';
 import { z } from 'zod';
 import { ItemId, UpdateItemRequest, updateItemRequestSchema, UpdateItemResponse } from "@timothyw/pat-common";
 
+export type UpdateItemRequest2 = z.infer<typeof updateItemRequestSchema>;
+
 export const updateItemEndpoint: ApiEndpoint<UpdateItemRequest, UpdateItemResponse> = {
     path: '/api/items/:itemId',
     method: 'put',
@@ -12,7 +14,7 @@ export const updateItemEndpoint: ApiEndpoint<UpdateItemRequest, UpdateItemRespon
             const data = updateItemRequestSchema.parse(req.body);
             const itemId = req.params.itemId as ItemId;
 
-            const item = await ItemManager.getInstance().update(itemId, {
+            const item = await ItemManager.getInstance().update(req.auth!, itemId, {
                 name: data.name,
                 dueDate: data.dueDate ? new Date(data.dueDate) : null,
                 notes: data.notes,
@@ -36,7 +38,7 @@ export const updateItemEndpoint: ApiEndpoint<UpdateItemRequest, UpdateItemRespon
                         id: item._id.toString(),
                         name: item.name,
                         dueDate: item.dueDate?.toISOString(),
-                        notes: item.notes,
+                        notes: item.notes ?? undefined,
                         completed: item.completed,
                         urgent: item.urgent,
                         category: item.category ?? undefined,

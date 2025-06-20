@@ -1,6 +1,17 @@
-import { TaskListData, TaskListId, UserId } from "@timothyw/pat-common";
+import {
+    ItemData,
+    ItemId,
+    TaskListData,
+    TaskListId,
+    UpdateItemRequest,
+    UpdateTaskListRequest,
+    UserId
+} from "@timothyw/pat-common";
 import { TaskListModel } from "../models/mongo/task-list-data";
 import TaskManager from "./task-manager";
+import { AuthInfo } from "../api/types";
+import { updateDocument } from "../utils/db-doc-utils";
+import { ItemModel } from "../models/mongo/item-data";
 
 export default class TaskListManager {
     private static instance: TaskListManager;
@@ -26,30 +37,38 @@ export default class TaskListManager {
     }
 
     update(
+        auth: AuthInfo,
         taskListId: TaskListId,
-        updates: Partial<Omit<TaskListData, '_id' | 'userId' | 'createdAt' | 'updatedAt'>>
+        updates: UpdateTaskListRequest
     ): Promise<TaskListData | null> {
-        const set: any = {};
-        const unset: any = {};
-
-        Object.entries(updates).forEach(([key, value]) => {
-            if (value === null || value === undefined) {
-                unset[key] = "";
-            } else {
-                set[key] = value;
-            }
-        });
-
-        const updateOperation: any = {};
-        if (Object.keys(set).length > 0) updateOperation.$set = set;
-        if (Object.keys(unset).length > 0) updateOperation.$unset = unset;
-
-        return TaskListModel.findByIdAndUpdate(
-            taskListId,
-            updateOperation,
-            { new: true }
-        );
+        return updateDocument(auth, TaskListModel, taskListId, updates);
     }
+
+    // update(
+    //     taskListId: TaskListId,
+    //     updates: Partial<Omit<TaskListData, '_id' | 'userId' | 'createdAt' | 'updatedAt'>>
+    // ): Promise<TaskListData | null> {
+    //     const set: any = {};
+    //     const unset: any = {};
+    //
+    //     Object.entries(updates).forEach(([key, value]) => {
+    //         if (value === null || value === undefined) {
+    //             unset[key] = "";
+    //         } else {
+    //             set[key] = value;
+    //         }
+    //     });
+    //
+    //     const updateOperation: any = {};
+    //     if (Object.keys(set).length > 0) updateOperation.$set = set;
+    //     if (Object.keys(unset).length > 0) updateOperation.$unset = unset;
+    //
+    //     return TaskListModel.findByIdAndUpdate(
+    //         taskListId,
+    //         updateOperation,
+    //         { new: true }
+    //     );
+    // }
 
     async delete(taskListId: TaskListId): Promise<boolean> {
         await TaskManager.getInstance().deleteAllForTaskList(taskListId);

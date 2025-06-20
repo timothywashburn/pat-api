@@ -18,7 +18,7 @@ export const updateThoughtEndpoint: ApiEndpoint<UpdateThoughtRequest, UpdateThou
             const data = updateThoughtRequestSchema.parse(req.body);
             const thoughtId = req.params.thoughtId as ThoughtId;
 
-            const thought = await ThoughtManager.getInstance().update(thoughtId, data);
+            const thought = await ThoughtManager.getInstance().update(req.auth!, thoughtId, data);
 
             if (!thought) {
                 res.status(404).json({ success: false, error: 'Thought not found' });

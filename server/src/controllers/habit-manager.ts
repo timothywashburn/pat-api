@@ -1,10 +1,23 @@
 import { HabitModel } from '../models/mongo/habit-data';
 import { HabitEntryModel } from '../models/mongo/habit-entry-data';
-import { Habit, HabitData, HabitStats, toDateString, toHabit, UserId } from "@timothyw/pat-common";
+import {
+    Habit,
+    HabitData,
+    HabitId,
+    HabitStats,
+    ItemData,
+    ItemId,
+    toDateString,
+    toHabit, UpdateHabitRequest, UpdateItemRequest, UpdateItemResponse,
+    UserId
+} from "@timothyw/pat-common";
 import { HabitEntryData } from "@timothyw/pat-common/dist/types/models/habit-data";
 import DateUtils from "../utils/date-utils";
 import UserManager from "./user-manager";
 import { isBefore } from "date-fns";
+import { ItemModel } from "../models/mongo/item-data";
+import { AuthInfo } from "../api/types";
+import { updateDocument } from "../utils/db-doc-utils";
 
 export default class HabitManager {
     private static instance: HabitManager;
@@ -67,18 +80,41 @@ export default class HabitManager {
         return toHabit(habit, entries, stats);
     }
 
-    async update(habitId: string, userId: string, data: Partial<{
-        name: string;
-        description?: string;
-        frequency: 'daily';
-        rolloverTime: string;
-    }>): Promise<HabitData | null> {
-        return HabitModel.findOneAndUpdate(
-            { _id: habitId, userId },
-            data,
-            { new: true }
-        );
+    update(
+        auth: AuthInfo,
+        habitId: HabitId,
+        updates: UpdateHabitRequest
+    ): Promise<HabitData | null> {
+        return updateDocument(auth, HabitModel, habitId, updates);
     }
+
+    // update(
+    //     auth: AuthInfo,
+    //     habitId: HabitId,
+    //     updates: Partial<Pick<HabitData, 'name' | 'description' | 'notes' | 'frequency' | 'rolloverTime'>>
+    // ): Promise<HabitData | null> {
+    //
+    //     const set: any = {};
+    //     const unset: any = {};
+    //
+    //     Object.entries(updates).forEach(([key, value]) => {
+    //         if (value === null) {
+    //             unset[key] = "";
+    //         } else {
+    //             set[key] = value;
+    //         }
+    //     });
+    //
+    //     const updateOperation: any = {};
+    //     if (Object.keys(set).length > 0) updateOperation.$set = set;
+    //     if (Object.keys(unset).length > 0) updateOperation.$unset = unset;
+    //
+    //     return HabitModel.findOneAndUpdate(
+    //         { _id: habitId, userId: auth.userId },
+    //         updateOperation,
+    //         { new: true }
+    //     );
+    // }
 
     async delete(habitId: string, userId: string): Promise<boolean> {
         const habit = await HabitModel.findOneAndDelete({ _id: habitId, userId });

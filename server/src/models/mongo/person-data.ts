@@ -1,5 +1,5 @@
 import { Schema, model, Types } from 'mongoose';
-import { PersonData, PersonNote, PersonProperty } from "@timothyw/pat-common";
+import { PersonData, PersonProperty } from "@timothyw/pat-common";
 
 const personPropertySchema = new Schema<PersonProperty>({
     key: {
@@ -14,16 +14,6 @@ const personPropertySchema = new Schema<PersonProperty>({
     }
 });
 
-const personNoteSchema = new Schema<PersonNote>({
-    content: {
-        type: String,
-        required: true,
-        trim: true,
-    }
-}, {
-    timestamps: true
-});
-
 const personSchema = new Schema<PersonData>({
     userId: {
         type: String,
@@ -36,9 +26,13 @@ const personSchema = new Schema<PersonData>({
         trim: true,
     },
     properties: [personPropertySchema],
-    notes: [personNoteSchema]
+    notes: [{
+        type: String,
+        ref: 'PersonNote',
+        default: []
+    }]
 }, {
     timestamps: true,
 });
 
-export const PersonModel = model<PersonData>('Person', personSchema);
+export const PersonModel = model<PersonData>('Person', personSchema, 'people');

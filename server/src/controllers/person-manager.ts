@@ -1,6 +1,17 @@
 import { Types } from "mongoose";
-import { PersonData, PersonId, PersonProperty, UserId } from "@timothyw/pat-common";
-import { PersonModel } from "../models/mongo/person.data";
+import {
+    ItemData,
+    ItemId,
+    PersonData,
+    PersonId, PersonNoteId,
+    PersonProperty,
+    UpdateItemRequest, UpdatePersonRequest, UpdatePersonResponse,
+    UserId
+} from "@timothyw/pat-common";
+import { PersonModel } from "../models/mongo/person-data";
+import { AuthInfo } from "../api/types";
+import { updateDocument } from "../utils/db-doc-utils";
+import { ItemModel } from "../models/mongo/item-data";
 
 interface CreateNoteInput {
     content: string;
@@ -14,7 +25,7 @@ export default class PersonManager {
     create(userId: UserId, data: {
         name: string;
         properties?: PersonProperty[];
-        notes?: CreateNoteInput[];
+        notes?: PersonNoteId[];
     }): Promise<PersonData> {
         const person = new PersonModel({
             userId,
@@ -26,20 +37,28 @@ export default class PersonManager {
     }
 
     getAllByUser(userId: UserId): Promise<PersonData[]> {
-        return PersonModel.find({ userId });
+        return PersonModel.find({ userId }).lean();
     }
 
-    update(personId: PersonId, updates: {
-        name?: string;
-        properties?: PersonProperty[];
-        notes?: CreateNoteInput[];
-    }): Promise<PersonData | null> {
-        return PersonModel.findByIdAndUpdate(
-            personId,
-            { $set: updates },
-            { new: true }
-        );
+    update(
+        auth: AuthInfo,
+        personId: PersonId,
+        updates: UpdatePersonRequest
+    ): Promise<PersonData | null> {
+        return updateDocument(auth, PersonModel, personId, updates);
     }
+
+    // update(personId: PersonId, updates: {
+    //     name?: string;
+    //     properties?: PersonProperty[];
+    //     notes?: CreateNoteInput[];
+    // }): Promise<PersonData | null> {
+    //     return PersonModel.findByIdAndUpdate(
+    //         personId,
+    //         { $set: updates },
+    //         { new: true }
+    //     );
+    // }
 
     delete(personId: PersonId): Promise<boolean> {
         return PersonModel.deleteOne({ _id: personId })

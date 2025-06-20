@@ -28,7 +28,7 @@ export const completeTaskEndpoint: ApiEndpoint<CompleteTaskRequest, CompleteTask
                     task: {
                         id: task._id,
                         name: task.name,
-                        notes: task.notes,
+                        notes: task.notes ?? undefined,
                         completed: task.completed,
                         taskListId: task.taskListId,
                         createdAt: task.createdAt.toISOString(),
