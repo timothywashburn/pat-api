@@ -1,6 +1,7 @@
 import { HabitModel } from '../models/mongo/habit-data';
 import { HabitEntryModel } from '../models/mongo/habit-entry-data';
 import {
+    CreateHabitRequest,
     Habit,
     HabitData,
     HabitId,
@@ -31,13 +32,7 @@ export default class HabitManager {
         return HabitManager.instance;
     }
 
-    async create(userId: UserId, data: {
-        name: string;
-        description?: string;
-        notes?: string;
-        frequency: 'daily';
-        rolloverTime: string;
-    }): Promise<HabitData> {
+    async create(userId: UserId, data: CreateHabitRequest): Promise<HabitData> {
         const user = await UserManager.getInstance().getById(userId);
         if (!user) throw new Error('User not found');
         const habit = new HabitModel({

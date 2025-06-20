@@ -1,16 +1,16 @@
 import { Types } from "mongoose";
 import {
     ItemData,
-    ItemId,
+    ItemId, Person,
     PersonData,
-    PersonId, PersonNoteId,
+    PersonId, PersonNoteData, PersonNoteId,
     PersonProperty,
     UpdateItemRequest, UpdatePersonRequest, UpdatePersonResponse,
     UserId
 } from "@timothyw/pat-common";
 import { PersonModel } from "../models/mongo/person-data";
 import { AuthInfo } from "../api/types";
-import { updateDocument } from "../utils/db-doc-utils";
+import { updateDocument, updateDocumentWithPopulate } from "../utils/db-doc-utils";
 import { ItemModel } from "../models/mongo/item-data";
 
 interface CreateNoteInput {
@@ -22,30 +22,53 @@ export default class PersonManager {
 
     private constructor() {}
 
-    create(userId: UserId, data: {
+    async create(userId: UserId, data: {
         name: string;
         properties?: PersonProperty[];
         notes?: PersonNoteId[];
-    }): Promise<PersonData> {
+    }): Promise<Person> {
         const person = new PersonModel({
             userId,
             name: data.name,
             properties: data.properties || [],
-            notes: data.notes || []
+            noteIds: data.notes || []
         });
-        return person.save();
+        const personData = await person.save();
+        const populatedPerson = await personData.populate('noteIds');
+        const personObj = populatedPerson.toObject();
+        
+        return {
+            ...personObj,
+            notes: personObj.noteIds as unknown as PersonNoteData[],
+        } as Person;
     }
 
-    getAllByUser(userId: UserId): Promise<PersonData[]> {
-        return PersonModel.find({ userId }).lean();
+    async getAllByUser(userId: UserId): Promise<Person[]> {
+        const people = await PersonModel.find({ userId }).populate('noteIds');
+
+        return people.map(person => {
+            const personObj = person.toObject();
+            return {
+                ...personObj,
+                notes: personObj.noteIds as unknown as PersonNoteData[],
+            } as Person;
+        })
     }
 
-    update(
+    async update(
         auth: AuthInfo,
         personId: PersonId,
         updates: UpdatePersonRequest
-    ): Promise<PersonData | null> {
-        return updateDocument(auth, PersonModel, personId, updates);
+    ): Promise<Person | null> {
+        const person = await updateDocumentWithPopulate(auth, PersonModel, personId, updates);
+        if (!person) return null;
+        
+        const populatedPerson = await person.populate('noteIds');
+        const personObj = populatedPerson.toObject();
+        return {
+            ...personObj,
+            notes: personObj.noteIds as unknown as PersonNoteData[],
+        } as Person;
     }
 
     // update(personId: PersonId, updates: {
@@ -59,6 +82,14 @@ export default class PersonManager {
     //         { new: true }
     //     );
     // }
+
+    async addNoteId(personId: PersonId, noteId: PersonNoteId): Promise<boolean> {
+        const result = await PersonModel.updateOne(
+            { _id: personId },
+            { $addToSet: { noteIds: noteId } }
+        );
+        return result.modifiedCount > 0;
+    }
 
     delete(personId: PersonId): Promise<boolean> {
         return PersonModel.deleteOne({ _id: personId })

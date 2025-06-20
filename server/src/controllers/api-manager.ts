@@ -38,6 +38,10 @@ import {deleteHabitEndpoint} from "../api/endpoints/habits/delete-habit";
 import {createHabitEntryEndpoint} from "../api/endpoints/habits/create-habit-entry";
 import {deleteHabitEntryEndpoint} from "../api/endpoints/habits/delete-habit-entry";
 import { versionEndpoint } from "../api/endpoints/misc/version";
+import {createPersonNoteEndpoint} from "../api/endpoints/people/create-person-note";
+import {getPersonNotesEndpoint} from "../api/endpoints/people/get-person-notes";
+import {updatePersonNoteEndpoint} from "../api/endpoints/people/update-person-note";
+import {deletePersonNoteEndpoint} from "../api/endpoints/people/delete-person-note";
 
 export default class ApiManager {
     private static instance: ApiManager;
@@ -94,6 +98,11 @@ export default class ApiManager {
         this.addEndpoint(deleteHabitEndpoint);
         this.addEndpoint(createHabitEntryEndpoint);
         this.addEndpoint(deleteHabitEntryEndpoint);
+
+        this.addEndpoint(createPersonNoteEndpoint);
+        this.addEndpoint(getPersonNotesEndpoint);
+        this.addEndpoint(updatePersonNoteEndpoint);
+        this.addEndpoint(deletePersonNoteEndpoint);
 
         console.log(`registered ${this.endpoints.length} api endpoints`);
     }

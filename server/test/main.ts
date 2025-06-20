@@ -23,7 +23,7 @@ import {runCreatePeopleTest} from "./unit/api/person/create-people.test";
 import {runDeletePersonTest} from "./unit/api/person/delete-person.test";
 import {runUpdatePersonTest} from "./unit/api/person/update-person.test";
 import {runGetPeopleTest} from "./unit/api/person/get-people.test";
-import { ItemId, PersonId, ThoughtId, UserId } from "@timothyw/pat-common";
+import { ItemId, PersonId, PersonNoteId, ThoughtId, UserId } from "@timothyw/pat-common";
 import { TaskId, TaskListId } from "@timothyw/pat-common";
 import { runCreateTaskListsTest } from "./unit/api/tasks/create-task-lists.test";
 import { runCreateTasksTest } from "./unit/api/tasks/create-tasks.test";
@@ -41,6 +41,10 @@ import { runCreateHabitEntriesTest } from "./unit/api/habits/create-habit-entrie
 import { runDeleteHabitEntryTest } from "./unit/api/habits/delete-habit-entry.test";
 import { runDeleteHabitTest } from "./unit/api/habits/delete-habit.test";
 import { runVersionTest } from "./unit/api/misc/version.test";
+import { runCreatePersonNotesTest } from "./unit/api/person/create-person-notes.test";
+import { runGetPersonNotesTest } from "./unit/api/person/get-person-notes.test";
+import { runUpdatePersonNoteTest } from "./unit/api/person/update-person-note.test";
+import { runDeletePersonNoteTest } from "./unit/api/person/delete-person-note.test";
 
 config({ path: resolve(__dirname, '../../.env') });
 
@@ -55,6 +59,7 @@ export interface TestContext {
     itemIds: ItemId[];
     thoughtIds: ThoughtId[];
     personIds: PersonId[];
+    personNoteIds: PersonNoteId[];
     taskIds: TaskId[];
     taskListIds: TaskListId[];
     habitIds: string[];
@@ -100,6 +105,11 @@ const tests: Test[] = [
     { name: 'update person', run: runUpdatePersonTest },
     { name: 'get people', run: runGetPeopleTest },
 
+    { name: 'create person notes', run: runCreatePersonNotesTest },
+    { name: 'get person notes', run: runGetPersonNotesTest },
+    { name: 'update person note', run: runUpdatePersonNoteTest },
+    { name: 'delete person note', run: runDeletePersonNoteTest },
+
     { name: 'create task lists', run: runCreateTaskListsTest },
     { name: 'create tasks', run: runCreateTasksTest },
     { name: 'get task lists', run: runGetTaskListsTest },
@@ -128,6 +138,7 @@ async function runTests() {
         itemIds: [],
         thoughtIds: [],
         personIds: [],
+        personNoteIds: [],
         taskIds: [],
         taskListIds: [],
         habitIds: [],

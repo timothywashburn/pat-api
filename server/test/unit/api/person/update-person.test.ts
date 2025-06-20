@@ -15,15 +15,6 @@ export async function runUpdatePersonTest(context: TestContext) {
         properties: [
             { key: 'email', value: 'first@example.com' },
             { key: 'phone', value: '123-456-7890' }
-        ],
-        notes: [
-            { content: 'New test note' },
-            { content: 'Another new note' },
-            {
-                content: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. ' +
-                    'Curabitur sed gravida erat. Fusce a auctor magna. Vivamus eget ' +
-                    'diam et mauris pretium auctor. Mauris ac vestibulum erat. Maecenas ac metus enim.'
-            }
         ]
     };
 
@@ -44,5 +35,4 @@ export async function runUpdatePersonTest(context: TestContext) {
     if (!person) throw new Error('person not found in database');
     if (person.name !== updates.name) throw new Error('name not updated in database');
     if (person.properties.length !== updates.properties.length) throw new Error('properties not updated correctly');
-    if (person.notes.length !== updates.notes.length) throw new Error('notes not updated correctly');
 }

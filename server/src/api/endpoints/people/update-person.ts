@@ -23,12 +23,7 @@ export const updatePersonEndpoint: ApiEndpoint<UpdatePersonRequest, UpdatePerson
             res.json({
                 success: true,
                 data: {
-                    person: {
-                        id: person._id.toString(),
-                        name: person.name,
-                        properties: person.properties,
-                        notes: person.notes
-                    }
+                    person
                 }
             });
         } catch (error) {

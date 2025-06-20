@@ -10,10 +10,6 @@ export async function runCreatePeopleTest(context: TestContext) {
         name: 'Person to update (name and notes should change)',
         properties: [
             { key: 'email', value: 'old-email@example.com' }
-        ],
-        notes: [
-            { content: 'Old note 1' },
-            { content: 'Old note 2' }
         ]
     });
 
@@ -45,5 +41,5 @@ async function createPerson(context: TestContext, data: Record<string, any>) {
     );
 
     if (!response.data.success) throw new Error(`failed to create person: ${data.name}`);
-    context.personIds.push(response.data.data!.person.id as PersonId);
+    context.personIds.push(response.data.data!.person._id);
 }

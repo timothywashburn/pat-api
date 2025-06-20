@@ -3,8 +3,6 @@ import ItemManager from '../../../controllers/item-manager';
 import { z } from 'zod';
 import { ItemId, UpdateItemRequest, updateItemRequestSchema, UpdateItemResponse } from "@timothyw/pat-common";
 
-export type UpdateItemRequest2 = z.infer<typeof updateItemRequestSchema>;
-
 export const updateItemEndpoint: ApiEndpoint<UpdateItemRequest, UpdateItemResponse> = {
     path: '/api/items/:itemId',
     method: 'put',

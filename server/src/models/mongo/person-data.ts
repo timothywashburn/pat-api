@@ -26,7 +26,7 @@ const personSchema = new Schema<PersonData>({
         trim: true,
     },
     properties: [personPropertySchema],
-    notes: [{
+    noteIds: [{
         type: String,
         ref: 'PersonNote',
         default: []
