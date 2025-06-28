@@ -2,6 +2,18 @@ import {Schema, Document, model} from 'mongoose';
 import { ProgramConfigData } from "@timothyw/pat-common";
 
 const programConfigSchema = new Schema<ProgramConfigData>({
+    _requiredBuildVersions: {
+        iOS: {
+            type: Number,
+            required: true,
+            default: 1
+        },
+        android: {
+            type: Number,
+            required: true,
+            default: 1
+        }
+    },
     dev: {
         authorizedEmails: {
             type: [String],

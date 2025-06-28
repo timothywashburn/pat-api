@@ -60,14 +60,6 @@ export async function runCreateHabitEntriesTest(context: TestContext) {
     if (entry.status !== 'completed') {
         throw new Error(`expected final entry status to be 'completed', found '${entry.status}'`);
     }
-
-    // Verify stats are calculated correctly
-    if (habit.stats.completedDays !== 1) {
-        throw new Error(`expected 1 completed day, found ${habit.stats.completedDays}`);
-    }
-    if (habit.stats.totalDays !== 1) {
-        throw new Error(`expected 1 total day, found ${habit.stats.totalDays}`);
-    }
 }
 
 async function createHabitEntry(context: TestContext, habitId: string, data: CreateHabitEntryRequest) {

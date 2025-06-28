@@ -34,6 +34,15 @@ export async function runCreateItemsTest(context: TestContext) {
         type: 'Type 1',
     });
 
+    for (let i = 0; i < 15; i++) {
+        await createItem(context, {
+            name: `Spam ${i + 1}`,
+            notes: `Description for item ${i + 1}`,
+            category: `Category ${i % 3 + 1}`,
+            type: `Type ${i % 2 + 1}`
+        });
+    }
+
     await createItem(context, {
         name: 'To delete item',
         notes: 'This item should get deleted',
