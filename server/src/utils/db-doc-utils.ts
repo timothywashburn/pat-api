@@ -1,11 +1,11 @@
 import { Document, Model, UpdateQuery } from 'mongoose';
 import { AuthInfo } from "../api/types";
 
-export async function updateDocument<T>(
+export async function updateDocument<T, U extends object>(
     auth: AuthInfo,
     model: Model<T>,
     id: string,
-    updates: Partial<T>
+    updates: U
 ): Promise<T | null> {
     const set: Record<string, any> = {};
     const unset: Record<string, any> = {};

@@ -1,7 +1,13 @@
 import { ApiEndpoint } from '../../types';
 import ItemManager from '../../../controllers/item-manager';
 import { z } from 'zod';
-import { ItemId, UpdateItemRequest, updateItemRequestSchema, UpdateItemResponse } from "@timothyw/pat-common";
+import {
+    ItemId,
+    serializeItemData,
+    UpdateItemRequest,
+    updateItemRequestSchema,
+    UpdateItemResponse
+} from "@timothyw/pat-common";
 
 export const updateItemEndpoint: ApiEndpoint<UpdateItemRequest, UpdateItemResponse> = {
     path: '/api/items/:itemId',
@@ -11,6 +17,8 @@ export const updateItemEndpoint: ApiEndpoint<UpdateItemRequest, UpdateItemRespon
         try {
             const data = updateItemRequestSchema.parse(req.body);
             const itemId = req.params.itemId as ItemId;
+
+            console.log(data);
 
             const item = await ItemManager.getInstance().update(req.auth!, itemId, {
                 name: data.name,
@@ -32,16 +40,10 @@ export const updateItemEndpoint: ApiEndpoint<UpdateItemRequest, UpdateItemRespon
             res.json({
                 success: true,
                 data: {
-                    item: {
-                        id: item._id.toString(),
-                        name: item.name,
-                        dueDate: item.dueDate?.toISOString(),
-                        notes: item.notes ?? undefined,
-                        completed: item.completed,
-                        urgent: item.urgent,
-                        category: item.category ?? undefined,
-                        type: item.type ?? undefined
-                    }
+                    item: serializeItemData({
+                        ...item,
+                        _id: String(item._id) as ItemId
+                    })
                 }
             });
         } catch (error) {

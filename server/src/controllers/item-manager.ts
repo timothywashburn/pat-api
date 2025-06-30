@@ -1,5 +1,4 @@
-import {Types} from "mongoose";
-import { ItemData, ItemId, UpdateItemRequest, UserId } from "@timothyw/pat-common";
+import { CreateItemRequest, ItemData, ItemId, UpdateItemRequest, UserId } from "@timothyw/pat-common";
 import { ItemModel } from "../models/mongo/item-data";
 import { updateDocument } from "../utils/db-doc-utils";
 import { AuthInfo } from "../api/types";
@@ -9,14 +8,7 @@ export default class ItemManager {
 
     private constructor() {}
 
-    create(userId: UserId, data: {
-        name: string;
-        dueDate?: Date | null;
-        notes?: string;
-        urgent?: boolean;
-        category?: string | null;
-        type?: string | null;
-    }): Promise<ItemData> {
+    async create(userId: UserId, data: CreateItemRequest): Promise<ItemData> {
         const todo = new ItemModel({
             userId,
             ...data,
@@ -25,7 +17,8 @@ export default class ItemManager {
             category: data.category ?? null,
             type: data.type ?? null
         });
-        return todo.save();
+        const doc = await todo.save();
+        return doc.toJSON();
     }
 
     getById(itemId: ItemId): Promise<ItemData | null> {
@@ -56,7 +49,7 @@ export default class ItemManager {
         itemId: ItemId,
         updates: UpdateItemRequest
     ): Promise<ItemData | null> {
-        return updateDocument(auth, ItemModel, itemId, updates);
+        return updateDocument<ItemData, UpdateItemRequest>(auth, ItemModel, itemId, updates);
     }
 
     // update(
@@ -91,7 +84,7 @@ export default class ItemManager {
             itemId,
             {$set: {completed}},
             {new: true}
-        );
+        ).lean();
     }
 
     async clearItemCategory(userId: UserId, category: string): Promise<number> {

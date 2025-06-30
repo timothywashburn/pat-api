@@ -1,7 +1,13 @@
 import { ApiEndpoint } from '../../types';
 import ItemManager from '../../../controllers/item-manager';
 import { z } from 'zod';
-import { CreateItemRequest, createItemRequestSchema, CreateItemResponse, ItemId } from "@timothyw/pat-common";
+import {
+    CreateItemRequest,
+    createItemRequestSchema,
+    CreateItemResponse,
+    ItemId,
+    serializeItemData
+} from "@timothyw/pat-common";
 import NotificationManager from "../../../controllers/notification-manager";
 import { NotificationType } from "../../../models/notification-handler";
 
@@ -16,12 +22,20 @@ export const createItemEndpoint: ApiEndpoint<CreateItemRequest, CreateItemRespon
 
             const item = await ItemManager.getInstance().create(userId, {
                 name: data.name,
-                dueDate: data.dueDate ? new Date(data.dueDate) : null,
+                dueDate: data.dueDate,
                 notes: data.notes,
                 urgent: data.urgent,
                 category: data.category ?? null,
                 type: data.type ?? null
             });
+
+            if (!item) {
+                res.status(500).json({
+                    success: false,
+                    error: 'Failed to create item'
+                });
+                return;
+            }
 
             // TODO: figure out a better way to handle objectids as itemids
             await NotificationManager.getHandler(NotificationType.ITEM_DEADLINE).schedule(userId, {
@@ -32,16 +46,12 @@ export const createItemEndpoint: ApiEndpoint<CreateItemRequest, CreateItemRespon
             res.json({
                 success: true,
                 data: {
-                    item: {
-                        id: item._id.toString(),
-                        name: item.name,
-                        dueDate: item.dueDate?.toISOString(),
-                        notes: item.notes ?? undefined,
-                        completed: item.completed,
-                        urgent: item.urgent,
-                        category: item.category ?? undefined,
-                        type: item.type ?? undefined
-                    }
+                    // TODO: continuing on with that previous todo this is so unbelievably messed up you have literally no idea you need to do this
+                    // TODO: this is one of many instances of this happening
+                    item: serializeItemData({
+                        ...item,
+                        _id: String(item._id) as ItemId
+                    })
                 }
             });
         } catch (error) {

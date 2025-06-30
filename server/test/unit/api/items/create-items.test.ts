@@ -38,6 +38,7 @@ export async function runCreateItemsTest(context: TestContext) {
         await createItem(context, {
             name: `Spam ${i + 1}`,
             notes: `Description for item ${i + 1}`,
+            dueDate: new Date(Date.now() + (i + 100) * 24 * 60 * 60 * 1000),
             category: `Category ${i % 3 + 1}`,
             type: `Type ${i % 2 + 1}`
         });
@@ -71,5 +72,5 @@ async function createItem(context: TestContext, data: Record<string, any>) {
     );
 
     if (!response.data.success) throw new Error(`failed to create item: ${data.name}`);
-    context.itemIds.push(response.data.data!.item.id as ItemId);
+    context.itemIds.push(response.data.data!.item._id as ItemId);
 }

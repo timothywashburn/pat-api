@@ -1,6 +1,6 @@
 import { ApiEndpoint } from '../../types';
 import ItemManager from '../../../controllers/item-manager';
-import { GetItemsResponse } from "@timothyw/pat-common";
+import { GetItemsResponse, ItemId, serializeItemData } from "@timothyw/pat-common";
 
 export const getItemsEndpoint: ApiEndpoint<undefined, GetItemsResponse> = {
     path: '/api/items',
@@ -13,7 +13,10 @@ export const getItemsEndpoint: ApiEndpoint<undefined, GetItemsResponse> = {
             res.json({
                 success: true,
                 data: {
-                    items: items
+                    items: items.map(item => serializeItemData({
+                        ...item,
+                        _id: String(item._id) as ItemId
+                    }))
                 }
             });
         } catch (error) {
