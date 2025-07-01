@@ -22,7 +22,7 @@ export async function runCreatePeopleTest(context: TestContext) {
     });
 
     const people = await PersonModel.find({
-        userId: new Types.ObjectId(context.userId)
+        userId: context.userId
     });
 
     if (people.length !== context.personIds.length)

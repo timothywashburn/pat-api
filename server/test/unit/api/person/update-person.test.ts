@@ -31,7 +31,7 @@ export async function runUpdatePersonTest(context: TestContext) {
     if (!updateResponse.data.success) throw new Error('failed to update person');
     if (updateResponse.data.data!.person.name !== updates.name) throw new Error('name not updated in response');
 
-    const person = await PersonModel.findById(new Types.ObjectId(context.personIds[0]));
+    const person = await PersonModel.findById(context.personIds[0]);
     if (!person) throw new Error('person not found in database');
     if (person.name !== updates.name) throw new Error('name not updated in database');
     if (person.properties.length !== updates.properties.length) throw new Error('properties not updated correctly');

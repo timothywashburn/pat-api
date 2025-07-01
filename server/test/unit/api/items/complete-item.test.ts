@@ -40,7 +40,7 @@ export async function runCompleteItemTest(context: TestContext) {
     if (!uncompleteResponse.data.success) throw new Error('failed to uncomplete item');
     if (uncompleteResponse.data.data!.item.completed) throw new Error('item not marked as uncompleted');
 
-    const updatedItem = await ItemModel.findById(new Types.ObjectId(context.itemIds[1]));
+    const updatedItem = await ItemModel.findById(context.itemIds[1]);
     if (!updatedItem) throw new Error('item not found in database');
     if (updatedItem.completed) throw new Error('item not marked as uncompleted in database');
 }

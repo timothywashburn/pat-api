@@ -11,7 +11,7 @@ export async function runCreatePersonNotesTest(context: TestContext) {
     await createPersonNote(context, { content: 'Person note to delete' });
 
     const personNotes = await PersonNoteModel.find({
-        userId: new Types.ObjectId(context.userId)
+        userId: context.userId
     });
 
     if (personNotes.length !== context.personNoteIds.length)

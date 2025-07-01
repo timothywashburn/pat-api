@@ -1,7 +1,13 @@
 import { Schema, model } from 'mongoose';
 import { HabitEntryData, HabitEntryStatus } from "@timothyw/pat-common/dist/types/models/habit-data";
+import { v4 as uuidv4 } from 'uuid';
 
 const habitEntrySchema = new Schema<HabitEntryData>({
+    _id: {
+        type: String,
+        required: true,
+        default: uuidv4
+    },
     habitId: {
         type: String,
         required: true,

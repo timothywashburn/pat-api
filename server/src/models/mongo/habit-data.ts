@@ -1,7 +1,13 @@
 import { Schema, model } from 'mongoose';
 import { HabitData, HabitFrequency } from "@timothyw/pat-common/dist/types/models/habit-data";
+import { v4 as uuidv4 } from 'uuid';
 
 const habitSchema = new Schema<HabitData>({
+    _id: {
+        type: String,
+        required: true,
+        default: uuidv4
+    },
     userId: {
         type: String,
         required: true,

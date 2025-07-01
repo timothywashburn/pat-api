@@ -2,6 +2,7 @@
 node_modules/
 build/
 app/
+ignore-*
 .env
 .DS_Store
 **/.claude/settings.local.json

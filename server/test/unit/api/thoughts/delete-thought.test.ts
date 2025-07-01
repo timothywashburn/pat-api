@@ -25,7 +25,7 @@ export async function runDeleteThoughtTest(context: TestContext) {
 
     for (let i = 0; i < context.thoughtIds.length; i++) {
         const thought = await ThoughtModel.findOne({
-            _id: new Types.ObjectId(context.thoughtIds[i]),
+            _id: context.thoughtIds[i],
             userId: context.userId
         });
 

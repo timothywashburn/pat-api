@@ -25,7 +25,7 @@ export async function runDeletePersonTest(context: TestContext) {
 
     for (let i = 0; i < context.personIds.length; i++) {
         const person = await PersonModel.findOne({
-            _id: new Types.ObjectId(context.personIds[i]),
+            _id: context.personIds[i],
             userId: context.userId
         });
 

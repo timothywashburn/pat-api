@@ -1,7 +1,13 @@
 import { Schema, model, Types } from 'mongoose';
 import { ItemData } from "@timothyw/pat-common";
+import { v4 as uuidv4 } from 'uuid';
 
 const itemSchema = new Schema<ItemData>({
+    _id: {
+        type: String,
+        required: true,
+        default: uuidv4
+    },
     userId: {
         type: String,
         required: true,

@@ -25,7 +25,7 @@ export async function runDeleteItemTest(context: TestContext) {
 
     for (let i = 0; i < context.itemIds.length; i++) {
         const item = await ItemModel.findOne({
-            _id: new Types.ObjectId(context.itemIds[i]),
+            _id: context.itemIds[i],
             userId: context.userId
         });
 

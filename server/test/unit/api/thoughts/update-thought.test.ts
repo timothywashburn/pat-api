@@ -27,7 +27,7 @@ export async function runUpdateThoughtTest(context: TestContext) {
     if (!updateResponse.data.success) throw new Error('failed to update thought');
     if (updateResponse.data.data!.thought.content !== updates.content) throw new Error('content not updated');
 
-    const thought = await ThoughtModel.findById(new Types.ObjectId(context.thoughtIds[0]));
+    const thought = await ThoughtModel.findById(context.thoughtIds[0]);
     if (!thought) throw new Error('thought not found in database');
     if (thought.content !== updates.content) throw new Error('content not updated in database');
 }

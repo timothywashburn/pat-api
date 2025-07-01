@@ -11,7 +11,7 @@ export async function runCreateThoughtsTest(context: TestContext) {
     await createThought(context, { content: 'Thought to delete' });
 
     const thoughts = await ThoughtModel.find({
-        userId: new Types.ObjectId(context.userId)
+        userId: context.userId
     });
 
     if (thoughts.length !== context.thoughtIds.length)

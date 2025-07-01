@@ -1,7 +1,6 @@
 import axios from 'axios';
 import { TestContext } from '../../../main';
 import { AuthDataModel } from '../../../../src/models/mongo/auth-data';
-import { Types } from 'mongoose';
 import {sign} from "jsonwebtoken";
 
 export async function runVerifyEmailTest(context: TestContext) {
@@ -10,14 +9,14 @@ export async function runVerifyEmailTest(context: TestContext) {
     }
 
     const authData = await AuthDataModel.findOne({
-        userId: new Types.ObjectId(context.userId)
+        userId: context.userId
     });
 
     if (!authData) throw new Error('auth data not found');
 
     const tokenPayload = {
-        authId: authData._id.toString(),
-        userId: authData.userId.toString()
+        authId: authData._id,
+        userId: authData.userId
     };
 
     const verificationToken = sign(tokenPayload, 'secret', { expiresIn: '48h' });

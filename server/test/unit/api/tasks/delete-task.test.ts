@@ -31,7 +31,7 @@ export async function runDeleteTaskTest(context: TestContext) {
 
     for (let i = 0; i < context.taskIds.length; i++) {
         const task = await TaskModel.findOne({
-            _id: new Types.ObjectId(context.taskIds[i]),
+            _id: context.taskIds[i],
             userId: context.userId
         });
 

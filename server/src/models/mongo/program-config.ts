@@ -1,7 +1,13 @@
 import {Schema, Document, model} from 'mongoose';
 import { ProgramConfigData } from "@timothyw/pat-common";
+import { v4 as uuidv4 } from 'uuid';
 
-const programConfigSchema = new Schema<ProgramConfigData>({
+const programConfigSchema = new Schema({
+    _id: {
+        type: String,
+        required: true,
+        default: uuidv4
+    },
     _requiredBuildVersions: {
         iOS: {
             type: Number,
@@ -30,12 +36,12 @@ const programConfigSchema = new Schema<ProgramConfigData>({
         clientId: {
             type: String,
             required: true,
-            default: 'discord_client_id'
+            default: 'discord_clientid'
         },
         guildId: {
             type: String,
             required: true,
-            default: 'discord_guild_id'
+            default: 'discord_guildid'
         },
         logChannelId: {
             type: String,
