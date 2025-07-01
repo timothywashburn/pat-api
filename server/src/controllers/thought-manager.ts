@@ -1,17 +1,12 @@
-import { Types } from "mongoose";
 import { ThoughtModel } from "../models/mongo/thought-data";
 import {
-    ItemData,
-    ItemId,
     ThoughtData,
     ThoughtId,
-    UpdateItemRequest,
     UpdateThoughtRequest,
     UserId
 } from "@timothyw/pat-common";
 import { AuthInfo } from "../api/types";
 import { updateDocument } from "../utils/db-doc-utils";
-import { ItemModel } from "../models/mongo/item-data";
 
 export default class ThoughtManager {
     private static instance: ThoughtManager;
@@ -29,7 +24,7 @@ export default class ThoughtManager {
     }
 
     getAllByUser(userId: UserId): Promise<ThoughtData[]> {
-        return ThoughtModel.find({ userId });
+        return ThoughtModel.find({ userId }).lean();
     }
 
     update(

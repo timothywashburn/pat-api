@@ -1,9 +1,6 @@
 import {
-    ItemData,
-    ItemId,
     TaskListData,
     TaskListId,
-    UpdateItemRequest,
     UpdateTaskListRequest,
     UserId
 } from "@timothyw/pat-common";
@@ -11,7 +8,6 @@ import { TaskListModel } from "../models/mongo/task-list-data";
 import TaskManager from "./task-manager";
 import { AuthInfo } from "../api/types";
 import { updateDocument } from "../utils/db-doc-utils";
-import { ItemModel } from "../models/mongo/item-data";
 
 export default class TaskListManager {
     private static instance: TaskListManager;
@@ -29,11 +25,11 @@ export default class TaskListManager {
     }
 
     getById(taskListId: TaskListId): Promise<TaskListData | null> {
-        return TaskListModel.findById(taskListId);
+        return TaskListModel.findById(taskListId).lean();
     }
 
     getAllByUser(userId: UserId): Promise<TaskListData[]> {
-        return TaskListModel.find({ userId }).sort({ createdAt: -1 });
+        return TaskListModel.find({ userId }).sort({ createdAt: -1 }).lean();
     }
 
     update(

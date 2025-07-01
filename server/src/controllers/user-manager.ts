@@ -31,7 +31,7 @@ export default class UserManager {
     }
 
     async getById(userId: UserId): Promise<UserData | null> {
-        return UserConfigModel.findById(userId);
+        return UserConfigModel.findById(userId).lean();
     }
 
     async update(userId: UserId, updates: UpdateUserRequest): Promise<UserData | null> {
@@ -56,7 +56,7 @@ export default class UserManager {
             userId,
             updateOperation,
             { new: true }
-        );
+        ).lean();
     }
 
     async delete(userId: UserId): Promise<boolean> {
@@ -65,7 +65,7 @@ export default class UserManager {
     }
 
     async getAllWithNotifications(): Promise<UserData[]> {
-        return UserConfigModel.find({ "sandbox.devices.0": { $exists: true } });
+        return UserConfigModel.find({ "sandbox.devices.0": { $exists: true } }).lean();
     }
 
     static getInstance(): UserManager {

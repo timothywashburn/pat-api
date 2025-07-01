@@ -22,18 +22,18 @@ export default class ItemManager {
     }
 
     getById(itemId: ItemId): Promise<ItemData | null> {
-        return ItemModel.findById(itemId);
+        return ItemModel.findById(itemId).lean();
     }
 
     getAllByUser(userId: UserId): Promise<ItemData[]> {
-        return ItemModel.find({ userId });
+        return ItemModel.find({ userId }).lean();
     }
 
     getPending(userId: UserId): Promise<ItemData[]> {
         return ItemModel.find({
             userId,
             completed: false
-        }).sort({ dueDate: 1 });
+        }).sort({ dueDate: 1 }).lean();
     }
 
     getOverdue(userId: UserId): Promise<ItemData[]> {
@@ -41,7 +41,7 @@ export default class ItemManager {
             userId,
             completed: false,
             dueDate: { $lt: new Date() }
-        }).sort({ dueDate: 1 });
+        }).sort({ dueDate: 1 }).lean();
     }
 
     update(

@@ -29,8 +29,8 @@ export default class PersonNoteManager {
         return savedNote;
     }
 
-    getAllByUser(userId: UserId): Promise<(PersonNoteData & { userId: string })[]> {
-        return PersonNoteModel.find({ userId });
+    getAllByUser(userId: UserId): Promise<(PersonNoteData)[]> {
+        return PersonNoteModel.find({ userId }).lean();
     }
 
     update(

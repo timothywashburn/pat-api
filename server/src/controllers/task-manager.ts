@@ -23,29 +23,29 @@ export default class TaskManager {
     }
 
     getById(taskId: TaskId): Promise<TaskData | null> {
-        return TaskModel.findById(taskId);
+        return TaskModel.findById(taskId).lean();
     }
 
     getAllByUser(userId: UserId): Promise<TaskData[]> {
-        return TaskModel.find({ userId });
+        return TaskModel.find({ userId }).lean();
     }
 
     getByTaskList(userId: UserId, taskListId: TaskListId): Promise<TaskData[]> {
-        return TaskModel.find({ userId, taskListId });
+        return TaskModel.find({ userId, taskListId }).lean();
     }
 
     getPending(userId: UserId): Promise<TaskData[]> {
         return TaskModel.find({
             userId,
             completed: false
-        }).sort({ createdAt: -1 });
+        }).sort({ createdAt: -1 }).lean();
     }
 
     getCompleted(userId: UserId): Promise<TaskData[]> {
         return TaskModel.find({
             userId,
             completed: true
-        }).sort({ updatedAt: -1 });
+        }).sort({ updatedAt: -1 }).lean();
     }
 
     update(

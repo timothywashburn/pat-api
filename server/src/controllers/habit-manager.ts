@@ -6,17 +6,12 @@ import {
     HabitData,
     HabitId,
     HabitStats,
-    ItemData,
-    ItemId,
-    toDateString,
-    toHabit, UpdateHabitRequest, UpdateItemRequest, UpdateItemResponse,
-    UserId
+    toHabit, UpdateHabitRequest, UserId
 } from "@timothyw/pat-common";
 import { HabitEntryData } from "@timothyw/pat-common/dist/types/models/habit-data";
 import DateUtils from "../utils/date-utils";
 import UserManager from "./user-manager";
 import { isBefore } from "date-fns";
-import { ItemModel } from "../models/mongo/item-data";
 import { AuthInfo } from "../api/types";
 import { updateDocument } from "../utils/db-doc-utils";
 

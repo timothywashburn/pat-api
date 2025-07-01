@@ -1,21 +1,13 @@
-import { Types } from "mongoose";
 import {
-    ItemData,
-    ItemId, Person,
-    PersonData,
+    Person,
     PersonId, PersonNoteData, PersonNoteId,
     PersonProperty,
-    UpdateItemRequest, UpdatePersonRequest, UpdatePersonResponse,
+    UpdatePersonRequest,
     UserId
 } from "@timothyw/pat-common";
 import { PersonModel } from "../models/mongo/person-data";
 import { AuthInfo } from "../api/types";
-import { updateDocument, updateDocumentWithPopulate } from "../utils/db-doc-utils";
-import { ItemModel } from "../models/mongo/item-data";
-
-interface CreateNoteInput {
-    content: string;
-}
+import { updateDocumentWithPopulate } from "../utils/db-doc-utils";
 
 export default class PersonManager {
     private static instance: PersonManager;
