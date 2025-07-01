@@ -8,7 +8,7 @@ import {
     HabitStats,
     toHabit, UpdateHabitRequest, UserId
 } from "@timothyw/pat-common";
-import { HabitEntryData } from "@timothyw/pat-common/dist/types/models/habit-data";
+import { HabitEntryData, HabitEntryStatus } from "@timothyw/pat-common/dist/types/models/habit-data";
 import DateUtils from "../utils/date-utils";
 import UserManager from "./user-manager";
 import { isBefore } from "date-fns";
@@ -118,7 +118,7 @@ export default class HabitManager {
     private async calculateStats(habit: HabitData, entries: HabitEntryData[]): Promise<HabitStats> {
         const now = new Date();
 
-        const user = await UserManager.getInstance().getById(habit.userId as UserId); // todo: fix
+        const user = await UserManager.getInstance().getById(habit.userId);
         const timezone = user?.timezone || 'America/Los_Angeles';
         const hours = Number(habit.rolloverTime.split(':')[0]);
         const minutes = Number(habit.rolloverTime.split(':')[1]);
@@ -133,10 +133,11 @@ export default class HabitManager {
         const todayEntry = entries.find(e => e.date === currentDateOnlyString);
         if (!todayEntry) totalDays--;
 
-        const completedDays = entries.filter(e => e.status === 'completed').length;
-        const excusedDays = entries.filter(e => e.status === 'excused').length;
+        const completedDays = entries.filter(e => e.status === HabitEntryStatus.COMPLETED).length;
+        const excusedDays = entries.filter(e => e.status === HabitEntryStatus.EXCUSED).length;
+        const explicitMissedDays = entries.filter(e => e.status === HabitEntryStatus.MISSED).length;
 
-        const missedDays = totalDays - completedDays - excusedDays;
+        const missedDays = totalDays - completedDays - excusedDays + explicitMissedDays;
         const completionRate = totalDays == 0 ? -1 : ((completedDays + excusedDays) / totalDays) * 100;
 
         return {
