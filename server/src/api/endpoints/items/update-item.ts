@@ -18,15 +18,13 @@ export const updateItemEndpoint: ApiEndpoint<UpdateItemRequest, UpdateItemRespon
             const data = updateItemRequestSchema.parse(req.body);
             const itemId = req.params.itemId as ItemId;
 
-            console.log(data);
-
             const item = await ItemManager.getInstance().update(req.auth!, itemId, {
                 name: data.name,
-                dueDate: data.dueDate ? new Date(data.dueDate) : null,
+                dueDate: data.dueDate,
                 notes: data.notes,
                 urgent: data.urgent,
-                category: data.category ?? null,
-                type: data.type ?? null
+                category: data.category,
+                type: data.type
             });
 
             if (!item) {
@@ -36,6 +34,12 @@ export const updateItemEndpoint: ApiEndpoint<UpdateItemRequest, UpdateItemRespon
                 });
                 return;
             }
+
+            let serialized = serializeItemData({
+                ...item,
+                _id: String(item._id) as ItemId
+            });
+            console.log('Serialized item:', serialized);
 
             res.json({
                 success: true,

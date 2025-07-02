@@ -25,8 +25,8 @@ export const createItemEndpoint: ApiEndpoint<CreateItemRequest, CreateItemRespon
                 dueDate: data.dueDate,
                 notes: data.notes,
                 urgent: data.urgent,
-                category: data.category ?? null,
-                type: data.type ?? null
+                category: data.category,
+                type: data.type
             });
 
             if (!item) {
