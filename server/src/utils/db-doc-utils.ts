@@ -1,6 +1,22 @@
 import { Document, Model, UpdateQuery } from 'mongoose';
 import { AuthInfo } from "../api/types";
 
+function flattenObject(obj: any, prefix = ''): Record<string, any> {
+    const flattened: Record<string, any> = {};
+
+    Object.entries(obj).forEach(([key, value]) => {
+        const keyPath = prefix ? `${prefix}.${key}` : key;
+
+        if (value && typeof value === 'object' && !Array.isArray(value)) {
+            Object.assign(flattened, flattenObject(value, keyPath));
+        } else if (value !== undefined) {
+            flattened[keyPath] = value;
+        }
+    });
+
+    return flattened;
+}
+
 export async function updateDocument<T, U extends object>(
     auth: AuthInfo,
     model: Model<T>,
@@ -10,9 +26,9 @@ export async function updateDocument<T, U extends object>(
     const set: Record<string, any> = {};
     const unset: Record<string, any> = {};
 
-    console.log("Updating document with ID:", id);
+    const flatUpdates = flattenObject(updates);
 
-    Object.entries(updates).forEach(([key, value]) => {
+    Object.entries(flatUpdates).forEach(([key, value]) => {
         if (value === null) {
             unset[key] = "";
         } else {
@@ -24,8 +40,6 @@ export async function updateDocument<T, U extends object>(
     if (Object.keys(set).length > 0) updateOperation.$set = set;
     if (Object.keys(unset).length > 0) updateOperation.$unset = unset;
 
-    console.log(`pretty stringify updateOperation: ${JSON.stringify(updateOperation, null, 2)}`);
-
     return model.findOneAndUpdate(
         {
             _id: id,
@@ -34,8 +48,6 @@ export async function updateDocument<T, U extends object>(
         updateOperation,
         { new: true }
     ).lean() as T;
-
-    console.log("Document updated successfully");
 }
 
 export async function updateDocumentWithPopulate<T>(
@@ -47,7 +59,9 @@ export async function updateDocumentWithPopulate<T>(
     const set: Record<string, any> = {};
     const unset: Record<string, any> = {};
 
-    Object.entries(updates).forEach(([key, value]) => {
+    const flatUpdates = flattenObject(updates);
+
+    Object.entries(flatUpdates).forEach(([key, value]) => {
         if (value === null) {
             unset[key] = "";
         } else {

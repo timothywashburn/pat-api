@@ -13,8 +13,6 @@ export const updateUserEndpoint: ApiEndpoint<UpdateUserRequest, UpdateUserRespon
             const data: UpdateUserRequest = updateUserRequestSchema.parse(req.body);
             const userId = req.auth!.userId!;
 
-            console.log('[config] updating user config for userId:', userId);
-
             const currentUser = await UserManager.getInstance().getById(userId);
             if (!currentUser) {
                 res.status(404).json({
@@ -23,8 +21,6 @@ export const updateUserEndpoint: ApiEndpoint<UpdateUserRequest, UpdateUserRespon
                 });
                 return;
             }
-
-            console.log('[config] current user config:', currentUser.config);
 
             if (data.config?.agenda?.itemCategories !== undefined) {
                 const removedCategories = (currentUser.config.agenda.itemCategories || [])
@@ -50,8 +46,6 @@ export const updateUserEndpoint: ApiEndpoint<UpdateUserRequest, UpdateUserRespon
                 }
             }
 
-            console.log('[config] applying new config:', data.config);
-
             const updatedUser = await UserManager.getInstance().update(req.auth!, userId, data);
             if (!updatedUser) {
                 res.status(404).json({
@@ -61,8 +55,6 @@ export const updateUserEndpoint: ApiEndpoint<UpdateUserRequest, UpdateUserRespon
                 return;
             }
 
-            console.log('[config] updated user config:', updatedUser.config);
-
             res.json({
                 success: true,
                 data: {
@@ -70,7 +62,6 @@ export const updateUserEndpoint: ApiEndpoint<UpdateUserRequest, UpdateUserRespon
                 }
             });
         } catch (error) {
-            console.error('[config] error updating user config:', error);
             let message = 'Failed to update user configuration';
 
             if (error instanceof z.ZodError) {
