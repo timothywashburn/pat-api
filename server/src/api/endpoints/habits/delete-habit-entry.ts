@@ -1,7 +1,7 @@
 import { ApiEndpoint } from '../../types';
 import HabitManager from '../../../controllers/habit-manager';
 import HabitEntryManager from '../../../controllers/habit-entry-manager';
-import { DateOnlyString, DeleteHabitEntryResponse } from "@timothyw/pat-common";
+import { DateOnlyString, DeleteHabitEntryResponse, Serializer } from "@timothyw/pat-common";
 
 export const deleteHabitEntryEndpoint: ApiEndpoint<undefined, DeleteHabitEntryResponse> = {
     path: '/api/habits/:habitId/entries/:dateString',
@@ -52,7 +52,7 @@ export const deleteHabitEntryEndpoint: ApiEndpoint<undefined, DeleteHabitEntryRe
             res.json({
                 success: true,
                 data: {
-                    habit: habitWithEntries
+                    habit: Serializer.serializeHabit(habitWithEntries)
                 }
             });
         } catch (error) {

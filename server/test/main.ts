@@ -23,7 +23,7 @@ import {runCreatePeopleTest} from "./unit/api/person/create-people.test";
 import {runDeletePersonTest} from "./unit/api/person/delete-person.test";
 import {runUpdatePersonTest} from "./unit/api/person/update-person.test";
 import {runGetPeopleTest} from "./unit/api/person/get-people.test";
-import { ItemId, PersonId, PersonNoteId, ThoughtId, UserId } from "@timothyw/pat-common";
+import { HabitId, ItemId, PersonId, PersonNoteId, ThoughtId, UserId } from "@timothyw/pat-common";
 import { TaskId, TaskListId } from "@timothyw/pat-common";
 import { runCreateTaskListsTest } from "./unit/api/tasks/create-task-lists.test";
 import { runCreateTasksTest } from "./unit/api/tasks/create-tasks.test";
@@ -62,7 +62,7 @@ export interface TestContext {
     personNoteIds: PersonNoteId[];
     taskIds: TaskId[];
     taskListIds: TaskListId[];
-    habitIds: string[];
+    habitIds: HabitId[];
     account: {
         name: string;
         email: string;

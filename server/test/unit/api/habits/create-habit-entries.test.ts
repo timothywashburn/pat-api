@@ -5,7 +5,7 @@ import {
     CreateHabitEntryRequest,
     CreateHabitEntryResponse,
     GetHabitsResponse,
-    Habit,
+    Habit, Serializer,
     toDateString
 } from "@timothyw/pat-common";
 import { HabitEntryStatus } from "@timothyw/pat-common/dist/types/models/habit-data";
@@ -18,7 +18,7 @@ export async function runCreateHabitEntriesTest(context: TestContext) {
     }
 
     const today = new Date();
-    
+
     // Only create entries for today since we just created the habit
     // Create completed entry for today
     await createHabitEntry(context, context.habitIds[0], {
@@ -48,9 +48,10 @@ export async function runCreateHabitEntriesTest(context: TestContext) {
         }
     );
 
-    const habit = response.data.data!.habits.find((h: Habit) => h._id === context.habitIds[0]);
+    const habits = response.data.data!.habits.map(h => Serializer.deserializeHabit(h));
+    const habit = habits.find((h: Habit) => h._id === context.habitIds[0]);
     if (!habit) throw new Error('habit not found');
-    
+
     if (habit.entries.length !== 1) {
         throw new Error(`expected 1 entry, found ${habit.entries.length}`);
     }

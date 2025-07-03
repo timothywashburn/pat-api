@@ -4,9 +4,7 @@ import { z } from 'zod';
 import {
     CreateItemRequest,
     createItemRequestSchema,
-    CreateItemResponse,
-    ItemId,
-    serializeItemData
+    CreateItemResponse, ItemId, Serializer
 } from "@timothyw/pat-common";
 import NotificationManager from "../../../controllers/notification-manager";
 import { NotificationType } from "../../../models/notification-handler";
@@ -39,19 +37,14 @@ export const createItemEndpoint: ApiEndpoint<CreateItemRequest, CreateItemRespon
 
             // TODO: figure out a better way to handle objectids as itemids
             await NotificationManager.getHandler(NotificationType.ITEM_DEADLINE).schedule(userId, {
-                itemId: String(item._id) as ItemId,
+                itemId: item._id,
                 notificationNumber: 1
             });
 
             res.json({
                 success: true,
                 data: {
-                    // TODO: continuing on with that previous todo this is so unbelievably messed up you have literally no idea you need to do this
-                    // TODO: this is one of many instances of this happening
-                    item: serializeItemData({
-                        ...item,
-                        _id: String(item._id) as ItemId
-                    })
+                    item: Serializer.serializeItemData(item)
                 }
             });
         } catch (error) {

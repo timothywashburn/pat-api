@@ -1,7 +1,12 @@
 import { ApiEndpoint } from '../../types';
 import ThoughtManager from '../../../controllers/thought-manager';
 import { z } from 'zod';
-import { CreateThoughtRequest, createThoughtRequestSchema, CreateThoughtResponse } from "@timothyw/pat-common";
+import {
+    CreateThoughtRequest,
+    createThoughtRequestSchema,
+    CreateThoughtResponse,
+    Serializer
+} from "@timothyw/pat-common";
 
 export const createThoughtEndpoint: ApiEndpoint<CreateThoughtRequest, CreateThoughtResponse> = {
     path: '/api/thoughts',
@@ -19,10 +24,7 @@ export const createThoughtEndpoint: ApiEndpoint<CreateThoughtRequest, CreateThou
             res.json({
                 success: true,
                 data: {
-                    thought: {
-                        id: thought._id.toString(),
-                        content: thought.content
-                    }
+                    thought: Serializer.serializeThoughtData(thought)
                 }
             });
         } catch (error) {

@@ -1,5 +1,15 @@
 import {UserConfigModel} from "../models/mongo/user-config";
-import { UpdateUserRequest, UserData, UserId } from "@timothyw/pat-common";
+import {
+    ThoughtData,
+    ThoughtId,
+    UpdateThoughtRequest,
+    UpdateUserRequest,
+    UserData,
+    UserId
+} from "@timothyw/pat-common";
+import { AuthInfo } from "../api/types";
+import { updateDocument } from "../utils/db-doc-utils";
+import { ThoughtModel } from "../models/mongo/thought-data";
 
 export default class UserManager {
     private static instance: UserManager;
@@ -27,37 +37,46 @@ export default class UserManager {
             name,
             discordID
         });
-        return userConfig.save();
+        const doc = await userConfig.save();
+        return doc.toObject();
     }
 
     async getById(userId: UserId): Promise<UserData | null> {
         return UserConfigModel.findById(userId).lean();
     }
 
-    async update(userId: UserId, updates: UpdateUserRequest): Promise<UserData | null> {
-        const set: Record<string, any> = {};
-        const unset: Record<string, any> = {};
-
-        const flatUpdates = UserManager.flattenObject(updates);
-
-        Object.entries(flatUpdates).forEach(([key, value]) => {
-            if (value === null) {
-                unset[key] = "";
-            } else {
-                set[key] = value;
-            }
-        });
-
-        const updateOperation: Record<string, any> = {};
-        if (Object.keys(set).length > 0) updateOperation.$set = set;
-        if (Object.keys(unset).length > 0) updateOperation.$unset = unset;
-
-        return UserConfigModel.findByIdAndUpdate(
-            userId,
-            updateOperation,
-            { new: true }
-        ).lean();
+    update(
+        auth: AuthInfo,
+        userId: UserId,
+        updates: UpdateUserRequest
+    ): Promise<UserData | null> {
+        return updateDocument(auth, UserConfigModel, userId, updates);
     }
+
+    // async update(userId: UserId, updates: UpdateUserRequest): Promise<UserData | null> {
+    //     const set: Record<string, any> = {};
+    //     const unset: Record<string, any> = {};
+    //
+    //     const flatUpdates = UserManager.flattenObject(updates);
+    //
+    //     Object.entries(flatUpdates).forEach(([key, value]) => {
+    //         if (value === null) {
+    //             unset[key] = "";
+    //         } else {
+    //             set[key] = value;
+    //         }
+    //     });
+    //
+    //     const updateOperation: Record<string, any> = {};
+    //     if (Object.keys(set).length > 0) updateOperation.$set = set;
+    //     if (Object.keys(unset).length > 0) updateOperation.$unset = unset;
+    //
+    //     return UserConfigModel.findByIdAndUpdate(
+    //         userId,
+    //         updateOperation,
+    //         { new: true }
+    //     ).lean();
+    // }
 
     async delete(userId: UserId): Promise<boolean> {
         return UserConfigModel.deleteOne({ _id: userId })

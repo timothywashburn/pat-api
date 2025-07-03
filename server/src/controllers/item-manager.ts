@@ -18,7 +18,7 @@ export default class ItemManager {
             type: data.type ?? null
         });
         const doc = await todo.save();
-        return doc.toJSON();
+        return doc.toObject();
     }
 
     getById(itemId: ItemId): Promise<ItemData | null> {

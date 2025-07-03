@@ -1,6 +1,6 @@
 import { ApiEndpoint } from '../../types';
 import UserManager from '../../../controllers/user-manager';
-import { GetUserResponse, Module, ModuleType } from "@timothyw/pat-common";
+import { GetUserResponse, Module, ModuleType, Serializer } from "@timothyw/pat-common";
 
 const isValidModule = (module: Module | null | undefined): module is Module => {
     return module != null && Object.values(ModuleType).includes(module.type);
@@ -60,7 +60,9 @@ export const getUserEndpoint: ApiEndpoint<undefined, GetUserResponse> = {
 
             res.json({
                 success: true,
-                data: { user }
+                data: {
+                    user: Serializer.serializeUserData(user)
+                }
             });
         } catch (error) {
             console.error('[config] error in getUserConfig:', error);

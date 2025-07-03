@@ -1,7 +1,7 @@
 import axios from 'axios';
 import { TestContext } from '../../../main';
 import { ApiResponseBody } from "../../../../src/api/types";
-import { GetTaskListsResponse } from "@timothyw/pat-common";
+import { GetTaskListsResponse, Serializer } from "@timothyw/pat-common";
 
 export async function runGetTaskListsTest(context: TestContext) {
     const response = await axios.get<ApiResponseBody<GetTaskListsResponse>>(
@@ -17,7 +17,7 @@ export async function runGetTaskListsTest(context: TestContext) {
         throw new Error('Failed to get task lists');
     }
 
-    const taskLists = response.data.data!.taskLists;
+    const taskLists = response.data.data!.taskLists.map(tl => Serializer.deserializeTaskListData(tl));
 
     if (context.taskListIds && taskLists.length !== context.taskListIds.length) {
         const count = context.taskListIds.length;
@@ -25,7 +25,7 @@ export async function runGetTaskListsTest(context: TestContext) {
     }
 
     taskLists.forEach(taskList => {
-        if (!taskList.id || !taskList.name) {
+        if (!taskList._id || !taskList.name) {
             throw new Error('Task list missing required properties');
         }
     });

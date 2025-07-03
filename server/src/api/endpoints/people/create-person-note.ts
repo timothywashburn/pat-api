@@ -1,7 +1,12 @@
 import { ApiEndpoint } from '../../types';
 import PersonNoteManager from '../../../controllers/person-note-manager';
 import { z } from 'zod';
-import { CreatePersonNoteRequest, createPersonNoteRequestSchema, CreatePersonNoteResponse } from '@timothyw/pat-common';
+import {
+    CreatePersonNoteRequest,
+    createPersonNoteRequestSchema,
+    CreatePersonNoteResponse,
+    Serializer
+} from '@timothyw/pat-common';
 
 export const createPersonNoteEndpoint: ApiEndpoint<CreatePersonNoteRequest, CreatePersonNoteResponse> = {
     path: '/api/people/notes',
@@ -17,7 +22,7 @@ export const createPersonNoteEndpoint: ApiEndpoint<CreatePersonNoteRequest, Crea
             res.json({
                 success: true,
                 data: {
-                    personNote
+                    personNote: Serializer.serializePersonNoteData(personNote)
                 }
             });
         } catch (error) {

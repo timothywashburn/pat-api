@@ -2,7 +2,7 @@ import axios from 'axios';
 import { TestContext } from '../../../main';
 import { Types } from 'mongoose';
 import { PersonModel } from "../../../../src/models/mongo/person-data";
-import { CreatePersonResponse, PersonId } from "@timothyw/pat-common";
+import { CreatePersonResponse, PersonId, Serializer } from "@timothyw/pat-common";
 import { ApiResponseBody } from "../../../../src/api/types";
 
 export async function runCreatePeopleTest(context: TestContext) {
@@ -41,5 +41,6 @@ async function createPerson(context: TestContext, data: Record<string, any>) {
     );
 
     if (!response.data.success) throw new Error(`failed to create person: ${data.name}`);
-    context.personIds.push(response.data.data!.person._id);
+    const person = Serializer.deserializePerson(response.data.data!.person);
+    context.personIds.push(person._id);
 }

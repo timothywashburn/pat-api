@@ -2,7 +2,12 @@ import { ApiEndpoint } from '../../types';
 import HabitManager from '../../../controllers/habit-manager';
 import HabitEntryManager from '../../../controllers/habit-entry-manager';
 import { z } from 'zod';
-import { CreateHabitEntryRequest, createHabitEntryRequestSchema, CreateHabitEntryResponse } from "@timothyw/pat-common";
+import {
+    CreateHabitEntryRequest,
+    createHabitEntryRequestSchema,
+    CreateHabitEntryResponse,
+    Serializer
+} from "@timothyw/pat-common";
 import { isBefore, isAfter } from 'date-fns';
 import DateUtils from "../../../utils/date-utils";
 import UserManager from "../../../controllers/user-manager";
@@ -74,7 +79,7 @@ export const createHabitEntryEndpoint: ApiEndpoint<CreateHabitEntryRequest, Crea
             res.json({
                 success: true,
                 data: {
-                    habit: habitWithEntries
+                    habit: Serializer.serializeHabit(habitWithEntries),
                 }
             });
         } catch (error) {

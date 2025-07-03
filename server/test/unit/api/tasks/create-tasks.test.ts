@@ -2,7 +2,7 @@ import axios from 'axios';
 import { TestContext } from '../../../main';
 import { TaskModel } from "../../../../src/models/mongo/task-data";
 import { ApiResponseBody } from "../../../../src/api/types";
-import { CreateTaskResponse, TaskId } from "@timothyw/pat-common";
+import { CreateTaskResponse, TaskId, Serializer } from "@timothyw/pat-common";
 
 export async function runCreateTasksTest(context: TestContext) {
     if (!context.taskListIds || context.taskListIds.length === 0) {
@@ -47,5 +47,6 @@ async function createTask(context: TestContext, data: Record<string, any>) {
     );
 
     if (!response.data.success) throw new Error(`failed to create task: ${data.name}`);
-    context.taskIds.push(response.data.data!.task.id as TaskId);
+    const task = Serializer.deserializeTaskData(response.data.data!.task);
+    context.taskIds.push(task._id);
 }

@@ -3,6 +3,7 @@ import Command from "../models/command";
 import UserManager from "../../controllers/user-manager";
 import {AuthDataModel} from "../../models/mongo/auth-data";
 import { UserId } from "@timothyw/pat-common";
+import { AuthInfo } from "../../api/types";
 
 const ADMIN_DISCORD_ID = '458458767634464792';
 
@@ -50,7 +51,13 @@ export default class LinkAccountCommand extends Command {
                 return;
             }
 
+            const authInfo: AuthInfo = {
+                authId: auth._id,
+                userId: auth.userId,
+            }
+
             const updatedUser = await UserManager.getInstance().update(
+                authInfo,
                 auth.userId as UserId,
                 {
                     sandbox: {

@@ -14,14 +14,15 @@ export default class TaskListManager {
 
     private constructor() {}
 
-    create(userId: UserId, data: {
+    async create(userId: UserId, data: {
         name: string;
     }): Promise<TaskListData> {
         const taskList = new TaskListModel({
             userId,
             ...data
         });
-        return taskList.save();
+        const doc = await taskList.save();
+        return doc.toObject();
     }
 
     getById(taskListId: TaskListId): Promise<TaskListData | null> {

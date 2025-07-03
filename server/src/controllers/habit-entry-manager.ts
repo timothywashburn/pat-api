@@ -19,7 +19,7 @@ export default class HabitEntryManager {
             { habitId, date },
             { status },
             { new: true, upsert: true }
-        );
+        ).lean();
     }
 
     async deleteByDate(habitId: string, dateString: DateOnlyString): Promise<boolean> {
@@ -28,6 +28,6 @@ export default class HabitEntryManager {
     }
 
     async getByHabitId(habitId: string): Promise<HabitEntryData[]> {
-        return HabitEntryModel.find({ habitId }).sort({ date: 1 });
+        return HabitEntryModel.find({ habitId }).sort({ date: 1 }).lean();
     }
 }

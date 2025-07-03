@@ -35,7 +35,7 @@ export async function runCompleteTaskTest(context: TestContext) {
     }
 
     // Verify in database
-    const taskInDb = await TaskModel.findById(taskId);
+    const taskInDb = await TaskModel.findById(taskId).lean();
     if (!taskInDb || !taskInDb.completed) {
         throw new Error('Task not properly marked as completed in database');
     }

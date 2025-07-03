@@ -1,8 +1,13 @@
 import { ApiEndpoint } from '../../types';
 import PersonManager from '../../../controllers/person-manager';
-import { Types } from 'mongoose';
 import { z } from 'zod';
-import { PersonId, UpdatePersonRequest, updatePersonRequestSchema, UpdatePersonResponse } from "@timothyw/pat-common";
+import {
+    PersonId,
+    Serializer,
+    UpdatePersonRequest,
+    updatePersonRequestSchema,
+    UpdatePersonResponse
+} from "@timothyw/pat-common";
 
 export const updatePersonEndpoint: ApiEndpoint<UpdatePersonRequest, UpdatePersonResponse> = {
     path: '/api/people/:personId',
@@ -23,7 +28,7 @@ export const updatePersonEndpoint: ApiEndpoint<UpdatePersonRequest, UpdatePerson
             res.json({
                 success: true,
                 data: {
-                    person
+                    person: Serializer.serializePerson(person)
                 }
             });
         } catch (error) {

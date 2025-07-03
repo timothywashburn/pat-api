@@ -1,6 +1,6 @@
 import { ApiEndpoint } from '../../types';
 import HabitManager from '../../../controllers/habit-manager';
-import { GetHabitsResponse } from "@timothyw/pat-common";
+import { GetHabitsResponse, Serializer } from "@timothyw/pat-common";
 
 export const getHabitsEndpoint: ApiEndpoint<undefined, GetHabitsResponse> = {
     path: '/api/habits',
@@ -13,7 +13,7 @@ export const getHabitsEndpoint: ApiEndpoint<undefined, GetHabitsResponse> = {
             res.json({
                 success: true,
                 data: {
-                    habits
+                    habits: habits.map(habit => Serializer.serializeHabit(habit))
                 }
             });
         } catch (error) {

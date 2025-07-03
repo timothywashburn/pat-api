@@ -3,7 +3,7 @@ import HabitManager from '../../../controllers/habit-manager';
 import { z } from 'zod';
 import {
     Habit,
-    HabitId,
+    HabitId, Serializer,
     UpdateHabitRequest,
     updateHabitRequestSchema,
     UpdateHabitResponse
@@ -46,7 +46,7 @@ export const updateHabitEndpoint: ApiEndpoint<UpdateHabitRequest, UpdateHabitRes
             res.json({
                 success: true,
                 data: {
-                    habit: habitWithEntries
+                    habit: Serializer.serializeHabit(habitWithEntries)
                 }
             });
         } catch (error) {

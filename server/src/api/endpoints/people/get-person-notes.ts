@@ -1,6 +1,6 @@
 import { ApiEndpoint } from '../../types';
 import PersonNoteManager from '../../../controllers/person-note-manager';
-import { GetPersonNotesResponse } from "@timothyw/pat-common";
+import { GetPersonNotesResponse, Serializer } from "@timothyw/pat-common";
 
 export const getPersonNotesEndpoint: ApiEndpoint<undefined, GetPersonNotesResponse> = {
     path: '/api/people/notes',
@@ -12,7 +12,7 @@ export const getPersonNotesEndpoint: ApiEndpoint<undefined, GetPersonNotesRespon
             res.json({
                 success: true,
                 data: {
-                    personNotes
+                    personNotes: personNotes.map(note => Serializer.serializePersonNoteData(note))
                 }
             });
         } catch (error) {

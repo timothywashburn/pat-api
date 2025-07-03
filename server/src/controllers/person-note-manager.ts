@@ -22,11 +22,9 @@ export default class PersonNoteManager {
             personId: data.personId,
             content: data.content
         });
-        const savedNote = await personNote.save();
-
-        await PersonManager.getInstance().addNoteId(data.personId, savedNote._id);
-        
-        return savedNote;
+        const doc = await personNote.save();
+        await PersonManager.getInstance().addNoteId(data.personId, doc._id);
+        return doc.toObject();
     }
 
     getAllByUser(userId: UserId): Promise<(PersonNoteData)[]> {

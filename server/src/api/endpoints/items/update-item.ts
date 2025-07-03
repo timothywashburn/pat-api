@@ -2,8 +2,7 @@ import { ApiEndpoint } from '../../types';
 import ItemManager from '../../../controllers/item-manager';
 import { z } from 'zod';
 import {
-    ItemId,
-    serializeItemData,
+    ItemId, Serializer,
     UpdateItemRequest,
     updateItemRequestSchema,
     UpdateItemResponse
@@ -35,19 +34,10 @@ export const updateItemEndpoint: ApiEndpoint<UpdateItemRequest, UpdateItemRespon
                 return;
             }
 
-            let serialized = serializeItemData({
-                ...item,
-                _id: String(item._id) as ItemId
-            });
-            console.log('Serialized item:', serialized);
-
             res.json({
                 success: true,
                 data: {
-                    item: serializeItemData({
-                        ...item,
-                        _id: String(item._id) as ItemId
-                    })
+                    item: Serializer.serializeItemData(item)
                 }
             });
         } catch (error) {

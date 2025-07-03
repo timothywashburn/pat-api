@@ -35,7 +35,8 @@ export default class HabitManager {
             ...data,
             firstDay: DateUtils.toLocalDateOnlyString(new Date(), user.timezone || 'America/Los_Angeles'),
         });
-        return habit.save();
+        const doc = await habit.save();
+        return doc.toObject();
     }
 
     async getById(habitId: string): Promise<HabitData | null> {

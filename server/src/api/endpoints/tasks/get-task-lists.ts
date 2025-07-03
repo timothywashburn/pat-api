@@ -1,6 +1,6 @@
 import { ApiEndpoint } from '../../types';
 import TaskListManager from '../../../controllers/task-list-manager';
-import { GetTaskListsResponse } from "@timothyw/pat-common";
+import { GetTaskListsResponse, Serializer } from "@timothyw/pat-common";
 
 export const getTaskListsEndpoint: ApiEndpoint<undefined, GetTaskListsResponse> = {
     path: '/api/tasks/lists',
@@ -13,12 +13,7 @@ export const getTaskListsEndpoint: ApiEndpoint<undefined, GetTaskListsResponse> 
             res.json({
                 success: true,
                 data: {
-                    taskLists: taskLists.map(taskList => ({
-                        id: taskList._id,
-                        name: taskList.name,
-                        createdAt: taskList.createdAt.toISOString(),
-                        updatedAt: taskList.updatedAt.toISOString()
-                    }))
+                    taskLists: taskLists.map(taskList => Serializer.serializeTaskListData(taskList))
                 }
             });
         } catch (error) {

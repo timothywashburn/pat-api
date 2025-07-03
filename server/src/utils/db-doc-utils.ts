@@ -10,6 +10,8 @@ export async function updateDocument<T, U extends object>(
     const set: Record<string, any> = {};
     const unset: Record<string, any> = {};
 
+    console.log("Updating document with ID:", id);
+
     Object.entries(updates).forEach(([key, value]) => {
         if (value === null) {
             unset[key] = "";
@@ -22,11 +24,18 @@ export async function updateDocument<T, U extends object>(
     if (Object.keys(set).length > 0) updateOperation.$set = set;
     if (Object.keys(unset).length > 0) updateOperation.$unset = unset;
 
+    console.log(`pretty stringify updateOperation: ${JSON.stringify(updateOperation, null, 2)}`);
+
     return model.findOneAndUpdate(
-        { _id: id, userId: auth.userId },
+        {
+            _id: id,
+            ...(auth.userId === id ? {} : { userId: auth.userId })
+        },
         updateOperation,
         { new: true }
     ).lean() as T;
+
+    console.log("Document updated successfully");
 }
 
 export async function updateDocumentWithPopulate<T>(

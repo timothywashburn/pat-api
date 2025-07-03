@@ -5,7 +5,7 @@ import {
     UpdateTaskListRequest,
     UpdateTaskListResponse,
     TaskListId,
-    updateTaskListRequestSchema
+    updateTaskListRequestSchema, Serializer
 } from "@timothyw/pat-common";
 
 export const updateTaskListEndpoint: ApiEndpoint<UpdateTaskListRequest, UpdateTaskListResponse> = {
@@ -30,12 +30,7 @@ export const updateTaskListEndpoint: ApiEndpoint<UpdateTaskListRequest, UpdateTa
             res.json({
                 success: true,
                 data: {
-                    taskList: {
-                        id: taskList._id,
-                        name: taskList.name,
-                        createdAt: taskList.createdAt.toISOString(),
-                        updatedAt: taskList.updatedAt.toISOString()
-                    }
+                    taskList: Serializer.serializeTaskListData(taskList)
                 }
             });
         } catch (error) {

@@ -1,7 +1,13 @@
 import { ApiEndpoint } from '../../types';
 import TaskManager from '../../../controllers/task-manager';
 import { z } from 'zod';
-import { CompleteTaskRequest, completeTaskRequestSchema, CompleteTaskResponse, TaskId } from "@timothyw/pat-common";
+import {
+    CompleteTaskRequest,
+    completeTaskRequestSchema,
+    CompleteTaskResponse,
+    Serializer,
+    TaskId
+} from "@timothyw/pat-common";
 
 export const completeTaskEndpoint: ApiEndpoint<CompleteTaskRequest, CompleteTaskResponse> = {
     path: '/api/tasks/:taskId/complete',
@@ -25,15 +31,7 @@ export const completeTaskEndpoint: ApiEndpoint<CompleteTaskRequest, CompleteTask
             res.json({
                 success: true,
                 data: {
-                    task: {
-                        id: task._id,
-                        name: task.name,
-                        notes: task.notes ?? undefined,
-                        completed: task.completed,
-                        taskListId: task.taskListId,
-                        createdAt: task.createdAt.toISOString(),
-                        updatedAt: task.updatedAt.toISOString()
-                    }
+                    task: Serializer.serializeTaskData(task)
                 }
             });
         } catch (error) {

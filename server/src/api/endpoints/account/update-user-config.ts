@@ -2,7 +2,7 @@ import { ApiEndpoint } from '../../types';
 import UserManager from '../../../controllers/user-manager';
 import ItemManager from '../../../controllers/item-manager';
 import { z } from 'zod';
-import { UpdateUserRequest, updateUserRequestSchema, UpdateUserResponse } from "@timothyw/pat-common";
+import { Serializer, UpdateUserRequest, updateUserRequestSchema, UpdateUserResponse } from "@timothyw/pat-common";
 
 export const updateUserEndpoint: ApiEndpoint<UpdateUserRequest, UpdateUserResponse> = {
     path: '/api/account',
@@ -13,6 +13,8 @@ export const updateUserEndpoint: ApiEndpoint<UpdateUserRequest, UpdateUserRespon
             const data: UpdateUserRequest = updateUserRequestSchema.parse(req.body);
             const userId = req.auth!.userId!;
 
+            console.log('[config] updating user config for userId:', userId);
+
             const currentUser = await UserManager.getInstance().getById(userId);
             if (!currentUser) {
                 res.status(404).json({
@@ -21,6 +23,8 @@ export const updateUserEndpoint: ApiEndpoint<UpdateUserRequest, UpdateUserRespon
                 });
                 return;
             }
+
+            console.log('[config] current user config:', currentUser.config);
 
             if (data.config?.agenda?.itemCategories !== undefined) {
                 const removedCategories = (currentUser.config.agenda.itemCategories || [])
@@ -46,7 +50,9 @@ export const updateUserEndpoint: ApiEndpoint<UpdateUserRequest, UpdateUserRespon
                 }
             }
 
-            const updatedUser = await UserManager.getInstance().update(userId, data);
+            console.log('[config] applying new config:', data.config);
+
+            const updatedUser = await UserManager.getInstance().update(req.auth!, userId, data);
             if (!updatedUser) {
                 res.status(404).json({
                     success: false,
@@ -55,13 +61,16 @@ export const updateUserEndpoint: ApiEndpoint<UpdateUserRequest, UpdateUserRespon
                 return;
             }
 
+            console.log('[config] updated user config:', updatedUser.config);
+
             res.json({
                 success: true,
                 data: {
-                    user: updatedUser
+                    user: Serializer.serializeUserData(updatedUser)
                 }
             });
         } catch (error) {
+            console.error('[config] error updating user config:', error);
             let message = 'Failed to update user configuration';
 
             if (error instanceof z.ZodError) {

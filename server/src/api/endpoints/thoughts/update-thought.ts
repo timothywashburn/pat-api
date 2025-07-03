@@ -1,8 +1,8 @@
 import { ApiEndpoint } from '../../types';
 import ThoughtManager from '../../../controllers/thought-manager';
-import { Types } from 'mongoose';
 import { z } from 'zod';
 import {
+    Serializer,
     ThoughtId,
     UpdateThoughtRequest,
     updateThoughtRequestSchema,
@@ -28,10 +28,7 @@ export const updateThoughtEndpoint: ApiEndpoint<UpdateThoughtRequest, UpdateThou
             res.json({
                 success: true,
                 data: {
-                    thought: {
-                        id: thought._id.toString(),
-                        content: thought.content
-                    }
+                    thought: Serializer.serializeThoughtData(thought)
                 }
             });
         } catch (error) {

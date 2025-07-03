@@ -1,6 +1,6 @@
 import { ApiEndpoint } from '../../types';
 import ThoughtManager from '../../../controllers/thought-manager';
-import { GetThoughtsResponse, UserId } from "@timothyw/pat-common";
+import { GetThoughtsResponse, Serializer, UserId } from "@timothyw/pat-common";
 
 export const getThoughtsEndpoint: ApiEndpoint<undefined, GetThoughtsResponse> = {
     path: '/api/thoughts',
@@ -12,10 +12,7 @@ export const getThoughtsEndpoint: ApiEndpoint<undefined, GetThoughtsResponse> = 
             res.json({
                 success: true,
                 data: {
-                    thoughts: thoughts.map(t => ({
-                        id: t._id.toString(),
-                        content: t.content
-                    }))
+                    thoughts: thoughts.map(thought => Serializer.serializeThoughtData(thought))
                 }
             });
         } catch (error) {

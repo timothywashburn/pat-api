@@ -1,7 +1,13 @@
 import { ApiEndpoint } from '../../types';
 import TaskManager from '../../../controllers/task-manager';
 import { z } from 'zod';
-import { UpdateTaskRequest, UpdateTaskResponse, TaskId, updateTaskRequestSchema } from "@timothyw/pat-common";
+import {
+    UpdateTaskRequest,
+    UpdateTaskResponse,
+    TaskId,
+    updateTaskRequestSchema,
+    Serializer
+} from "@timothyw/pat-common";
 
 export const updateTaskEndpoint: ApiEndpoint<UpdateTaskRequest, UpdateTaskResponse> = {
     path: '/api/tasks/:taskId',
@@ -25,15 +31,7 @@ export const updateTaskEndpoint: ApiEndpoint<UpdateTaskRequest, UpdateTaskRespon
             res.json({
                 success: true,
                 data: {
-                    task: {
-                        id: task._id,
-                        name: task.name,
-                        notes: task.notes ?? undefined,
-                        completed: task.completed,
-                        taskListId: task.taskListId,
-                        createdAt: task.createdAt.toISOString(),
-                        updatedAt: task.updatedAt.toISOString()
-                    }
+                    task: Serializer.serializeTaskData(task)
                 }
             });
         } catch (error) {

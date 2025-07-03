@@ -18,5 +18,5 @@ export async function runCreateAccountTest(context: TestContext) {
         throw new Error('account creation failed');
     }
 
-    context.userId = response.data.data!.id as UserId;
+    context.userId = response.data.data!.id as UserId; // TODO: fix
 }

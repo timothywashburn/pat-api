@@ -1,7 +1,7 @@
 import { ApiEndpoint } from '../../types';
 import HabitManager from '../../../controllers/habit-manager';
 import { z } from 'zod';
-import { CreateHabitRequest, createHabitRequestSchema, CreateHabitResponse } from "@timothyw/pat-common";
+import { CreateHabitRequest, createHabitRequestSchema, CreateHabitResponse, Serializer } from "@timothyw/pat-common";
 
 export const createHabitEndpoint: ApiEndpoint<CreateHabitRequest, CreateHabitResponse> = {
     path: '/api/habits',
@@ -22,7 +22,7 @@ export const createHabitEndpoint: ApiEndpoint<CreateHabitRequest, CreateHabitRes
             res.json({
                 success: true,
                 data: {
-                    habit: habitWithEntries
+                    habit: Serializer.serializeHabit(habitWithEntries)
                 }
             });
         } catch (error) {

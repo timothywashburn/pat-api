@@ -1,6 +1,5 @@
 import { ApiEndpoint } from '../../types';
 import ThoughtManager from '../../../controllers/thought-manager';
-import { Types } from 'mongoose';
 import { DeleteThoughtResponse, ThoughtId } from "@timothyw/pat-common";
 
 export const deleteThoughtEndpoint: ApiEndpoint<undefined, DeleteThoughtResponse> = {

@@ -1,13 +1,11 @@
 import { ApiEndpoint } from '../../types';
 import ItemManager from '../../../controllers/item-manager';
-import { Types } from 'mongoose';
 import { z } from 'zod';
 import {
     CompleteItemRequest,
     completeItemRequestSchema,
     CompleteItemResponse,
-    ItemId,
-    serializeItemData
+    ItemId, Serializer,
 } from "@timothyw/pat-common";
 
 export const completeItemEndpoint: ApiEndpoint<CompleteItemRequest, CompleteItemResponse> = {
@@ -31,10 +29,7 @@ export const completeItemEndpoint: ApiEndpoint<CompleteItemRequest, CompleteItem
             res.json({
                 success: true,
                 data: {
-                    item: serializeItemData({
-                        ...item,
-                        _id: String(item._id) as ItemId
-                    })
+                    item: Serializer.serializeItemData(item)
                 }
             });
         } catch (error) {

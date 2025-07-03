@@ -1,7 +1,7 @@
 import { ApiEndpoint } from '../../types';
 import PersonManager from '../../../controllers/person-manager';
 import { z } from 'zod';
-import { CreatePersonRequest, createPersonRequestSchema, CreatePersonResponse } from "@timothyw/pat-common";
+import { CreatePersonRequest, createPersonRequestSchema, CreatePersonResponse, Serializer } from "@timothyw/pat-common";
 
 export const createPersonEndpoint: ApiEndpoint<CreatePersonRequest, CreatePersonResponse> = {
     path: '/api/people',
@@ -17,7 +17,7 @@ export const createPersonEndpoint: ApiEndpoint<CreatePersonRequest, CreatePerson
             res.json({
                 success: true,
                 data: {
-                    person
+                    person: Serializer.serializePerson(person)
                 }
             });
         } catch (error) {

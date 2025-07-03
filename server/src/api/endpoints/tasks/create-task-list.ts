@@ -1,7 +1,12 @@
 import { ApiEndpoint } from '../../types';
 import TaskListManager from '../../../controllers/task-list-manager';
 import { z } from 'zod';
-import { CreateTaskListRequest, createTaskListRequestSchema, CreateTaskListResponse } from "@timothyw/pat-common";
+import {
+    CreateTaskListRequest,
+    createTaskListRequestSchema,
+    CreateTaskListResponse,
+    Serializer
+} from "@timothyw/pat-common";
 
 export const createTaskListEndpoint: ApiEndpoint<CreateTaskListRequest, CreateTaskListResponse> = {
     path: '/api/tasks/lists',
@@ -19,12 +24,7 @@ export const createTaskListEndpoint: ApiEndpoint<CreateTaskListRequest, CreateTa
             res.json({
                 success: true,
                 data: {
-                    taskList: {
-                        id: taskList._id,
-                        name: taskList.name,
-                        createdAt: taskList.createdAt.toISOString(),
-                        updatedAt: taskList.updatedAt.toISOString()
-                    }
+                    taskList: Serializer.serializeTaskListData(taskList)
                 }
             });
         } catch (error) {

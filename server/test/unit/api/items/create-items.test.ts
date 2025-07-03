@@ -2,7 +2,7 @@ import axios from 'axios';
 import { TestContext } from '../../../main';
 import { ItemModel } from "../../../../src/models/mongo/item-data";
 import { ApiResponseBody } from "../../../../src/api/types";
-import { CreateItemResponse, ItemId } from "@timothyw/pat-common";
+import { CreateItemResponse, ItemId, Serializer } from "@timothyw/pat-common";
 
 export async function runCreateItemsTest(context: TestContext) {
     await createItem(context, {
@@ -72,5 +72,6 @@ async function createItem(context: TestContext, data: Record<string, any>) {
     );
 
     if (!response.data.success) throw new Error(`failed to create item: ${data.name}`);
-    context.itemIds.push(response.data.data!.item._id as ItemId);
+    const item = Serializer.deserializeItemData(response.data.data!.item);
+    context.itemIds.push(item._id);
 }

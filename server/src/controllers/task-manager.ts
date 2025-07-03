@@ -9,7 +9,7 @@ export default class TaskManager {
 
     private constructor() {}
 
-    create(userId: UserId, data: {
+    async create(userId: UserId, data: {
         name: string;
         notes?: string;
         taskListId: TaskListId;
@@ -19,7 +19,8 @@ export default class TaskManager {
             ...data,
             completed: false
         });
-        return task.save();
+        const doc = await task.save();
+        return doc.toObject();
     }
 
     getById(taskId: TaskId): Promise<TaskData | null> {
@@ -87,7 +88,7 @@ export default class TaskManager {
             taskId,
             { $set: { completed } },
             { new: true }
-        );
+        ).lean();
     }
 
     delete(taskId: TaskId): Promise<boolean> {

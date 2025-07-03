@@ -25,8 +25,8 @@ export default class PersonManager {
             properties: data.properties || [],
             noteIds: data.notes || []
         });
-        const personData = await person.save();
-        const populatedPerson = await personData.populate('noteIds');
+        const doc = await person.save();
+        const populatedPerson = await doc.populate('noteIds');
         const personObj = populatedPerson.toObject();
         
         return {

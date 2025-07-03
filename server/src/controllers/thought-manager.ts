@@ -13,14 +13,15 @@ export default class ThoughtManager {
 
     private constructor() {}
 
-    create(userId: UserId, data: {
+    async create(userId: UserId, data: {
         content: string;
     }): Promise<ThoughtData> {
         const thought = new ThoughtModel({
             userId,
             content: data.content
         });
-        return thought.save();
+        const doc = await thought.save();
+        return doc.toObject();
     }
 
     getAllByUser(userId: UserId): Promise<ThoughtData[]> {

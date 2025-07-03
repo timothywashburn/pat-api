@@ -2,7 +2,7 @@ import axios from 'axios';
 import { TestContext } from '../../../main';
 import { TaskListModel } from "../../../../src/models/mongo/task-list-data";
 import { ApiResponseBody } from "../../../../src/api/types";
-import { CreateTaskListResponse, TaskListId } from "@timothyw/pat-common";
+import { CreateTaskListResponse, TaskListId, Serializer } from "@timothyw/pat-common";
 
 export async function runCreateTaskListsTest(context: TestContext) {
     await createTaskList(context, { name: 'Task List 1 (to update later)' });
@@ -29,5 +29,6 @@ async function createTaskList(context: TestContext, data: Record<string, any>) {
     );
 
     if (!response.data.success) throw new Error(`failed to create task list: ${data.name}`);
-    context.taskListIds.push(response.data.data!.taskList.id as TaskListId);
+    const taskList = Serializer.deserializeTaskListData(response.data.data!.taskList);
+    context.taskListIds.push(taskList._id);
 }

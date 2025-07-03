@@ -2,7 +2,7 @@ import { ApiEndpoint } from '../../types';
 import PersonNoteManager from '../../../controllers/person-note-manager';
 import { z } from 'zod';
 import {
-    PersonNoteId,
+    PersonNoteId, Serializer,
     UpdatePersonNoteRequest,
     updatePersonNoteRequestSchema,
     UpdatePersonNoteResponse
@@ -28,7 +28,7 @@ export const updatePersonNoteEndpoint: ApiEndpoint<UpdatePersonNoteRequest, Upda
             res.json({
                 success: true,
                 data: {
-                    personNote
+                    personNote: Serializer.serializePersonNoteData(personNote)
                 }
             });
         } catch (error) {

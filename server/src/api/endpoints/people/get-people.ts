@@ -1,6 +1,6 @@
 import { ApiEndpoint } from '../../types';
 import PersonManager from '../../../controllers/person-manager';
-import { GetPeopleResponse, UserId } from "@timothyw/pat-common";
+import { GetPeopleResponse, Serializer, UserId } from "@timothyw/pat-common";
 
 export const getPeopleEndpoint: ApiEndpoint<undefined, GetPeopleResponse> = {
     path: '/api/people',
@@ -12,7 +12,7 @@ export const getPeopleEndpoint: ApiEndpoint<undefined, GetPeopleResponse> = {
             res.json({
                 success: true,
                 data: {
-                    people: people
+                    people: people.map(person => Serializer.serializePerson(person))
                 }
             });
         } catch (error) {
