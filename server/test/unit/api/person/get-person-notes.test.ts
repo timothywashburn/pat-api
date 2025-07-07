@@ -1,7 +1,7 @@
 import axios from 'axios';
 import { TestContext } from '../../../main';
 import { ApiResponseBody } from "../../../../src/api/types";
-import { GetPersonNotesResponse } from "@timothyw/pat-common";
+import { GetPersonNotesResponse, Serializer } from "@timothyw/pat-common";
 
 export async function runGetPersonNotesTest(context: TestContext) {
     const response = await axios.get<ApiResponseBody<GetPersonNotesResponse>>(
@@ -15,7 +15,7 @@ export async function runGetPersonNotesTest(context: TestContext) {
 
     if (!response.data.success) throw new Error('failed to get person notes');
 
-    const personNotes = response.data.data!.personNotes;
+    const personNotes = response.data.data!.personNotes.map(note => Serializer.deserializePersonNoteData(note));
     if (personNotes.length !== context.personNoteIds.length)
         throw new Error(`expected ${context.personNoteIds.length} person notes, found ${personNotes.length}`);
 

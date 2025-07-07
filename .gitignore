@@ -2,6 +2,7 @@
 node_modules/
 build/
 app/
+dist/
 ignore-*
 .env
 .DS_Store

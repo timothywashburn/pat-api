@@ -17,4 +17,5 @@ RUN npm run install:all
 
 COPY . .
 
+RUN cd server && npm run build
 CMD ["npm", "start"]
