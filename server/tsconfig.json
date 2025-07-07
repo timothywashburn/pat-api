@@ -9,11 +9,11 @@
 		"allowJs": true,
 		"resolveJsonModule": true,
 		"esModuleInterop": true,
-		"outDir": "./dist"
+		"outDir": "./dist",
+		"rootDir": "./src"
 	},
 	"include": [
-		"src/**/*",
-		"test/**/*"
+		"src/**/*"
 	],
 	"exclude": [
 		"node_modules"
