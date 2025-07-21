@@ -35,18 +35,17 @@ config({ path: resolve(__dirname, '../../.env') });
             ws: true
         }));
     } else if (process.env.NODE_ENV === 'production') {
-        // app.use(express.static(resolve(__dirname, '../../client/build')));
-        // app.get('*', (req, res) => {
-        //     res.sendFile(resolve(__dirname, '../../client/build/index.html'));
-        // });
+        if (!process.env.KUBERNETES_SERVICE_HOST) {
+            const appDir = resolve(__dirname, '../../app');
+            console.log(`serving webapp build from ${appDir}`);
 
-        const appDir = resolve(__dirname, '../../app');
-        console.log(`serving webapp build from ${appDir}`);
-
-        app.use(express.static(appDir));
-        app.get('*', (req, res) => {
-            res.sendFile(resolve(appDir, 'index.html'));
-        });
+            app.use(express.static(appDir));
+            app.get('*', (req, res) => {
+                res.sendFile(resolve(appDir, 'index.html'));
+            });
+        } else {
+            console.log('running in kubernetes - webapp served by nginx container');
+        }
     }
 
     const port = 3000;
