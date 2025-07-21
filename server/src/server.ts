@@ -34,18 +34,6 @@ config({ path: resolve(__dirname, '../../.env') });
             changeOrigin: true,
             ws: true
         }));
-    } else if (process.env.NODE_ENV === 'production') {
-        if (!process.env.KUBERNETES_SERVICE_HOST) {
-            const appDir = resolve(__dirname, '../../app');
-            console.log(`serving webapp build from ${appDir}`);
-
-            app.use(express.static(appDir));
-            app.get('*', (req, res) => {
-                res.sendFile(resolve(appDir, 'index.html'));
-            });
-        } else {
-            console.log('running in kubernetes - webapp served by nginx container');
-        }
     }
 
     const port = 3000;
