@@ -1,21 +1,15 @@
-FROM node:20-slim
-
+FROM node:18-alpine
 WORKDIR /app
 
-RUN apt-get update && apt-get install -y curl && \
-    mkdir -p app && \
-    cd app && \
-    curl -L -o patapp.tar.gz https://github.com/timothywashburn/pat-app/releases/latest/download/patapp.tar.gz && \
-    tar -xzf patapp.tar.gz && \
-    rm patapp.tar.gz
+# Copy server package files
+COPY server/package*.json ./
+RUN npm ci --only=production
 
-COPY package*.json ./
-COPY client/package*.json ./client/
-COPY server/package*.json ./server/
+# Copy server source
+COPY server/ .
 
-RUN npm run install:all
+# Build the server
+RUN npm run build
 
-COPY . .
-
-RUN cd server && npm run build
+EXPOSE 3000
 CMD ["npm", "start"]

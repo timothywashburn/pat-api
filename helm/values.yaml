@@ -1,0 +1,16 @@
+image:
+  registry: kyrokrypt
+  tag: latest
+  pullPolicy: Always
+
+ingress:
+  host: pat.timothyw.dev
+  ingressClassName: traefik
+
+namespace: pat
+
+mongodb:
+  storage:
+    size: "2Gi"
+    storageClass: "local-path"
+  port: "30019"

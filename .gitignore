@@ -7,3 +7,4 @@ ignore-*
 .env
 .DS_Store
 **/.claude/settings.local.json
+create-secrets.sh

@@ -1,0 +1,78 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: server
+  namespace: {{ .Values.namespace }}
+  labels:
+    app: server
+spec:
+  replicas: 1
+  revisionHistoryLimit: 5
+  selector:
+    matchLabels:
+      app: server
+  template:
+    metadata:
+      labels:
+        app: server
+    spec:
+      imagePullSecrets:
+      - name: dockerhub-registry
+      containers:
+      - name: server
+        image: {{ .Values.image.registry }}/pat-api:{{ .Values.image.tag }}
+        imagePullPolicy: {{ .Values.image.pullPolicy }}
+        ports:
+        - containerPort: 3000
+        env:
+        - name: NODE_ENV
+          value: "production"
+        - name: MONGODB_URI
+          valueFrom:
+            secretKeyRef:
+              name: pat-secrets
+              key: MONGODB_URI
+        - name: JWT_SECRET
+          valueFrom:
+            secretKeyRef:
+              name: pat-secrets
+              key: JWT_SECRET
+        - name: REFRESH_SECRET
+          valueFrom:
+            secretKeyRef:
+              name: pat-secrets
+              key: REFRESH_SECRET
+        - name: API_URL
+          valueFrom:
+            secretKeyRef:
+              name: pat-secrets
+              key: API_URL
+        - name: MONGODB_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: pat-secrets
+              key: MONGODB_PASSWORD
+        - name: REDIS_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: pat-secrets
+              key: REDIS_PASSWORD
+        resources:
+          requests:
+            memory: "128Mi"
+            cpu: "100m"
+          limits:
+            memory: "256Mi"
+            cpu: "200m"
+        livenessProbe:
+          httpGet:
+            path: /api/misc/version
+            port: 3000
+          initialDelaySeconds: 30
+          periodSeconds: 10
+        readinessProbe:
+          httpGet:
+            path: /api/misc/version
+            port: 3000
+          initialDelaySeconds: 5
+          periodSeconds: 5
