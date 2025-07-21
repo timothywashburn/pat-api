@@ -33,4 +33,4 @@ jobs:
           context: .
           push: true
           platforms: linux/amd64
-          tags: ${{ env.DOCKER_IMAGE }}:latest
+          tags: ${{ env.DOCKER_IMAGE }}:${{ github.sha }}
