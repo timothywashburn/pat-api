@@ -11,7 +11,7 @@ export const versionEndpoint: ApiEndpoint<undefined, VersionResponse> = {
         if (!iOSBuildVersion && !androidBuildVersion) {
             res.json({
                 success: false,
-                error: 'Please specify either iOSBuildVersion or androidBuildVersion test'
+                error: 'Please specify either iOSBuildVersion or androidBuildVersion test 2'
             });
             return;
         }
