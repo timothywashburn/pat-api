@@ -1,7 +1,10 @@
 image:
   registry: kyrokrypt
-  tag: latest
   pullPolicy: Always
+  server:
+    tag: latest
+  client:
+    tag: latest
 
 ingress:
   host: pat.timothyw.dev

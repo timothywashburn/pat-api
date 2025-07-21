@@ -20,7 +20,7 @@ spec:
       - name: dockerhub-registry
       containers:
       - name: client
-        image: {{ .Values.image.registry }}/pat-app:{{ .Values.image.tag }}
+        image: {{ .Values.image.registry }}/pat-app:{{ .Values.image.client.tag }}
         imagePullPolicy: {{ .Values.image.pullPolicy }}
         ports:
         - containerPort: 80

@@ -20,7 +20,7 @@ spec:
       - name: dockerhub-registry
       containers:
       - name: server
-        image: {{ .Values.image.registry }}/pat-api:{{ .Values.image.tag }}
+        image: {{ .Values.image.registry }}/pat-api:{{ .Values.image.server.tag }}
         imagePullPolicy: {{ .Values.image.pullPolicy }}
         ports:
         - containerPort: 3000
