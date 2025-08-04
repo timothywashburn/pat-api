@@ -12,9 +12,7 @@ export const getTaskListsEndpoint: ApiEndpoint<undefined, GetTaskListsResponse> 
 
             res.json({
                 success: true,
-                data: {
-                    taskLists: taskLists.map(taskList => Serializer.serializeTaskListData(taskList))
-                }
+                taskLists: taskLists.map(taskList => Serializer.serializeTaskListData(taskList))
             });
         } catch (error) {
             res.status(500).json({

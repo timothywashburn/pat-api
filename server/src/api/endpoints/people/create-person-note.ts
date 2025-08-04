@@ -21,9 +21,7 @@ export const createPersonNoteEndpoint: ApiEndpoint<CreatePersonNoteRequest, Crea
 
             res.json({
                 success: true,
-                data: {
-                    personNote: Serializer.serializePersonNoteData(personNote)
-                }
+                personNote: Serializer.serializePersonNoteData(personNote)
             });
         } catch (error) {
             let message = 'Failed to create person note';

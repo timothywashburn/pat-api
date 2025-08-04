@@ -1,18 +1,20 @@
-import axios from 'axios';
 import { TestContext } from '../../../main';
 import { ApiResponseBody } from "../../../../src/api/types";
 import { SignInResponse } from "@timothyw/pat-common";
+import { post } from "../../../test-utils";
 
 export async function runSignInTest(context: TestContext) {
-    const response = await axios.post<ApiResponseBody<SignInResponse>>(
-        `${context.baseUrl}/api/auth/sign-in`,
-        context.account
+    const response = await post<typeof context.account, SignInResponse>(
+        context,
+        "/api/auth/sign-in",
+        context.account,
+        false
     );
 
-    if (!response.data.success) {
+    if (!response.success) {
         throw new Error('sign in failed');
     }
 
-    context.authToken = response.data.data!.tokenData.accessToken;
-    context.refreshToken = response.data.data!.tokenData.refreshToken;
+    context.authToken = response.tokenData.accessToken;
+    context.refreshToken = response.tokenData.refreshToken;
 }

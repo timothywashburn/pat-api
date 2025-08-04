@@ -1,8 +1,8 @@
-import axios from 'axios';
 import { TestContext } from '../../../main';
 import { TaskListModel } from "../../../../src/models/mongo/task-list-data";
 import { ApiResponseBody } from "../../../../src/api/types";
 import { CreateTaskListResponse, TaskListId, Serializer } from "@timothyw/pat-common";
+import { post } from "../../../test-utils";
 
 export async function runCreateTaskListsTest(context: TestContext) {
     await createTaskList(context, { name: 'Task List 1 (to update later)' });
@@ -18,17 +18,13 @@ export async function runCreateTaskListsTest(context: TestContext) {
 }
 
 async function createTaskList(context: TestContext, data: Record<string, any>) {
-    const response = await axios.post<ApiResponseBody<CreateTaskListResponse>>(
-        `${context.baseUrl}/api/tasks/lists`,
-        { ...data },
-        {
-            headers: {
-                Authorization: `Bearer ${context.authToken}`
-            }
-        }
+    const response = await post<Record<string, any>, CreateTaskListResponse>(
+        context,
+        "/api/tasks/lists",
+        { ...data }
     );
 
-    if (!response.data.success) throw new Error(`failed to create task list: ${data.name}`);
-    const taskList = Serializer.deserializeTaskListData(response.data.data!.taskList);
+    if (!response.success) throw new Error(`failed to create task list: ${data.name}`);
+    const taskList = Serializer.deserializeTaskListData(response.taskList);
     context.taskListIds.push(taskList._id);
 }

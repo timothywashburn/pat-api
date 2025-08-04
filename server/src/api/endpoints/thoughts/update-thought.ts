@@ -27,9 +27,7 @@ export const updateThoughtEndpoint: ApiEndpoint<UpdateThoughtRequest, UpdateThou
 
             res.json({
                 success: true,
-                data: {
-                    thought: Serializer.serializeThoughtData(thought)
-                }
+                thought: Serializer.serializeThoughtData(thought)
             });
         } catch (error) {
             let message = 'Failed to update thought';

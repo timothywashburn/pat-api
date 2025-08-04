@@ -29,9 +29,7 @@ export const updateTaskListEndpoint: ApiEndpoint<UpdateTaskListRequest, UpdateTa
 
             res.json({
                 success: true,
-                data: {
-                    taskList: Serializer.serializeTaskListData(taskList)
-                }
+                taskList: Serializer.serializeTaskListData(taskList)
             });
         } catch (error) {
             let message = 'Failed to update task list';

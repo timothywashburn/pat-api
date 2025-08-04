@@ -44,11 +44,9 @@ export const versionEndpoint: ApiEndpoint<undefined, VersionResponse> = {
 
         res.json({
             success: true,
-            data: {
-                minIOSBuildVersion,
-                minAndroidBuildVersion,
-                updateRequired
-            }
+            minIOSBuildVersion,
+            minAndroidBuildVersion,
+            updateRequired
         });
     }
 };

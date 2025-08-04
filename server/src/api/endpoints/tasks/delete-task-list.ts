@@ -21,8 +21,7 @@ export const deleteTaskListEndpoint: ApiEndpoint<undefined, { success: boolean }
             }
 
             res.json({
-                success: true,
-                data: { success: true }
+                success: true
             });
         } catch (error) {
             res.status(500).json({

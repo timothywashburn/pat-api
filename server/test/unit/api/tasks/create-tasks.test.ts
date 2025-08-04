@@ -1,8 +1,7 @@
-import axios from 'axios';
 import { TestContext } from '../../../main';
 import { TaskModel } from "../../../../src/models/mongo/task-data";
-import { ApiResponseBody } from "../../../../src/api/types";
 import { CreateTaskResponse, TaskId, Serializer } from "@timothyw/pat-common";
+import { post } from "../../../test-utils";
 
 export async function runCreateTasksTest(context: TestContext) {
     if (!context.taskListIds || context.taskListIds.length === 0) {
@@ -36,17 +35,13 @@ export async function runCreateTasksTest(context: TestContext) {
 }
 
 async function createTask(context: TestContext, data: Record<string, any>) {
-    const response = await axios.post<ApiResponseBody<CreateTaskResponse>>(
-        `${context.baseUrl}/api/tasks`,
-        { ...data },
-        {
-            headers: {
-                Authorization: `Bearer ${context.authToken}`
-            }
-        }
+    const response = await post<Record<string, any>, CreateTaskResponse>(
+        context,
+        '/api/tasks',
+        { ...data }
     );
 
-    if (!response.data.success) throw new Error(`failed to create task: ${data.name}`);
-    const task = Serializer.deserializeTaskData(response.data.data!.task);
+    if (!response.success) throw new Error(`failed to create task: ${data.name}`);
+    const task = Serializer.deserializeTaskData(response.task);
     context.taskIds.push(task._id);
 }

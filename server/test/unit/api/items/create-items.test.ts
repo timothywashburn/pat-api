@@ -1,8 +1,8 @@
-import axios from 'axios';
 import { TestContext } from '../../../main';
 import { ItemModel } from "../../../../src/models/mongo/item-data";
 import { ApiResponseBody } from "../../../../src/api/types";
 import { CreateItemResponse, ItemId, Serializer } from "@timothyw/pat-common";
+import { post } from "../../../test-utils";
 
 export async function runCreateItemsTest(context: TestContext) {
     await createItem(context, {
@@ -58,20 +58,16 @@ export async function runCreateItemsTest(context: TestContext) {
 }
 
 async function createItem(context: TestContext, data: Record<string, any>) {
-    const response = await axios.post<ApiResponseBody<CreateItemResponse>>(
-        `${context.baseUrl}/api/items`,
+    const response = await post<Record<string, any>, CreateItemResponse>(
+        context,
+        "/api/items",
         {
             ...data,
             userId: context.userId
-        },
-        {
-            headers: {
-                Authorization: `Bearer ${context.authToken}`
-            }
         }
     );
 
-    if (!response.data.success) throw new Error(`failed to create item: ${data.name}`);
-    const item = Serializer.deserializeItemData(response.data.data!.item);
+    if (!response.success) throw new Error(`failed to create item: ${data.name}`);
+    const item = Serializer.deserializeItemData(response.item);
     context.itemIds.push(item._id);
 }

@@ -1,8 +1,8 @@
-import axios from 'axios';
 import { TestContext } from '../../../main';
 import { TaskModel } from "../../../../src/models/mongo/task-data";
 import { ApiResponseBody } from "../../../../src/api/types";
 import { CompleteTaskResponse } from "@timothyw/pat-common";
+import { put } from "../../../test-utils";
 
 export async function runCompleteTaskTest(context: TestContext) {
     if (!context.taskIds || context.taskIds.length === 0) {
@@ -12,23 +12,19 @@ export async function runCompleteTaskTest(context: TestContext) {
     const taskId = context.taskIds[0];
 
     // Complete the task
-    const response = await axios.put<ApiResponseBody<CompleteTaskResponse>>(
-        `${context.baseUrl}/api/tasks/${taskId}/complete`,
+    const response = await put<{ completed: boolean }, CompleteTaskResponse>(
+        context,
+        `/api/tasks/${taskId}/complete`,
         {
             completed: true
-        },
-        {
-            headers: {
-                Authorization: `Bearer ${context.authToken}`
-            }
         }
     );
 
-    if (!response.data.success) {
+    if (!response.success) {
         throw new Error('Failed to complete task');
     }
 
-    const completedTask = response.data.data!.task;
+    const completedTask = response.task;
 
     if (!completedTask.completed) {
         throw new Error('Task should be marked as completed');
@@ -41,23 +37,19 @@ export async function runCompleteTaskTest(context: TestContext) {
     }
 
     // Test uncompleting the task
-    const uncompleteResponse = await axios.put<ApiResponseBody<CompleteTaskResponse>>(
-        `${context.baseUrl}/api/tasks/${taskId}/complete`,
+    const uncompleteResponse = await put<{ completed: boolean }, CompleteTaskResponse>(
+        context,
+        `/api/tasks/${taskId}/complete`,
         {
             completed: false
-        },
-        {
-            headers: {
-                Authorization: `Bearer ${context.authToken}`
-            }
         }
     );
 
-    if (!uncompleteResponse.data.success) {
+    if (!uncompleteResponse.success) {
         throw new Error('Failed to uncomplete task');
     }
 
-    const uncompletedTask = uncompleteResponse.data.data!.task;
+    const uncompletedTask = uncompleteResponse.task;
 
     if (uncompletedTask.completed) {
         throw new Error('Task should be marked as not completed');

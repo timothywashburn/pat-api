@@ -43,9 +43,7 @@ export const createItemEndpoint: ApiEndpoint<CreateItemRequest, CreateItemRespon
 
             res.json({
                 success: true,
-                data: {
-                    item: Serializer.serializeItemData(item)
-                }
+                item: Serializer.serializeItemData(item)
             });
         } catch (error) {
             let message = 'Failed to create item';

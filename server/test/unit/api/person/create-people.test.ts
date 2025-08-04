@@ -1,9 +1,9 @@
-import axios from 'axios';
 import { TestContext } from '../../../main';
 import { Types } from 'mongoose';
 import { PersonModel } from "../../../../src/models/mongo/person-data";
 import { CreatePersonResponse, PersonId, Serializer } from "@timothyw/pat-common";
 import { ApiResponseBody } from "../../../../src/api/types";
+import { post } from "../../../test-utils";
 
 export async function runCreatePeopleTest(context: TestContext) {
     await createPerson(context, {
@@ -30,17 +30,13 @@ export async function runCreatePeopleTest(context: TestContext) {
 }
 
 async function createPerson(context: TestContext, data: Record<string, any>) {
-    const response = await axios.post<ApiResponseBody<CreatePersonResponse>>(
-        `${context.baseUrl}/api/people`,
-        { ...data },
-        {
-            headers: {
-                Authorization: `Bearer ${context.authToken}`
-            }
-        }
+    const response = await post<Record<string, any>, CreatePersonResponse>(
+        context,
+        "/api/people",
+        { ...data }
     );
 
-    if (!response.data.success) throw new Error(`failed to create person: ${data.name}`);
-    const person = Serializer.deserializePerson(response.data.data!.person);
+    if (!response.success) throw new Error(`failed to create person: ${data.name}`);
+    const person = Serializer.deserializePerson(response.person);
     context.personIds.push(person._id);
 }

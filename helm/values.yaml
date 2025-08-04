@@ -13,7 +13,7 @@ ingress:
 namespace: pat
 
 mongodb:
+  port: "30019"
   storage:
     size: "2Gi"
     storageClass: "local-path"
-  port: "30019"

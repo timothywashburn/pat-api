@@ -12,9 +12,7 @@ export const getTasksEndpoint: ApiEndpoint<undefined, GetTasksResponse> = {
 
             res.json({
                 success: true,
-                data: {
-                    tasks: tasks.map(task => Serializer.serializeTaskData(task))
-                }
+                tasks: tasks.map(task => Serializer.serializeTaskData(task))
             });
         } catch (error) {
             res.status(500).json({

@@ -1,21 +1,17 @@
-import axios from 'axios';
 import { TestContext } from '../../../main';
 import { ApiResponseBody } from "../../../../src/api/types";
 import { GetPersonNotesResponse, Serializer } from "@timothyw/pat-common";
+import { get } from "../../../test-utils";
 
 export async function runGetPersonNotesTest(context: TestContext) {
-    const response = await axios.get<ApiResponseBody<GetPersonNotesResponse>>(
-        `${context.baseUrl}/api/people/notes`,
-        {
-            headers: {
-                Authorization: `Bearer ${context.authToken}`
-            }
-        }
+    const response = await get<{}, GetPersonNotesResponse>(
+        context,
+        "/api/people/notes"
     );
 
-    if (!response.data.success) throw new Error('failed to get person notes');
+    if (!response.success) throw new Error('failed to get person notes');
 
-    const personNotes = response.data.data!.personNotes.map(note => Serializer.deserializePersonNoteData(note));
+    const personNotes = response.personNotes.map(note => Serializer.deserializePersonNoteData(note));
     if (personNotes.length !== context.personNoteIds.length)
         throw new Error(`expected ${context.personNoteIds.length} person notes, found ${personNotes.length}`);
 

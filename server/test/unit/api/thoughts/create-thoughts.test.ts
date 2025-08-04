@@ -1,9 +1,9 @@
-import axios from 'axios';
 import { TestContext } from '../../../main';
 import { Types } from 'mongoose';
 import { ThoughtModel } from '../../../../src/models/mongo/thought-data';
 import { CreateThoughtResponse, ThoughtId, Serializer } from "@timothyw/pat-common";
 import { ApiResponseBody } from "../../../../src/api/types";
+import { post } from "../../../test-utils";
 
 export async function runCreateThoughtsTest(context: TestContext) {
     await createThought(context, { content: 'Original first thought that should be updated later' });
@@ -19,17 +19,13 @@ export async function runCreateThoughtsTest(context: TestContext) {
 }
 
 async function createThought(context: TestContext, data: Record<string, any>) {
-    const response = await axios.post<ApiResponseBody<CreateThoughtResponse>>(
-        `${context.baseUrl}/api/thoughts`,
-        { ...data },
-        {
-            headers: {
-                Authorization: `Bearer ${context.authToken}`
-            }
-        }
+    const response = await post<Record<string, any>, CreateThoughtResponse>(
+        context,
+        "/api/thoughts",
+        { ...data }
     );
 
-    if (!response.data.success) throw new Error(`failed to create thought: ${data.content}`);
-    const thought = Serializer.deserializeThoughtData(response.data.data!.thought);
+    if (!response.success) throw new Error(`failed to create thought: ${data.content}`);
+    const thought = Serializer.deserializeThoughtData(response.thought);
     context.thoughtIds.push(thought._id);
 }

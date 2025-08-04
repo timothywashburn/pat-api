@@ -1,9 +1,9 @@
-import axios from 'axios';
 import { TestContext } from '../../../main';
 import { HabitModel } from "../../../../src/models/mongo/habit-data";
 import { HabitEntryModel } from "../../../../src/models/mongo/habit-entry-data";
 import { ApiResponseBody } from "../../../../src/api/types";
 import { DeleteHabitResponse } from "@timothyw/pat-common";
+import { del } from "../../../test-utils";
 
 export async function runDeleteHabitTest(context: TestContext) {
     if (context.habitIds.length === 0) {
@@ -20,16 +20,12 @@ export async function runDeleteHabitTest(context: TestContext) {
     }
 
     // Delete the habit
-    const response = await axios.delete<ApiResponseBody<DeleteHabitResponse>>(
-        `${context.baseUrl}/api/habits/${habitToDelete}`,
-        {
-            headers: {
-                Authorization: `Bearer ${context.authToken}`
-            }
-        }
+    const response = await del<DeleteHabitResponse>(
+        context,
+        `/api/habits/${habitToDelete}`
     );
 
-    if (!response.data.success) throw new Error('failed to delete habit');
+    if (!response.success) throw new Error('failed to delete habit');
 
     // Verify the habit was deleted from the database
     const habitAfter = await HabitModel.findById(habitToDelete);

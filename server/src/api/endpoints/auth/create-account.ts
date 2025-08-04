@@ -33,11 +33,9 @@ export const createAccountEndpoint: ApiEndpoint<CreateAccountRequest, CreateAcco
 
             res.json({
                 success: true,
-                data: {
-                    id: user._id.toString(),
-                    name: user.name,
-                    email: authData.email
-                }
+                id: user._id.toString(),
+                name: user.name,
+                email: authData.email
             });
         } catch (error) {
             let message = 'Failed to create account';

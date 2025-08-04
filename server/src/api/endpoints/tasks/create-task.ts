@@ -20,9 +20,7 @@ export const createTaskEndpoint: ApiEndpoint<CreateTaskRequest, CreateTaskRespon
 
             res.json({
                 success: true,
-                data: {
-                    task: Serializer.serializeTaskData(task)
-                }
+                task: Serializer.serializeTaskData(task)
             });
         } catch (error) {
             let message = 'Failed to create task';

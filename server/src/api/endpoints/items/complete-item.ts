@@ -28,9 +28,7 @@ export const completeItemEndpoint: ApiEndpoint<CompleteItemRequest, CompleteItem
 
             res.json({
                 success: true,
-                data: {
-                    item: Serializer.serializeItemData(item)
-                }
+                item: Serializer.serializeItemData(item)
             });
         } catch (error) {
             let message = 'Failed to update item completion status';

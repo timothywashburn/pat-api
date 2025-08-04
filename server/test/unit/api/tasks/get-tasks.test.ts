@@ -1,23 +1,19 @@
-import axios from 'axios';
 import { TestContext } from '../../../main';
 import { ApiResponseBody } from "../../../../src/api/types";
 import { GetTasksResponse, Serializer } from "@timothyw/pat-common";
+import { get } from "../../../test-utils";
 
 export async function runGetTasksTest(context: TestContext) {
-    const response = await axios.get<ApiResponseBody<GetTasksResponse>>(
-        `${context.baseUrl}/api/tasks`,
-        {
-            headers: {
-                Authorization: `Bearer ${context.authToken}`
-            }
-        }
+    const response = await get<{}, GetTasksResponse>(
+        context,
+        "/api/tasks"
     );
 
-    if (!response.data.success) {
+    if (!response.success) {
         throw new Error('Failed to get tasks');
     }
 
-    const tasks = response.data.data!.tasks.map(t => Serializer.deserializeTaskData(t));
+    const tasks = response.tasks.map(t => Serializer.deserializeTaskData(t));
 
     if (context.taskIds && tasks.length !== context.taskIds.length) {
         const count = context.taskIds.length;

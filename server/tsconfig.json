@@ -10,10 +10,11 @@
 		"resolveJsonModule": true,
 		"esModuleInterop": true,
 		"outDir": "./dist",
-		"rootDir": "./src"
+//		"rootDir": "./src"
 	},
 	"include": [
-		"src/**/*"
+		"src/**/*",
+		"test/**/*",
 	],
 	"exclude": [
 		"node_modules"

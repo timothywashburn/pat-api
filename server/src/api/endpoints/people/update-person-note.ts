@@ -27,9 +27,7 @@ export const updatePersonNoteEndpoint: ApiEndpoint<UpdatePersonNoteRequest, Upda
 
             res.json({
                 success: true,
-                data: {
-                    personNote: Serializer.serializePersonNoteData(personNote)
-                }
+                personNote: Serializer.serializePersonNoteData(personNote)
             });
         } catch (error) {
             let message = 'Failed to update person note';

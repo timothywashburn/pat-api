@@ -1,8 +1,8 @@
-import axios from 'axios';
 import { TestContext } from '../../../main';
 import { Types } from 'mongoose';
 import { TaskModel } from "../../../../src/models/mongo/task-data";
 import { ApiResponseBody } from "../../../../src/api/types";
+import { del } from "../../../test-utils";
 
 export async function runDeleteTaskTest(context: TestContext) {
     if (!context.taskIds || context.taskIds.length < 2) {
@@ -11,16 +11,12 @@ export async function runDeleteTaskTest(context: TestContext) {
 
     const deleteId = context.taskIds.pop();
 
-    const response = await axios.delete<ApiResponseBody<{ success: boolean }>>(
-        `${context.baseUrl}/api/tasks/${deleteId}`,
-        {
-            headers: {
-                Authorization: `Bearer ${context.authToken}`
-            }
-        }
+    const response = await del<{ success: boolean }>(
+        context,
+        `/api/tasks/${deleteId}`
     );
 
-    if (!response.data.success) {
+    if (!response.success) {
         throw new Error('Failed to delete task');
     }
 
