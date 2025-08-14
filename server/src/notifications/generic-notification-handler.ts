@@ -1,13 +1,22 @@
-import { NotificationHandler, NotificationContext, NotificationData, NotificationContent, NotificationType, ScheduleDataResult } from "../models/notification-handler";
-import { UserId, NotificationTemplateData, NotificationContext as CommonNotificationContext } from "@timothyw/pat-common";
+import {
+    NotificationContent,
+    NotificationContext,
+    NotificationData,
+    NotificationHandler,
+    NotificationType,
+    ScheduleDataResult
+} from "../models/notification-handler";
+import {
+    NotificationContext as CommonNotificationContext,
+    NotificationTemplateData,
+    UserId,
+    NotificationEntityType
+} from "@timothyw/pat-common";
 import { NotificationTemplateModel } from "../models/mongo/notification-template-data";
 import { TemplateEngine } from "../utils/template-engine";
-import { v4 as uuidv4 } from 'uuid';
 import { ItemModel } from '../models/mongo/item-data';
-import { TaskModel } from '../models/mongo/task-data';
-import { TaskListModel } from '../models/mongo/task-list-data';
+import { ListItemModel } from '../models/mongo/list-item-data';
 import { HabitModel } from '../models/mongo/habit-data';
-import UserManager from '../controllers/user-manager';
 
 interface GenericNotificationContext extends NotificationContext {
     templateId: string;
@@ -168,20 +177,12 @@ export class GenericNotificationHandler extends NotificationHandler<GenericNotif
                 case 'agenda_item':
                     return await ItemModel.find({ userId: template.userId });
                 
-                case 'task':
-                    return await TaskModel.find({ userId: template.userId });
-                
-                case 'task_list':
-                    return await TaskListModel.find({ userId: template.userId });
-                
                 case 'habit':
                     return await HabitModel.find({ userId: template.userId });
                 
                 // Panel-level templates apply to their corresponding individual entities
                 case 'agenda':
                     return await ItemModel.find({ userId: template.userId });
-                case 'tasks':
-                    return await TaskModel.find({ userId: template.userId });
                 case 'habits':
                     return await HabitModel.find({ userId: template.userId });
                 
@@ -192,8 +193,6 @@ export class GenericNotificationHandler extends NotificationHandler<GenericNotif
                 // Parent template types apply to their child entities
                 case 'agenda_defaults':
                     return await ItemModel.find({ userId: template.userId });
-                case 'tasks_defaults':
-                    return await TaskModel.find({ userId: template.userId });
                 case 'habits_defaults':
                     return await HabitModel.find({ userId: template.userId });
                 
@@ -207,33 +206,14 @@ export class GenericNotificationHandler extends NotificationHandler<GenericNotif
         }
     }
     
-    private async getEntityData(entityType: string, entityId: string): Promise<any> {
+    private async getEntityData(entityType: NotificationEntityType, entityId: string): Promise<any> {
         try {
             switch (entityType) {
                 case 'agenda_item':
                     const item = await ItemModel.findById(entityId);
                     return item ? item.toObject() : null;
-                
-                case 'task':
-                    const task = await TaskModel.findById(entityId);
-                    return task ? task.toObject() : null;
-                
-                case 'task_list':
-                    const taskList = await TaskListModel.findById(entityId);
-                    return taskList ? taskList.toObject() : null;
-                
-                case 'habit':
-                    const habit = await HabitModel.findById(entityId);
-                    return habit ? habit.toObject() : null;
-                
-                // Panel-level entities don't have specific data
-                case 'agenda':
-                case 'tasks':
-                case 'habits':
+
                 case 'inbox':
-                case 'agenda_defaults':
-                case 'tasks_defaults':
-                case 'habits_defaults':
                     return { entityType, id: entityId };
                 
                 default:

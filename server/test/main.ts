@@ -23,17 +23,16 @@ import {runCreatePeopleTest} from "./unit/api/person/create-people.test";
 import {runDeletePersonTest} from "./unit/api/person/delete-person.test";
 import {runUpdatePersonTest} from "./unit/api/person/update-person.test";
 import {runGetPeopleTest} from "./unit/api/person/get-people.test";
-import { HabitId, ItemId, PersonId, PersonNoteId, ThoughtId, UserId } from "@timothyw/pat-common";
-import { TaskId, TaskListId } from "@timothyw/pat-common";
-import { runCreateTaskListsTest } from "./unit/api/tasks/create-task-lists.test";
-import { runCreateTasksTest } from "./unit/api/tasks/create-tasks.test";
-import { runGetTaskListsTest } from "./unit/api/tasks/get-task-lists.test";
-import { runGetTasksTest } from "./unit/api/tasks/get-tasks.test";
-import { runCompleteTaskTest } from "./unit/api/tasks/complete-task.test";
-import { runUpdateTaskTest } from "./unit/api/tasks/update-task.test";
-import { runUpdateTaskListTest } from "./unit/api/tasks/update-task-list.test";
-import { runDeleteTaskTest } from "./unit/api/tasks/delete-task.test";
-import { runDeleteTaskListTest } from "./unit/api/tasks/delete-task-list.test";
+import { HabitId, ItemId, ListId, ListItemId, PersonId, PersonNoteId, ThoughtId, UserId } from "@timothyw/pat-common";
+import { runCreateListsTest } from "./unit/api/lists/create-lists.test";
+import { runCreateListItemsTest } from "./unit/api/lists/create-list-items.test";
+import { runGetListsTest } from "./unit/api/lists/get-lists.test";
+import { runGetListItemsTest } from "./unit/api/lists/get-list-items.test";
+import { runCompleteListItemTest } from "./unit/api/lists/complete-list-item.test";
+import { runUpdateListItemTest } from "./unit/api/lists/update-list-item.test";
+import { runUpdateListTest } from "./unit/api/lists/update-list.test";
+import { runDeleteListItemTest } from "./unit/api/lists/delete-list-item.test";
+import { runDeleteListTest } from "./unit/api/lists/delete-list.test";
 import { runCreateHabitsTest } from "./unit/api/habits/create-habits.test";
 import { runGetHabitsTest } from "./unit/api/habits/get-habits.test";
 import { runUpdateHabitTest } from "./unit/api/habits/update-habit.test";
@@ -60,8 +59,8 @@ export interface TestContext {
     thoughtIds: ThoughtId[];
     personIds: PersonId[];
     personNoteIds: PersonNoteId[];
-    taskIds: TaskId[];
-    taskListIds: TaskListId[];
+    listItemIds: ListItemId[];
+    listIds: ListId[];
     habitIds: HabitId[];
     account: {
         name: string;
@@ -111,15 +110,15 @@ const tests: Test[] = [
     // { name: 'update person note', run: runUpdatePersonNoteTest },
     // { name: 'delete person note', run: runDeletePersonNoteTest },
 
-    { name: 'create task lists', run: runCreateTaskListsTest },
-    { name: 'create tasks', run: runCreateTasksTest },
-    { name: 'get task lists', run: runGetTaskListsTest },
-    { name: 'get tasks', run: runGetTasksTest },
-    { name: 'complete task', run: runCompleteTaskTest },
-    { name: 'update task', run: runUpdateTaskTest },
-    { name: 'update task list', run: runUpdateTaskListTest },
-    { name: 'delete task', run: runDeleteTaskTest },
-    { name: 'delete task list', run: runDeleteTaskListTest },
+    { name: 'create lists', run: runCreateListsTest },
+    { name: 'create list items', run: runCreateListItemsTest },
+    { name: 'get lists', run: runGetListsTest },
+    { name: 'get list items', run: runGetListItemsTest },
+    { name: 'complete list item', run: runCompleteListItemTest },
+    { name: 'update list item', run: runUpdateListItemTest },
+    { name: 'update list', run: runUpdateListTest },
+    { name: 'delete list item', run: runDeleteListItemTest },
+    { name: 'delete list', run: runDeleteListTest },
 
     { name: 'create habits', run: runCreateHabitsTest },
     { name: 'get habits', run: runGetHabitsTest },
@@ -140,8 +139,8 @@ async function runTests() {
         thoughtIds: [],
         personIds: [],
         personNoteIds: [],
-        taskIds: [],
-        taskListIds: [],
+        listItemIds: [],
+        listIds: [],
         habitIds: [],
         account: {
             name: 'Before Updating Name',

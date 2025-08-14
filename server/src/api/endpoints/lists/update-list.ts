@@ -1,39 +1,38 @@
 import { ApiEndpoint } from '../../types';
-import TaskManager from '../../../controllers/task-manager';
+import ListManager from '../../../controllers/list-manager';
 import { z } from 'zod';
 import {
-    UpdateTaskRequest,
-    UpdateTaskResponse,
-    TaskId,
-    updateTaskRequestSchema,
-    Serializer
+    UpdateListRequest,
+    UpdateListResponse,
+    ListId,
+    updateListRequestSchema, Serializer
 } from "@timothyw/pat-common";
 
-export const updateTaskEndpoint: ApiEndpoint<UpdateTaskRequest, UpdateTaskResponse> = {
-    path: '/api/tasks/:taskId',
+export const updateListEndpoint: ApiEndpoint<UpdateListRequest, UpdateListResponse> = {
+    path: '/api/lists/:listId',
     method: 'put',
     auth: 'verifiedEmail',
     handler: async (req, res) => {
         try {
-            const taskId = req.params.taskId as TaskId;
-            const data = updateTaskRequestSchema.parse(req.body);
+            const listId = req.params.listId as ListId;
+            const data = updateListRequestSchema.parse(req.body);
 
-            const task = await TaskManager.getInstance().update(req.auth!, taskId, data);
+            const list = await ListManager.getInstance().update(req.auth!, listId, data);
 
-            if (!task) {
+            if (!list) {
                 res.status(404).json({
                     success: false,
-                    error: 'Task not found'
+                    error: 'List not found'
                 });
                 return;
             }
 
             res.json({
                 success: true,
-                task: Serializer.serializeTaskData(task)
+                list: Serializer.serializeListData(list)
             });
         } catch (error) {
-            let message = 'Failed to update task';
+            let message = 'Failed to update list';
 
             if (error instanceof z.ZodError) {
                 message = error.errors[0].message;

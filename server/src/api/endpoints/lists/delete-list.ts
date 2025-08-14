@@ -1,21 +1,21 @@
 import { ApiEndpoint } from '../../types';
-import TaskManager from '../../../controllers/task-manager';
-import { TaskId } from "@timothyw/pat-common";
+import ListManager from '../../../controllers/list-manager';
+import { ListId } from "@timothyw/pat-common";
 
-export const deleteTaskEndpoint: ApiEndpoint<undefined, { success: boolean }> = {
-    path: '/api/tasks/:taskId',
+export const deleteListEndpoint: ApiEndpoint<undefined, { success: boolean }> = {
+    path: '/api/lists/:listId',
     method: 'delete',
     auth: 'verifiedEmail',
     handler: async (req, res) => {
         try {
-            const taskId = req.params.taskId as TaskId;
+            const listId = req.params.listId as ListId;
 
-            const deleted = await TaskManager.getInstance().delete(taskId);
+            const deleted = await ListManager.getInstance().delete(listId);
 
             if (!deleted) {
                 res.status(404).json({
                     success: false,
-                    error: 'Task not found'
+                    error: 'List not found'
                 });
                 return;
             }
@@ -26,7 +26,7 @@ export const deleteTaskEndpoint: ApiEndpoint<undefined, { success: boolean }> = 
         } catch (error) {
             res.status(500).json({
                 success: false,
-                error: 'Failed to delete task'
+                error: 'Failed to delete list'
             });
         }
     }

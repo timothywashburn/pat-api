@@ -16,7 +16,7 @@ export interface NotificationContent {
 }
 
 export enum NotificationType {
-    ITEM_DEADLINE = 'task_deadline',
+    ITEM_DEADLINE = 'item_deadline',
     CLEAR_INBOX = 'clear_inbox',
     GENERIC_TEMPLATE = 'generic_template',
     // TODAY_TODO = 'today_todo',

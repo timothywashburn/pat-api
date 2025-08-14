@@ -187,9 +187,6 @@ class NotificationTemplateManager {
         switch (entityType) {
             case 'agenda_item':
                 return 'agenda_defaults';
-            case 'task':
-            case 'task_list':
-                return 'tasks_defaults';
             case 'habit':
                 return 'habits_defaults';
             default:
@@ -282,8 +279,6 @@ class NotificationTemplateManager {
         switch (parentEntityType) {
             case 'agenda':
                 return 'agenda_item';
-            case 'tasks':
-                return 'task';
             case 'habits':
                 return 'habit';
             default:

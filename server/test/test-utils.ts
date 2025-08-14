@@ -2,7 +2,7 @@ import axios from 'axios';
 import { TestContext } from './main';
 import { ApiResponseBody } from "../src/api/types";
 
-export async function get<TParams extends Record<string, any>, TRes>(
+export async function get<TParams extends Record<string, any> | undefined, TRes>(
     context: TestContext,
     endpoint: string,
     params?: TParams,

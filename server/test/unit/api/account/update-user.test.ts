@@ -26,7 +26,7 @@ export async function runUpdateUserConfigTest(context: TestContext) {
                     visible: true,
                 },
                 {
-                    type: ModuleType.TASKS,
+                    type: ModuleType.LISTS,
                     visible: true,
                 },
                 {

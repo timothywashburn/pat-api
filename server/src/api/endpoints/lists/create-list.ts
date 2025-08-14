@@ -1,33 +1,33 @@
 import { ApiEndpoint } from '../../types';
-import TaskListManager from '../../../controllers/task-list-manager';
+import ListManager from '../../../controllers/list-manager';
 import { z } from 'zod';
 import {
-    CreateTaskListRequest,
-    createTaskListRequestSchema,
-    CreateTaskListResponse,
+    CreateListRequest,
+    createListRequestSchema,
+    CreateListResponse,
     Serializer
 } from "@timothyw/pat-common";
 
-export const createTaskListEndpoint: ApiEndpoint<CreateTaskListRequest, CreateTaskListResponse> = {
-    path: '/api/tasks/lists',
+export const createListEndpoint: ApiEndpoint<CreateListRequest, CreateListResponse> = {
+    path: '/api/lists',
     method: 'post',
     auth: 'verifiedEmail',
     handler: async (req, res) => {
         try {
-            const data = createTaskListRequestSchema.parse(req.body);
+            const data = createListRequestSchema.parse(req.body);
             const userId = req.auth!.userId!;
 
-            const taskList = await TaskListManager.getInstance().create(userId, {
+            const list = await ListManager.getInstance().create(userId, {
                 name: data.name,
                 type: data.type
             });
 
             res.json({
                 success: true,
-                taskList: Serializer.serializeTaskListData(taskList)
+                list: Serializer.serializeListData(list)
             });
         } catch (error) {
-            let message = 'Failed to create task list';
+            let message = 'Failed to create list';
 
             if (error instanceof z.ZodError) {
                 message = error.errors[0].message;

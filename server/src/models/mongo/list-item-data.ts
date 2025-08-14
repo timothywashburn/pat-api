@@ -1,8 +1,8 @@
 import { Schema, model } from 'mongoose';
-import { TaskData } from "@timothyw/pat-common";
+import { ListItemData } from "@timothyw/pat-common";
 import { v4 as uuidv4 } from 'uuid';
 
-const taskSchema = new Schema<TaskData>({
+const listItemSchema = new Schema<ListItemData>({
     _id: {
         type: String,
         required: true,
@@ -26,7 +26,7 @@ const taskSchema = new Schema<TaskData>({
         type: Boolean,
         default: false,
     },
-    taskListId: {
+    taskListId: { // TODO: change this
         type: String,
         required: true,
         index: true,
@@ -35,4 +35,5 @@ const taskSchema = new Schema<TaskData>({
     timestamps: true,
 });
 
-export const TaskModel = model<TaskData>('Task', taskSchema, 'tasks');
+// TODO: change these
+export const ListItemModel = model<ListItemData>('Task', listItemSchema, 'tasks');

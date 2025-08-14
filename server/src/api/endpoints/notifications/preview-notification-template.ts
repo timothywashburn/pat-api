@@ -3,9 +3,15 @@ import { PreviewNotificationTemplateRequest, PreviewNotificationTemplateResponse
 import { TemplateEngine } from '../../../utils/template-engine';
 import { NotificationContext } from "@timothyw/pat-common";
 import { ItemModel } from '../../../models/mongo/item-data';
-import { TaskModel } from '../../../models/mongo/task-data';
-import { TaskListModel } from '../../../models/mongo/task-list-data';
-import { HabitModel } from '../../../models/mongo/habit-data';
+
+export enum NotificationParentType {
+    AGENDA_PANEL = 'agenda_panel',
+}
+
+export enum NotificationEntityType {
+    INBOX_PANEL = 'inbox_panel',
+    AGENDA_ITEM = 'agenda_item',
+}
 
 export const previewNotificationTemplateEndpoint: ApiEndpoint<PreviewNotificationTemplateRequest, PreviewNotificationTemplateResponse> = {
     path: '/api/notifications/templates/preview',
@@ -16,7 +22,7 @@ export const previewNotificationTemplateEndpoint: ApiEndpoint<PreviewNotificatio
             const { templateTitle, templateBody, entityType, entityId, variables = {} } = req.body;
 
             // Get entity data for preview
-            const entityData = await getEntityDataForPreview(entityType, entityId);
+            const entityData = await getEntityDataForPreview(entityType as NotificationEntityType, entityId);
             if (!entityData) {
                 res.status(404).json({
                     success: false,
@@ -80,32 +86,15 @@ export const previewNotificationTemplateEndpoint: ApiEndpoint<PreviewNotificatio
     }
 };
 
-async function getEntityDataForPreview(entityType: string, entityId: string): Promise<any> {
+async function getEntityDataForPreview(entityType: NotificationEntityType, entityId: string): Promise<any> {
     try {
         switch (entityType) {
-            case 'agenda_item':
+            case NotificationEntityType.AGENDA_ITEM:
                 const item = await ItemModel.findById(entityId);
                 return item ? item.toObject() : null;
-            
-            case 'task':
-                const task = await TaskModel.findById(entityId);
-                return task ? task.toObject() : null;
-            
-            case 'task_list':
-                const taskList = await TaskListModel.findById(entityId);
-                return taskList ? taskList.toObject() : null;
-            
-            case 'habit':
-                const habit = await HabitModel.findById(entityId);
-                return habit ? habit.toObject() : null;
-            
-            // Panel-level entities - return mock data
-            case 'agenda':
-                return { entityType, name: 'Agenda Panel', itemCount: 5 };
-            case 'tasks':
-                return { entityType, name: 'Tasks Panel', taskCount: 12, listCount: 3 };
-            case 'habits':
-                return { entityType, name: 'Habits Panel', habitCount: 7, completedToday: 4 };
+
+            case NotificationEntityType.INBOX_PANEL:
+                return { entityType, name: 'Inbox Panel', thoughtCount: 3 };
             
             default:
                 return null;

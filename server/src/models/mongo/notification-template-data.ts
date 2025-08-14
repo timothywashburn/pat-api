@@ -51,14 +51,7 @@ const notificationTemplateSchema = new Schema<NotificationTemplateData>({
     },
     entityType: {
         type: String,
-        enum: [
-            // Individual entity types (notifications FOR the entity itself)
-            'agenda', 'tasks', 'habits', 'inbox',
-            'agenda_item', 'task_list', 'task', 'habit',
-            
-            // Parent template types (default templates for children)
-            'agenda_defaults', 'tasks_defaults', 'habits_defaults'
-        ],
+        // enum: Object.values(NotificationEntityType), // TODO: turn back on after the situation is less cursed
         required: true,
         index: true
     },
