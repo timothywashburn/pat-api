@@ -1,4 +1,4 @@
-import { TaskData, TaskId, UserId, TaskListId, ItemId, UpdateItemRequest, ItemData } from "@timothyw/pat-common";
+import { TaskData, TaskId, UserId, TaskListId, ItemId, UpdateItemRequest, ItemData, TaskListType } from "@timothyw/pat-common";
 import { TaskModel } from "../models/mongo/task-data";
 import { AuthInfo } from "../api/types";
 import { updateDocument } from "../utils/db-doc-utils";
@@ -84,6 +84,17 @@ export default class TaskManager {
     // }
 
     async setCompleted(taskId: TaskId, completed: boolean): Promise<TaskData | null> {
+        const task = await TaskModel.findById(taskId).lean();
+        if (!task) return null;
+
+        // Get the task list to check its type
+        const TaskListManager = (await import('./task-list-manager')).default;
+        const taskList = await TaskListManager.getInstance().getById(task.taskListId);
+        
+        if (taskList?.type === TaskListType.NOTES) {
+            throw new Error('Cannot mark items in note lists as completed');
+        }
+
         return TaskModel.findByIdAndUpdate(
             taskId,
             { $set: { completed } },

@@ -1,6 +1,7 @@
 import {
     TaskListData,
     TaskListId,
+    TaskListType,
     UpdateTaskListRequest,
     UserId
 } from "@timothyw/pat-common";
@@ -16,6 +17,7 @@ export default class TaskListManager {
 
     async create(userId: UserId, data: {
         name: string;
+        type: TaskListType;
     }): Promise<TaskListData> {
         const taskList = new TaskListModel({
             userId,

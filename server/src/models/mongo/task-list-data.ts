@@ -1,5 +1,5 @@
 import { Schema, model } from 'mongoose';
-import { TaskListData } from "@timothyw/pat-common";
+import { TaskListData, TaskListType } from "@timothyw/pat-common";
 import { v4 as uuidv4 } from 'uuid';
 
 const taskListSchema = new Schema<TaskListData>({
@@ -17,6 +17,12 @@ const taskListSchema = new Schema<TaskListData>({
         type: String,
         required: true,
         trim: true,
+    },
+    type: {
+        type: String,
+        enum: Object.values(TaskListType),
+        required: true,
+        default: TaskListType.TASKS
     }
 }, {
     timestamps: true,

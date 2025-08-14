@@ -18,7 +18,8 @@ export const createTaskListEndpoint: ApiEndpoint<CreateTaskListRequest, CreateTa
             const userId = req.auth!.userId!;
 
             const taskList = await TaskListManager.getInstance().create(userId, {
-                name: data.name
+                name: data.name,
+                type: data.type
             });
 
             res.json({

@@ -1,13 +1,13 @@
 import { TestContext } from '../../../main';
 import { TaskListModel } from "../../../../src/models/mongo/task-list-data";
 import { ApiResponseBody } from "../../../../src/api/types";
-import { CreateTaskListResponse, TaskListId, Serializer } from "@timothyw/pat-common";
+import { CreateTaskListResponse, TaskListId, Serializer, TaskListType } from "@timothyw/pat-common";
 import { post } from "../../../test-utils";
 
 export async function runCreateTaskListsTest(context: TestContext) {
-    await createTaskList(context, { name: 'Task List 1 (to update later)' });
-    await createTaskList(context, { name: 'Task List 2' });
-    await createTaskList(context, { name: 'Task List to delete' });
+    await createTaskList(context, { name: 'Task List 1 (to update later)', type: TaskListType.TASKS });
+    await createTaskList(context, { name: 'Task List 2', type: TaskListType.NOTES });
+    await createTaskList(context, { name: 'Task List to delete', type: TaskListType.TASKS });
 
     const taskLists = await TaskListModel.find({
         userId: context.userId
