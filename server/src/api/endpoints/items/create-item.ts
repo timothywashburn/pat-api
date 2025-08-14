@@ -8,6 +8,8 @@ import {
 } from "@timothyw/pat-common";
 import NotificationManager from "../../../controllers/notification-manager";
 import { NotificationType } from "../../../models/notification-handler";
+import { GenericNotificationHandler } from "../../../notifications/generic-notification-handler";
+import { NotificationTemplateModel } from "../../../models/mongo/notification-template-data";
 
 export const createItemEndpoint: ApiEndpoint<CreateItemRequest, CreateItemResponse> = {
     path: '/api/items',
@@ -40,6 +42,24 @@ export const createItemEndpoint: ApiEndpoint<CreateItemRequest, CreateItemRespon
                 itemId: item._id,
                 notificationNumber: 1
             });
+
+            // Schedule generic template notifications for this new agenda item
+            // Only apply global templates (without specific entityId)
+            const genericHandler = NotificationManager.getHandler(NotificationType.GENERIC_TEMPLATE) as GenericNotificationHandler;
+            const templates = await NotificationTemplateModel.find({
+                userId,
+                entityType: 'agenda_item',
+                active: true,
+                $or: [
+                    { entityId: { $exists: false } },
+                    { entityId: null }
+                ]
+            });
+
+            for (const template of templates) {
+                console.log(`📋 Found global template "${template.name}" for new agenda item ${item._id}`);
+                await genericHandler.scheduleFromTemplate(template.toObject(), item._id.toString(), item);
+            }
 
             res.json({
                 success: true,

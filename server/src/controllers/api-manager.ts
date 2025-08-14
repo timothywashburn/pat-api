@@ -42,6 +42,14 @@ import {createPersonNoteEndpoint} from "../api/endpoints/people/create-person-no
 import {getPersonNotesEndpoint} from "../api/endpoints/people/get-person-notes";
 import {updatePersonNoteEndpoint} from "../api/endpoints/people/update-person-note";
 import {deletePersonNoteEndpoint} from "../api/endpoints/people/delete-person-note";
+import {getNotificationTemplatesEndpoint} from "../api/endpoints/notifications/get-notification-templates";
+import {createNotificationTemplateEndpoint} from "../api/endpoints/notifications/create-notification-template";
+import {updateNotificationTemplateEndpoint} from "../api/endpoints/notifications/update-notification-template";
+import {deleteNotificationTemplateEndpoint} from "../api/endpoints/notifications/delete-notification-template";
+import {previewNotificationTemplateEndpoint} from "../api/endpoints/notifications/preview-notification-template";
+import {syncNotificationTemplateEndpoint} from "../api/endpoints/notifications/sync-notification-template";
+import {getEntitySyncEndpoint} from "../api/endpoints/notifications/get-entity-sync";
+import {entitySyncEndpoint} from "../api/endpoints/notifications/entity-sync";
 
 export default class ApiManager {
     private static instance: ApiManager;
@@ -103,6 +111,15 @@ export default class ApiManager {
         this.addEndpoint(getPersonNotesEndpoint);
         this.addEndpoint(updatePersonNoteEndpoint);
         this.addEndpoint(deletePersonNoteEndpoint);
+
+        this.addEndpoint(getNotificationTemplatesEndpoint);
+        this.addEndpoint(createNotificationTemplateEndpoint);
+        this.addEndpoint(updateNotificationTemplateEndpoint);
+        this.addEndpoint(deleteNotificationTemplateEndpoint);
+        this.addEndpoint(previewNotificationTemplateEndpoint);
+        this.addEndpoint(syncNotificationTemplateEndpoint);
+        this.addEndpoint(getEntitySyncEndpoint);
+        this.addEndpoint(entitySyncEndpoint);
 
         console.log(`registered ${this.endpoints.length} api endpoints`);
     }
