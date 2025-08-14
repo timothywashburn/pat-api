@@ -1,6 +1,6 @@
 import { TestContext } from '../../../main';
 import { ListItemModel } from "../../../../src/models/mongo/list-item-data";
-import { CreateListItemRequest, CreateListItemResponse, Serializer } from "@timothyw/pat-common";
+import { CreateListItemRequest, CreateListItemResponse, ListItemData, Serializer } from "@timothyw/pat-common";
 import { post } from "../../../test-utils";
 
 export async function runCreateListItemsTest(context: TestContext) {
@@ -42,6 +42,6 @@ async function createListItem(context: TestContext, data: CreateListItemRequest)
     );
 
     if (!response.success) throw new Error(`failed to create list item: ${data.name}`);
-    const listItem = Serializer.deserializeListItemData(response.listItem);
+    const listItem = Serializer.deserialize<ListItemData>(response.listItem);
     context.listItemIds.push(listItem._id);
 }

@@ -51,7 +51,7 @@ export const deleteHabitEntryEndpoint: ApiEndpoint<undefined, DeleteHabitEntryRe
 
             res.json({
                 success: true,
-                habit: Serializer.serializeHabit(habitWithEntries)
+                habit: Serializer.serialize(habitWithEntries)
             });
         } catch (error) {
             res.status(500).json({

@@ -1,7 +1,7 @@
 import { TestContext } from '../../../main';
 import { Types } from 'mongoose';
 import { PersonModel } from "../../../../src/models/mongo/person-data";
-import { CreatePersonResponse, PersonId, Serializer } from "@timothyw/pat-common";
+import { CreatePersonResponse, Person, PersonData, PersonId, Serializer } from "@timothyw/pat-common";
 import { ApiResponseBody } from "../../../../src/api/types";
 import { post } from "../../../test-utils";
 
@@ -37,6 +37,6 @@ async function createPerson(context: TestContext, data: Record<string, any>) {
     );
 
     if (!response.success) throw new Error(`failed to create person: ${data.name}`);
-    const person = Serializer.deserializePerson(response.person);
+    const person = Serializer.deserialize<Person>(response.person);
     context.personIds.push(person._id);
 }

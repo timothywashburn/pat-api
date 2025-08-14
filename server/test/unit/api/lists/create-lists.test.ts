@@ -4,7 +4,7 @@ import {
     CreateListResponse,
     Serializer,
     ListType,
-    CreateListRequest
+    CreateListRequest, ListData
 } from "@timothyw/pat-common";
 import { post } from "../../../test-utils";
 
@@ -29,6 +29,6 @@ async function createList(context: TestContext, data: CreateListRequest) {
     );
 
     if (!response.success) throw new Error(`failed to create list: ${data.name}`);
-    const list = Serializer.deserializeListData(response.list);
+    const list = Serializer.deserialize<ListData>(response.list);
     context.listIds.push(list._id);
 }

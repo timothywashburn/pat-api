@@ -33,7 +33,7 @@ export const entitySyncEndpoint: ApiEndpoint<EntitySyncRequest, EntitySyncRespon
                 res.json({
                     success: true,
                     synced: true,
-                    templates: templates.map(template => Serializer.serializeNotificationTemplateData(template))
+                    templates: templates.map(template => Serializer.serialize(template))
                 });
             } else {
                 // Break sync - copy parent templates as individual templates
@@ -42,7 +42,7 @@ export const entitySyncEndpoint: ApiEndpoint<EntitySyncRequest, EntitySyncRespon
                 res.json({
                     success: true,
                     synced: false,
-                    templates: copiedTemplates.map(template => Serializer.serializeNotificationTemplateData(template))
+                    templates: copiedTemplates.map(template => Serializer.serialize(template))
                 });
             }
         } catch (error) {

@@ -36,7 +36,7 @@ export const updateItemEndpoint: ApiEndpoint<UpdateItemRequest, UpdateItemRespon
 
             res.json({
                 success: true,
-                item: Serializer.serializeItemData(item)
+                item: Serializer.serialize(item)
             });
         } catch (error) {
             let message = 'Failed to update item';

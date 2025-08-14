@@ -23,7 +23,7 @@ export const createThoughtEndpoint: ApiEndpoint<CreateThoughtRequest, CreateThou
 
             res.json({
                 success: true,
-                thought: Serializer.serializeThoughtData(thought)
+                thought: Serializer.serialize(thought)
             });
         } catch (error) {
             let message = 'Failed to create thought';

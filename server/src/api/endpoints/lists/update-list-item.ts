@@ -30,7 +30,7 @@ export const updateListItemEndpoint: ApiEndpoint<UpdateListItemRequest, UpdateLi
 
             res.json({
                 success: true,
-                listItem: Serializer.serializeListItemData(listItem)
+                listItem: Serializer.serialize(listItem)
             });
         } catch (error) {
             console.error('Error updating list item:', error);

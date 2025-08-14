@@ -11,7 +11,7 @@ export const getPersonNotesEndpoint: ApiEndpoint<undefined, GetPersonNotesRespon
             const personNotes = await PersonNoteManager.getInstance().getAllByUser(req.auth!.userId!);
             res.json({
                 success: true,
-                personNotes: personNotes.map(note => Serializer.serializePersonNoteData(note))
+                personNotes: personNotes.map(note => Serializer.serialize(note))
             });
         } catch (error) {
             res.status(500).json({ success: false, error: 'Failed to fetch person notes' });

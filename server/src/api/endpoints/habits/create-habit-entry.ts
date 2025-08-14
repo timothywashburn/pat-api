@@ -78,7 +78,7 @@ export const createHabitEntryEndpoint: ApiEndpoint<CreateHabitEntryRequest, Crea
 
             res.json({
                 success: true,
-                habit: Serializer.serializeHabit(habitWithEntries),
+                habit: Serializer.serialize(habitWithEntries),
             });
         } catch (error) {
             let message = 'Failed to create habit entry';

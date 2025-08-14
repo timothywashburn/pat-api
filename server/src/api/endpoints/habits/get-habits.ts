@@ -12,7 +12,7 @@ export const getHabitsEndpoint: ApiEndpoint<undefined, GetHabitsResponse> = {
 
             res.json({
                 success: true,
-                habits: habits.map(habit => Serializer.serializeHabit(habit))
+                habits: habits.map(habit => Serializer.serialize(habit))
             });
         } catch (error) {
             res.status(500).json({

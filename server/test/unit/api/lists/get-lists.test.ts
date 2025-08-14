@@ -1,5 +1,5 @@
 import { TestContext } from '../../../main';
-import { GetListsResponse, Serializer } from "@timothyw/pat-common";
+import { GetListsResponse, ListData, Serializer } from "@timothyw/pat-common";
 import { get } from "../../../test-utils";
 
 export async function runGetListsTest(context: TestContext) {
@@ -12,7 +12,7 @@ export async function runGetListsTest(context: TestContext) {
         throw new Error('Failed to get lists');
     }
 
-    const lists = response.lists.map(list => Serializer.deserializeListData(list));
+    const lists = response.lists.map(list => Serializer.deserialize<ListData>(list));
 
     if (context.listIds && lists.length !== context.listIds.length) {
         const count = context.listIds.length;

@@ -30,7 +30,7 @@ export const completeListItemEndpoint: ApiEndpoint<CompleteListItemRequest, Comp
 
             res.json({
                 success: true,
-                listItem: Serializer.serializeListItemData(listItem)
+                listItem: Serializer.serialize(listItem)
             });
         } catch (error) {
             let message = 'Failed to update list completion status';

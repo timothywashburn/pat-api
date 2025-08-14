@@ -24,7 +24,7 @@ export const createListEndpoint: ApiEndpoint<CreateListRequest, CreateListRespon
 
             res.json({
                 success: true,
-                list: Serializer.serializeListData(list)
+                list: Serializer.serialize(list)
             });
         } catch (error) {
             let message = 'Failed to create list';

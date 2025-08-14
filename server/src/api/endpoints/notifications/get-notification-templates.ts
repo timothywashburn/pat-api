@@ -18,7 +18,7 @@ export const getNotificationTemplatesEndpoint: ApiEndpoint<undefined, GetNotific
 
             res.json({
                 success: true,
-                templates: templates.map(template => Serializer.serializeNotificationTemplateData(template))
+                templates: templates.map(template => Serializer.serialize(template))
             });
         } catch (error) {
             console.error('Error fetching notification templates:', error);

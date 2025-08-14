@@ -1,6 +1,6 @@
 import { TestContext } from '../../../main';
 import { ApiResponseBody } from "../../../../src/api/types";
-import { GetPersonNotesResponse, Serializer } from "@timothyw/pat-common";
+import { GetPersonNotesResponse, PersonNoteData, Serializer } from "@timothyw/pat-common";
 import { get } from "../../../test-utils";
 
 export async function runGetPersonNotesTest(context: TestContext) {
@@ -11,7 +11,7 @@ export async function runGetPersonNotesTest(context: TestContext) {
 
     if (!response.success) throw new Error('failed to get person notes');
 
-    const personNotes = response.personNotes.map(note => Serializer.deserializePersonNoteData(note));
+    const personNotes = response.personNotes.map(note => Serializer.deserialize<PersonNoteData>(note));
     if (personNotes.length !== context.personNoteIds.length)
         throw new Error(`expected ${context.personNoteIds.length} person notes, found ${personNotes.length}`);
 

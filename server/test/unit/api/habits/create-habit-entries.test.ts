@@ -46,7 +46,7 @@ export async function runCreateHabitEntriesTest(context: TestContext) {
 
     if (!isSuccess(response)) throw new Error(`failed to fetch habits: ${response.error}`);
 
-    const habits = response.habits.map(h => Serializer.deserializeHabit(h));
+    const habits = response.habits.map(h => Serializer.deserialize<Habit>(h));
     const habit = habits.find((h: Habit) => h._id === context.habitIds[0]);
     if (!habit) throw new Error('habit not found');
 

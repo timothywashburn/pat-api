@@ -1,7 +1,7 @@
 import { TestContext } from '../../../main';
 import { ItemModel } from "../../../../src/models/mongo/item-data";
 import { ApiResponseBody } from "../../../../src/api/types";
-import { CreateItemResponse, ItemId, Serializer } from "@timothyw/pat-common";
+import { CreateItemResponse, ItemData, ItemId, Serializer } from "@timothyw/pat-common";
 import { post } from "../../../test-utils";
 
 export async function runCreateItemsTest(context: TestContext) {
@@ -68,6 +68,6 @@ async function createItem(context: TestContext, data: Record<string, any>) {
     );
 
     if (!response.success) throw new Error(`failed to create item: ${data.name}`);
-    const item = Serializer.deserializeItemData(response.item);
+    const item = Serializer.deserialize<ItemData>(response.item);
     context.itemIds.push(item._id);
 }

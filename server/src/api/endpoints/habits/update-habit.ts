@@ -45,7 +45,7 @@ export const updateHabitEndpoint: ApiEndpoint<UpdateHabitRequest, UpdateHabitRes
 
             res.json({
                 success: true,
-                habit: Serializer.serializeHabit(habitWithEntries)
+                habit: Serializer.serialize(habitWithEntries)
             });
         } catch (error) {
             let message = 'Failed to update habit';

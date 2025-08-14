@@ -29,7 +29,7 @@ export const updateListEndpoint: ApiEndpoint<UpdateListRequest, UpdateListRespon
 
             res.json({
                 success: true,
-                list: Serializer.serializeListData(list)
+                list: Serializer.serialize(list)
             });
         } catch (error) {
             let message = 'Failed to update list';

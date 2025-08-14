@@ -1,6 +1,6 @@
 import { TestContext } from '../../../main';
 import { ApiResponseBody } from "../../../../src/api/types";
-import { GetHabitsResponse, Serializer } from "@timothyw/pat-common";
+import { GetHabitsResponse, Habit, Serializer } from "@timothyw/pat-common";
 import { get } from "../../../test-utils";
 
 export async function runGetHabitsTest(context: TestContext) {
@@ -12,7 +12,7 @@ export async function runGetHabitsTest(context: TestContext) {
     if (!response.success) throw new Error('failed to fetch habits');
     if (!Array.isArray(response.habits)) throw new Error('invalid habits response format');
     
-    const habits = response.habits.map(h => Serializer.deserializeHabit(h));
+    const habits = response.habits.map(h => Serializer.deserialize<Habit>(h));
     if (habits.length != context.habitIds.length)
         throw new Error(`expected ${context.habitIds.length} habit${context.habitIds.length == 1 ? "" : "s"}, found ${habits.length}`);
 }

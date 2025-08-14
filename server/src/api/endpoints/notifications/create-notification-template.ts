@@ -42,7 +42,7 @@ export const createNotificationTemplateEndpoint: ApiEndpoint<CreateNotificationT
 
             res.json({
                 success: true,
-                template: Serializer.serializeNotificationTemplateData(template)
+                template: Serializer.serialize(template)
             });
         } catch (error) {
             console.error('Error creating notification template:', error);

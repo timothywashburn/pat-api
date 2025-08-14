@@ -12,7 +12,7 @@ export const getItemsEndpoint: ApiEndpoint<undefined, GetItemsResponse> = {
 
             res.json({
                 success: true,
-                items: items.map(item => Serializer.serializeItemData(item))
+                items: items.map(item => Serializer.serialize(item))
             });
         } catch (error) {
             res.status(500).json({

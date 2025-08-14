@@ -1,7 +1,7 @@
 import { TestContext } from '../../../main';
 import { Types } from 'mongoose';
 import { ThoughtModel } from '../../../../src/models/mongo/thought-data';
-import { CreateThoughtResponse, ThoughtId, Serializer } from "@timothyw/pat-common";
+import { CreateThoughtResponse, ThoughtId, Serializer, ThoughtData } from "@timothyw/pat-common";
 import { ApiResponseBody } from "../../../../src/api/types";
 import { post } from "../../../test-utils";
 
@@ -26,6 +26,6 @@ async function createThought(context: TestContext, data: Record<string, any>) {
     );
 
     if (!response.success) throw new Error(`failed to create thought: ${data.content}`);
-    const thought = Serializer.deserializeThoughtData(response.thought);
+    const thought = Serializer.deserialize<ThoughtData>(response.thought);
     context.thoughtIds.push(thought._id);
 }

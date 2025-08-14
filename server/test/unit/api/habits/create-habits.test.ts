@@ -1,7 +1,7 @@
 import { TestContext } from '../../../main';
 import { HabitModel } from "../../../../src/models/mongo/habit-data";
 import { ApiResponseBody } from "../../../../src/api/types";
-import { CreateHabitResponse, Serializer } from "@timothyw/pat-common";
+import { CreateHabitResponse, Habit, Serializer } from "@timothyw/pat-common";
 import { post } from "../../../test-utils";
 
 export async function runCreateHabitsTest(context: TestContext) {
@@ -41,6 +41,6 @@ async function createHabit(context: TestContext, data: Record<string, any>) {
     );
 
     if (!response.success) throw new Error(`failed to create habit: ${data.name}`);
-    const habit = Serializer.deserializeHabit(response.habit);
+    const habit = Serializer.deserialize<Habit>(response.habit);
     context.habitIds.push(habit._id);
 }

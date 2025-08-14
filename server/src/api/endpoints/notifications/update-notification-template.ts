@@ -32,7 +32,7 @@ export const updateNotificationTemplateEndpoint: ApiEndpoint<UpdateNotificationT
 
             res.json({
                 success: true,
-                template: Serializer.serializeNotificationTemplateData(template)
+                template: Serializer.serialize(template)
             });
         } catch (error) {
             console.error('Error updating notification template:', error);

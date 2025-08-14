@@ -1,7 +1,7 @@
 import { TestContext } from '../../../main';
 import { Types } from 'mongoose';
 import { PersonNoteModel } from '../../../../src/models/mongo/person-note-data';
-import { CreatePersonNoteResponse, PersonNoteId, Serializer } from "@timothyw/pat-common";
+import { CreatePersonNoteResponse, PersonNoteData, PersonNoteId, Serializer } from "@timothyw/pat-common";
 import { ApiResponseBody } from "../../../../src/api/types";
 import { post } from "../../../test-utils";
 
@@ -26,6 +26,6 @@ async function createPersonNote(context: TestContext, data: Record<string, any>)
     );
 
     if (!response.success) throw new Error(`failed to create person note: ${data.content}`);
-    const personNote = Serializer.deserializePersonNoteData(response.personNote);
+    const personNote = Serializer.deserialize<PersonNoteData>(response.personNote);
     context.personNoteIds.push(personNote._id);
 }

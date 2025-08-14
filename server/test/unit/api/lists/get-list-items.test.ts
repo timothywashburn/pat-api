@@ -1,5 +1,5 @@
 import { TestContext } from '../../../main';
-import { GetListItemsResponse, Serializer } from "@timothyw/pat-common";
+import { GetListItemsResponse, ListItemData, Serializer } from "@timothyw/pat-common";
 import { get } from "../../../test-utils";
 
 export async function runGetListItemsTest(context: TestContext) {
@@ -9,7 +9,7 @@ export async function runGetListItemsTest(context: TestContext) {
     );
 
     if (!response.success) throw new Error('Failed to get list items');
-    const listItems = response.listItems.map(t => Serializer.deserializeListItemData(t));
+    const listItems = response.listItems.map(t => Serializer.deserialize<ListItemData>(t));
 
     if (context.listItemIds && listItems.length !== context.listItemIds.length) {
         const count = context.listItemIds.length;
