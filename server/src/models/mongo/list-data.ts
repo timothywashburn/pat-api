@@ -28,5 +28,4 @@ const listSchema = new Schema<ListData>({
     timestamps: true,
 });
 
-// TODO: change these
-export const ListModel = model<ListData>('TaskList', listSchema, 'task_lists');
+export const ListModel = model<ListData>('List', listSchema, 'lists');

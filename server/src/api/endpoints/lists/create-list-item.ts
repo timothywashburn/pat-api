@@ -15,7 +15,7 @@ export const createListItemEndpoint: ApiEndpoint<CreateListItemRequest, CreateLi
             const listItem = await ListItemManager.getInstance().create(userId, {
                 name: data.name,
                 notes: data.notes,
-                taskListId: data.listId
+                listId: data.listId
             });
 
             res.json({

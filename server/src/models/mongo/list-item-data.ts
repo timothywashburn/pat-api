@@ -26,7 +26,7 @@ const listItemSchema = new Schema<ListItemData>({
         type: Boolean,
         default: false,
     },
-    taskListId: { // TODO: change this
+    listId: {
         type: String,
         required: true,
         index: true,
@@ -35,5 +35,4 @@ const listItemSchema = new Schema<ListItemData>({
     timestamps: true,
 });
 
-// TODO: change these
-export const ListItemModel = model<ListItemData>('Task', listItemSchema, 'tasks');
+export const ListItemModel = model<ListItemData>('ListItem', listItemSchema, 'list_items');

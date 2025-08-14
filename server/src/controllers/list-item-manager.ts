@@ -19,7 +19,7 @@ export default class ListItemManager {
     async create(userId: UserId, data: {
         name: string;
         notes?: string;
-        taskListId: ListId; // TODO: rename this
+        listId: ListId;
     }): Promise<ListItemData> {
         const listItem = new ListItemModel({
             userId,
@@ -50,7 +50,7 @@ export default class ListItemManager {
         const listItem = await ListItemModel.findById(listItemId).lean();
         if (!listItem) return null;
 
-        const list = await ListManager.getInstance().getById(listItem.taskListId);
+        const list = await ListManager.getInstance().getById(listItem.listId);
         if (list?.type === ListType.NOTES) throw new Error('Cannot mark items in note lists as completed');
 
         return ListItemModel.findByIdAndUpdate(
