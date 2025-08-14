@@ -1,8 +1,8 @@
-import axios from 'axios';
 import { TestContext } from '../../../main';
 import { ApiResponseBody } from "../../../../src/api/types";
 import { DeleteHabitEntryResponse } from "@timothyw/pat-common";
 import DateUtils from "../../../../src/utils/date-utils";
+import { del } from "../../../test-utils";
 
 export async function runDeleteHabitEntryTest(context: TestContext) {
     if (context.habitIds.length === 0) {
@@ -13,18 +13,14 @@ export async function runDeleteHabitEntryTest(context: TestContext) {
     const dateOnlyString = DateUtils.toLocalDateOnlyString(new Date(), 'America/Los_Angeles');
 
     // Delete the entry from today
-    const response = await axios.delete<ApiResponseBody<DeleteHabitEntryResponse>>(
-        `${context.baseUrl}/api/habits/${habitId}/entries/${dateOnlyString}`,
-        {
-            headers: {
-                Authorization: `Bearer ${context.authToken}`
-            }
-        }
+    const response = await del<DeleteHabitEntryResponse>(
+        context,
+        `/api/habits/${habitId}/entries/${dateOnlyString}`
     );
 
-    if (!response.data.success) throw new Error('failed to delete habit entry');
+    if (!response.success) throw new Error('failed to delete habit entry');
 
     // Verify the entry was deleted by checking the updated habit
-    const habit = response.data.data!.habit;
+    const habit = response.habit;
     if (habit.entries.length !== 0) throw new Error(`expected 0 entries after deletion, found ${habit.entries.length}`);
 }

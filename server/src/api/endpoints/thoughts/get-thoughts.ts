@@ -11,9 +11,7 @@ export const getThoughtsEndpoint: ApiEndpoint<undefined, GetThoughtsResponse> = 
             const thoughts = await ThoughtManager.getInstance().getAllByUser(req.auth!.userId!);
             res.json({
                 success: true,
-                data: {
-                    thoughts: thoughts.map(thought => Serializer.serializeThoughtData(thought))
-                }
+                thoughts: thoughts.map(thought => Serializer.serializeThoughtData(thought))
             });
         } catch (error) {
             res.status(500).json({ success: false, error: 'Failed to fetch thoughts' });

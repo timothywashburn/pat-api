@@ -31,9 +31,6 @@ export const deleteHabitEndpoint: ApiEndpoint<undefined, DeleteHabitResponse> = 
 
             res.json({
                 success: true,
-                data: {
-                    success: true
-                }
             });
         } catch (error) {
             res.status(500).json({

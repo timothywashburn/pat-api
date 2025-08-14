@@ -1,7 +1,7 @@
-import axios from 'axios';
 import { TestContext } from '../../../main';
 import { ModuleType, UpdateUserRequest, UpdateUserResponse } from "@timothyw/pat-common";
 import { ApiResponseBody } from "../../../../src/api/types";
+import { put } from "../../../test-utils";
 
 export async function runUpdateUserConfigTest(context: TestContext) {
     if (!context.authToken || !context.userId) {
@@ -26,7 +26,7 @@ export async function runUpdateUserConfigTest(context: TestContext) {
                     visible: true,
                 },
                 {
-                    type: ModuleType.TASKS,
+                    type: ModuleType.LISTS,
                     visible: true,
                 },
                 {
@@ -49,15 +49,11 @@ export async function runUpdateUserConfigTest(context: TestContext) {
         }
     };
 
-    const response = await axios.put<ApiResponseBody<UpdateUserResponse>>(
-        `${context.baseUrl}/api/account`,
-        updates,
-        {
-            headers: {
-                Authorization: `Bearer ${context.authToken}`
-            }
-        }
+    const response = await put<UpdateUserRequest, UpdateUserResponse>(
+        context,
+        "/api/account",
+        updates
     );
 
-    if (!response.data.success) throw new Error('failed to update user config');
+    if (!response.success) throw new Error('failed to update user config');
 }

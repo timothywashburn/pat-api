@@ -60,9 +60,7 @@ export const getUserEndpoint: ApiEndpoint<undefined, GetUserResponse> = {
 
             res.json({
                 success: true,
-                data: {
-                    user: Serializer.serializeUserData(user)
-                }
+                user: Serializer.serializeUserData(user)
             });
         } catch (error) {
             console.error('[config] error in getUserConfig:', error);

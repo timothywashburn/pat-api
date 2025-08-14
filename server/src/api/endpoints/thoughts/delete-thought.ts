@@ -18,9 +18,7 @@ export const deleteThoughtEndpoint: ApiEndpoint<undefined, DeleteThoughtResponse
 
             res.json({
                 success: true,
-                data: {
-                    deleted: true
-                }
+                deleted: true
             });
         } catch (error) {
             res.status(400).json({ success: false, error: 'Failed to delete thought' });

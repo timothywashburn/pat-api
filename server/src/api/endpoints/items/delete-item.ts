@@ -21,9 +21,7 @@ export const deleteItemEndpoint: ApiEndpoint<undefined, DeleteItemResponse> = {
 
             res.json({
                 success: true,
-                data: {
-                    deleted: true
-                }
+                deleted: true
             });
         } catch (error) {
             res.status(400).json({

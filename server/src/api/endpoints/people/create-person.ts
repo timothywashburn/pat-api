@@ -16,9 +16,7 @@ export const createPersonEndpoint: ApiEndpoint<CreatePersonRequest, CreatePerson
 
             res.json({
                 success: true,
-                data: {
-                    person: Serializer.serializePerson(person)
-                }
+                person: Serializer.serializePerson(person)
             });
         } catch (error) {
             let message = 'Failed to create person';

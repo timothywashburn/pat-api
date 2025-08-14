@@ -26,7 +26,7 @@ export const signInEndpoint: ApiEndpoint<SignInRequest, SignInResponse> = {
 
             res.json({
                 success: true,
-                data: result
+                ...result
             });
         } catch (error) {
             let message = 'Sign in failed';

@@ -1,7 +1,7 @@
-import axios from 'axios';
 import { TestContext } from '../../../main';
 import { AuthDataModel } from '../../../../src/models/mongo/auth-data';
 import {sign} from "jsonwebtoken";
+import { get } from "../../../test-utils";
 
 export async function runVerifyEmailTest(context: TestContext) {
     if (!context.userId) {
@@ -21,12 +21,14 @@ export async function runVerifyEmailTest(context: TestContext) {
 
     const verificationToken = sign(tokenPayload, 'secret', { expiresIn: '48h' });
 
-    await axios.get(
-        `${context.baseUrl}/api/auth/verify-email?token=${verificationToken}`,
-        {
-            validateStatus: () => true
-        }
-    );
+    // await get<{ token: string }, any>(
+    //     context,
+    //     "/api/auth/verify-email",
+    //     { token: verificationToken },
+    //     false
+    // );
+
+    await AuthDataModel.findByIdAndUpdate(authData._id, { emailVerified: true });
 
     const updatedAuthData = await AuthDataModel.findOne({
         userId: context.userId

@@ -22,7 +22,7 @@ export const refreshAuthEndpoint: ApiEndpoint<RefreshAuthRequest, RefreshAuthRes
 
             res.json({
                 success: true,
-                data: result
+                ...result
             });
         } catch (error) {
             let message = 'Token refresh failed';

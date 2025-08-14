@@ -3,7 +3,7 @@ import AuthManager from '../../../controllers/auth-manager';
 import { z } from 'zod';
 import MailjetManager from "../../../controllers/mailjet-manager";
 import ConfigManager from '../../../controllers/config-manager';
-import { CreateAccountRequest, createAccountRequestSchema, CreateAccountResponse } from "@timothyw/pat-common";
+import { CreateAccountRequest, createAccountRequestSchema, CreateAccountResponse, UserId } from "@timothyw/pat-common";
 
 export const createAccountEndpoint: ApiEndpoint<CreateAccountRequest, CreateAccountResponse> = {
     path: '/api/auth/create-account',
@@ -33,11 +33,9 @@ export const createAccountEndpoint: ApiEndpoint<CreateAccountRequest, CreateAcco
 
             res.json({
                 success: true,
-                data: {
-                    id: user._id.toString(),
-                    name: user.name,
-                    email: authData.email
-                }
+                id: user._id.toString() as UserId,
+                name: user.name,
+                email: authData.email
             });
         } catch (error) {
             let message = 'Failed to create account';

@@ -20,9 +20,7 @@ export const resendVerificationEndpoint: ApiEndpoint<undefined, ResendVerificati
 
             res.json({
                 success: true,
-                data: {
-                    sent: true
-                }
+                sent: true
             });
         } catch (error) {
             console.error('Error in resendVerification:', error);

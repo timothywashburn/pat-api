@@ -57,9 +57,7 @@ export const updateUserEndpoint: ApiEndpoint<UpdateUserRequest, UpdateUserRespon
 
             res.json({
                 success: true,
-                data: {
-                    user: Serializer.serializeUserData(updatedUser)
-                }
+                user: Serializer.serializeUserData(updatedUser)
             });
         } catch (error) {
             let message = 'Failed to update user configuration';

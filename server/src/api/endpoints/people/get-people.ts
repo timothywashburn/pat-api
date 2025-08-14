@@ -11,9 +11,7 @@ export const getPeopleEndpoint: ApiEndpoint<undefined, GetPeopleResponse> = {
             const people = await PersonManager.getInstance().getAllByUser(req.auth!.userId!);
             res.json({
                 success: true,
-                data: {
-                    people: people.map(person => Serializer.serializePerson(person))
-                }
+                people: people.map(person => Serializer.serializePerson(person))
             });
         } catch (error) {
             res.status(500).json({ success: false, error: 'Failed to fetch people' });

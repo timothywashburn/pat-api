@@ -17,10 +17,7 @@ export const deletePersonNoteEndpoint: ApiEndpoint<undefined, DeletePersonNoteRe
             }
 
             res.json({
-                success: true,
-                data: {
-                    success: true
-                }
+                success: true
             });
         } catch (error) {
             res.status(400).json({ success: false, error: 'Failed to delete person note' });

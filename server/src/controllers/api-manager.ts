@@ -22,15 +22,15 @@ import {createPersonEndpoint} from "../api/endpoints/people/create-person";
 import {deletePersonEndpoint} from "../api/endpoints/people/delete-person";
 import {getPeopleEndpoint} from "../api/endpoints/people/get-people";
 import {updatePersonEndpoint} from "../api/endpoints/people/update-person";
-import {createTaskEndpoint} from "../api/endpoints/tasks/create-task";
-import {createTaskListEndpoint} from "../api/endpoints/tasks/create-task-list";
-import {getTasksEndpoint} from "../api/endpoints/tasks/get-tasks";
-import {getTaskListsEndpoint} from "../api/endpoints/tasks/get-task-lists";
-import {updateTaskEndpoint} from "../api/endpoints/tasks/update-task";
-import {updateTaskListEndpoint} from "../api/endpoints/tasks/update-task-list";
-import {completeTaskEndpoint} from "../api/endpoints/tasks/complete-task";
-import {deleteTaskEndpoint} from "../api/endpoints/tasks/delete-task";
-import {deleteTaskListEndpoint} from "../api/endpoints/tasks/delete-task-list";
+import {createListItemEndpoint} from "../api/endpoints/lists/create-list-item";
+import {createListEndpoint} from "../api/endpoints/lists/create-list";
+import {getListItemsEndpoint} from "../api/endpoints/lists/get-list-items";
+import {getListsEndpoint} from "../api/endpoints/lists/get-lists";
+import {updateListItemEndpoint} from "../api/endpoints/lists/update-list-item";
+import {updateListEndpoint} from "../api/endpoints/lists/update-list";
+import {completeListItemEndpoint} from "../api/endpoints/lists/complete-list-item";
+import {deleteListItemEndpoint} from "../api/endpoints/lists/delete-list-item";
+import {deleteListEndpoint} from "../api/endpoints/lists/delete-list";
 import {getHabitsEndpoint} from "../api/endpoints/habits/get-habits";
 import {createHabitEndpoint} from "../api/endpoints/habits/create-habit";
 import {updateHabitEndpoint} from "../api/endpoints/habits/update-habit";
@@ -42,6 +42,14 @@ import {createPersonNoteEndpoint} from "../api/endpoints/people/create-person-no
 import {getPersonNotesEndpoint} from "../api/endpoints/people/get-person-notes";
 import {updatePersonNoteEndpoint} from "../api/endpoints/people/update-person-note";
 import {deletePersonNoteEndpoint} from "../api/endpoints/people/delete-person-note";
+import {getNotificationTemplatesEndpoint} from "../api/endpoints/notifications/get-notification-templates";
+import {createNotificationTemplateEndpoint} from "../api/endpoints/notifications/create-notification-template";
+import {updateNotificationTemplateEndpoint} from "../api/endpoints/notifications/update-notification-template";
+import {deleteNotificationTemplateEndpoint} from "../api/endpoints/notifications/delete-notification-template";
+import {previewNotificationTemplateEndpoint} from "../api/endpoints/notifications/preview-notification-template";
+import {syncNotificationTemplateEndpoint} from "../api/endpoints/notifications/sync-notification-template";
+import {getEntitySyncEndpoint} from "../api/endpoints/notifications/get-entity-sync";
+import {entitySyncEndpoint} from "../api/endpoints/notifications/entity-sync";
 
 export default class ApiManager {
     private static instance: ApiManager;
@@ -82,15 +90,15 @@ export default class ApiManager {
         this.addEndpoint(getPeopleEndpoint);
         this.addEndpoint(updatePersonEndpoint);
 
-        this.addEndpoint(createTaskListEndpoint);
-        this.addEndpoint(getTaskListsEndpoint);
-        this.addEndpoint(updateTaskListEndpoint);
-        this.addEndpoint(deleteTaskListEndpoint);
-        this.addEndpoint(createTaskEndpoint);
-        this.addEndpoint(getTasksEndpoint);
-        this.addEndpoint(updateTaskEndpoint);
-        this.addEndpoint(completeTaskEndpoint);
-        this.addEndpoint(deleteTaskEndpoint);
+        this.addEndpoint(createListEndpoint);
+        this.addEndpoint(getListsEndpoint);
+        this.addEndpoint(updateListEndpoint);
+        this.addEndpoint(deleteListEndpoint);
+        this.addEndpoint(createListItemEndpoint);
+        this.addEndpoint(getListItemsEndpoint);
+        this.addEndpoint(updateListItemEndpoint);
+        this.addEndpoint(completeListItemEndpoint);
+        this.addEndpoint(deleteListItemEndpoint);
 
         this.addEndpoint(getHabitsEndpoint);
         this.addEndpoint(createHabitEndpoint);
@@ -103,6 +111,15 @@ export default class ApiManager {
         this.addEndpoint(getPersonNotesEndpoint);
         this.addEndpoint(updatePersonNoteEndpoint);
         this.addEndpoint(deletePersonNoteEndpoint);
+
+        this.addEndpoint(getNotificationTemplatesEndpoint);
+        this.addEndpoint(createNotificationTemplateEndpoint);
+        this.addEndpoint(updateNotificationTemplateEndpoint);
+        this.addEndpoint(deleteNotificationTemplateEndpoint);
+        this.addEndpoint(previewNotificationTemplateEndpoint);
+        this.addEndpoint(syncNotificationTemplateEndpoint);
+        this.addEndpoint(getEntitySyncEndpoint);
+        this.addEndpoint(entitySyncEndpoint);
 
         console.log(`registered ${this.endpoints.length} api endpoints`);
     }

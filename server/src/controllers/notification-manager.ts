@@ -13,6 +13,9 @@ import {
 import {
     ClearInboxNotificationHandler,
 } from "../notifications/clear-inbox-notification";
+import {
+    GenericNotificationHandler,
+} from "../notifications/generic-notification-handler";
 import NotificationRunner from "./notification-runner";
 import NotificationSender from "./notification-sender";
 
@@ -20,13 +23,14 @@ export type NotificationId = string & { readonly __brand: "NotificationId" };
 
 export type QueuedNotification = {
     id: NotificationId;
-    handler: NotificationHandler;
+    handler: NotificationHandler<any, any>;
     data: NotificationData
 }
 
 type NotificationHandlerMap = {
     [NotificationType.ITEM_DEADLINE]: ItemDeadlineNotificationHandler;
     [NotificationType.CLEAR_INBOX]: ClearInboxNotificationHandler;
+    [NotificationType.GENERIC_TEMPLATE]: GenericNotificationHandler;
     // [NotificationType.TODAY_TODO]: TodayTodoNotificationHandler;
 };
 
@@ -59,14 +63,15 @@ export default class NotificationManager {
     registerHandlers() {
         this.registerHandler(new ItemDeadlineNotificationHandler());
         this.registerHandler(new ClearInboxNotificationHandler());
+        this.registerHandler(new GenericNotificationHandler());
     }
 
-    registerHandler<T extends NotificationType>(handler: NotificationHandlerMap[T]) {
+    registerHandler(handler: NotificationHandler) {
         NotificationManager.handlers.set(handler.type, handler);
     }
 
-    static getHandler<T extends NotificationType>(type: T): NotificationHandlerMap[T] {
-        const handler = NotificationManager.handlers.get(type) as NotificationHandlerMap[T];
+    static getHandler(type: NotificationType): NotificationHandler {
+        const handler = NotificationManager.handlers.get(type);
         if (!handler) {
             throw new Error(`notification handler for type ${type} not found`);
         }

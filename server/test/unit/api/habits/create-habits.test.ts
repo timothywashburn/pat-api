@@ -1,8 +1,8 @@
-import axios from 'axios';
 import { TestContext } from '../../../main';
 import { HabitModel } from "../../../../src/models/mongo/habit-data";
 import { ApiResponseBody } from "../../../../src/api/types";
 import { CreateHabitResponse, Serializer } from "@timothyw/pat-common";
+import { post } from "../../../test-utils";
 
 export async function runCreateHabitsTest(context: TestContext) {
     await createHabit(context, {
@@ -34,17 +34,13 @@ export async function runCreateHabitsTest(context: TestContext) {
 }
 
 async function createHabit(context: TestContext, data: Record<string, any>) {
-    const response = await axios.post<ApiResponseBody<CreateHabitResponse>>(
-        `${context.baseUrl}/api/habits`,
-        data,
-        {
-            headers: {
-                Authorization: `Bearer ${context.authToken}`
-            }
-        }
+    const response = await post<Record<string, any>, CreateHabitResponse>(
+        context,
+        "/api/habits",
+        data
     );
 
-    if (!response.data.success) throw new Error(`failed to create habit: ${data.name}`);
-    const habit = Serializer.deserializeHabit(response.data.data!.habit);
+    if (!response.success) throw new Error(`failed to create habit: ${data.name}`);
+    const habit = Serializer.deserializeHabit(response.habit);
     context.habitIds.push(habit._id);
 }

@@ -1,6 +1,5 @@
-import axios from 'axios';
 import { TestContext } from '../../../main';
-import { ApiResponseBody } from "../../../../src/api/types";
+import { ApiResponseBody, isSuccess } from "../../../../src/api/types";
 import {
     CreateHabitEntryRequest,
     CreateHabitEntryResponse,
@@ -10,6 +9,7 @@ import {
 } from "@timothyw/pat-common";
 import { HabitEntryStatus } from "@timothyw/pat-common/dist/types/models/habit-data";
 import DateUtils from "../../../../src/utils/date-utils";
+import { get, post } from "../../../test-utils";
 
 // todo: this whole test is kinda cursed now because the habit cannot be marked done yesterday and the rollover could mean its only able to be marked done yesterday
 export async function runCreateHabitEntriesTest(context: TestContext) {
@@ -39,16 +39,14 @@ export async function runCreateHabitEntriesTest(context: TestContext) {
     });
 
     // Verify the final state
-    const response = await axios.get<ApiResponseBody<GetHabitsResponse>>(
-        `${context.baseUrl}/api/habits`,
-        {
-            headers: {
-                Authorization: `Bearer ${context.authToken}`
-            }
-        }
+    const response = await get<{}, GetHabitsResponse>(
+        context,
+        "/api/habits"
     );
 
-    const habits = response.data.data!.habits.map(h => Serializer.deserializeHabit(h));
+    if (!isSuccess(response)) throw new Error(`failed to fetch habits: ${response.error}`);
+
+    const habits = response.habits.map(h => Serializer.deserializeHabit(h));
     const habit = habits.find((h: Habit) => h._id === context.habitIds[0]);
     if (!habit) throw new Error('habit not found');
 
@@ -64,15 +62,11 @@ export async function runCreateHabitEntriesTest(context: TestContext) {
 }
 
 async function createHabitEntry(context: TestContext, habitId: string, data: CreateHabitEntryRequest) {
-    const response = await axios.post<ApiResponseBody<CreateHabitEntryResponse>>(
-        `${context.baseUrl}/api/habits/${habitId}/entries`,
-        data,
-        {
-            headers: {
-                Authorization: `Bearer ${context.authToken}`
-            }
-        }
+    const response = await post<CreateHabitEntryRequest, CreateHabitEntryResponse>(
+        context,
+        `/api/habits/${habitId}/entries`,
+        data
     );
 
-    if (!response.data.success) throw new Error(`failed to create habit entry: ${data.date}`);
+    if (!response.success) throw new Error(`failed to create habit entry: ${data.date}`);
 }

@@ -1,9 +1,9 @@
-import axios from 'axios';
 import { TestContext } from '../../../main';
 import { Types } from 'mongoose';
 import { PersonModel } from "../../../../src/models/mongo/person-data";
 import { ApiResponseBody } from "../../../../src/api/types";
 import { DeletePersonResponse } from "@timothyw/pat-common";
+import { del } from "../../../test-utils";
 
 export async function runDeletePersonTest(context: TestContext) {
     if (!context.authToken || !context.userId || !context.personIds) {
@@ -12,16 +12,12 @@ export async function runDeletePersonTest(context: TestContext) {
 
     const deleteId = context.personIds.pop();
 
-    const deleteResponse = await axios.delete<ApiResponseBody<DeletePersonResponse>>(
-        `${context.baseUrl}/api/people/${deleteId}`,
-        {
-            headers: {
-                Authorization: `Bearer ${context.authToken}`
-            }
-        }
+    const deleteResponse = await del<DeletePersonResponse>(
+        context,
+        `/api/people/${deleteId}`
     );
 
-    if (!deleteResponse.data.success) throw new Error('failed to delete person');
+    if (!deleteResponse.success) throw new Error('failed to delete person');
 
     for (let i = 0; i < context.personIds.length; i++) {
         const person = await PersonModel.findOne({

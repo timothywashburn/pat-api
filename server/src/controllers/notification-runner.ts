@@ -10,8 +10,8 @@ export default class NotificationRunner {
     constructor(notificationManager: NotificationManager) {
         this.notificationManager = notificationManager;
 
-        setInterval(() => this.enqueueNotifications(), 10 * 60 * 1000);
-        // setInterval(() => this.enqueueNotifications(), 5 * 1000);
+        // setInterval(() => this.enqueueNotifications(), 10 * 60 * 1000);
+        setInterval(() => this.enqueueNotifications(), 5 * 1000);
 
         setInterval(() => this.sendNotifications(), 1000);
     }

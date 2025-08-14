@@ -1,9 +1,9 @@
-import axios from 'axios';
 import { TestContext } from '../../../main';
 import { Types } from 'mongoose';
 import { ThoughtModel } from '../../../../src/models/mongo/thought-data';
 import { ApiResponseBody } from "../../../../src/api/types";
 import { DeleteThoughtResponse } from "@timothyw/pat-common";
+import { del } from "../../../test-utils";
 
 export async function runDeleteThoughtTest(context: TestContext) {
     if (!context.authToken || !context.userId || !context.thoughtIds) {
@@ -12,16 +12,12 @@ export async function runDeleteThoughtTest(context: TestContext) {
 
     const deleteId = context.thoughtIds.pop();
 
-    const deleteResponse = await axios.delete<ApiResponseBody<DeleteThoughtResponse>>(
-        `${context.baseUrl}/api/thoughts/${deleteId}`,
-        {
-            headers: {
-                Authorization: `Bearer ${context.authToken}`
-            }
-        }
+    const deleteResponse = await del<DeleteThoughtResponse>(
+        context,
+        `/api/thoughts/${deleteId}`
     );
 
-    if (!deleteResponse.data.success) throw new Error('failed to delete thought');
+    if (!deleteResponse.success) throw new Error('failed to delete thought');
 
     for (let i = 0; i < context.thoughtIds.length; i++) {
         const thought = await ThoughtModel.findOne({
