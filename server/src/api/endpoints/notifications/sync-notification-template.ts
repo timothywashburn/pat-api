@@ -37,7 +37,7 @@ export const syncNotificationTemplateEndpoint: ApiEndpoint<SyncNotificationTempl
                     
                     res.json({
                         success: true,
-                        template: Serializer.serialize(template)
+                        synced: false,
                     });
                 } else {
                     // Already synced, nothing to do
@@ -64,7 +64,7 @@ export const syncNotificationTemplateEndpoint: ApiEndpoint<SyncNotificationTempl
 
                 res.json({
                     success: true,
-                    template: Serializer.serialize(template)
+                    synced: sync,
                 });
             }
         } catch (error) {

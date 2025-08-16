@@ -1,12 +1,12 @@
 import { ApiEndpoint } from '../../types';
 import UserManager from '../../../controllers/user-manager';
-import { GetUserResponse, Module, ModuleType, Serializer, UserData } from "@timothyw/pat-common";
+import { GetUserResponse, UserModuleData, ModuleType, Serializer } from "@timothyw/pat-common";
 
-const isValidModule = (module: Module | null | undefined): module is Module => {
+const isValidModule = (module: UserModuleData | null | undefined): module is UserModuleData => {
     return module != null && Object.values(ModuleType).includes(module.type);
 };
 
-const ensureCompleteModules = (userModules: Module[]): Module[] => {
+const ensureCompleteModules = (userModules: UserModuleData[]): UserModuleData[] => {
     const existingModules = userModules
         .filter(isValidModule)
         .map(module => ({

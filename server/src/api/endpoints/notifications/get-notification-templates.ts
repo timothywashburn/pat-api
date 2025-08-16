@@ -1,6 +1,6 @@
 import { ApiEndpoint } from '../../types';
 import NotificationTemplateManager from '../../../controllers/notification-template-manager';
-import { GetNotificationTemplatesResponse, Serializer } from "@timothyw/pat-common";
+import { GetNotificationTemplatesResponse, NotificationEntityType, Serializer } from "@timothyw/pat-common";
 
 export const getNotificationTemplatesEndpoint: ApiEndpoint<undefined, GetNotificationTemplatesResponse> = {
     path: '/api/notifications/templates',
@@ -8,12 +8,15 @@ export const getNotificationTemplatesEndpoint: ApiEndpoint<undefined, GetNotific
     auth: 'verifiedEmail',
     handler: async (req, res) => {
         try {
-            const { entityType, entityId } = req.query;
+            const { entityType, entityId } = req.query as {
+                entityType: NotificationEntityType;
+                entityId: string;
+            };
             
             const templates = await NotificationTemplateManager.getInstance().getAllByUser(
                 req.auth!.userId!,
-                entityType as any,
-                entityId as string
+                entityType,
+                entityId
             );
 
             res.json({

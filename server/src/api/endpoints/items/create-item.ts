@@ -2,22 +2,22 @@ import { ApiEndpoint } from '../../types';
 import ItemManager from '../../../controllers/item-manager';
 import { z } from 'zod';
 import {
-    CreateItemRequest,
-    createItemRequestSchema,
-    CreateItemResponse, ItemId, Serializer
+    CreateAgendaItemRequest,
+    createAgendaItemRequestSchema,
+    CreateAgendaItemResponse, Serializer
 } from "@timothyw/pat-common";
 import NotificationManager from "../../../controllers/notification-manager";
 import { NotificationType } from "../../../models/notification-handler";
 import { GenericNotificationHandler } from "../../../notifications/generic-notification-handler";
 import { NotificationTemplateModel } from "../../../models/mongo/notification-template-data";
 
-export const createItemEndpoint: ApiEndpoint<CreateItemRequest, CreateItemResponse> = {
+export const createItemEndpoint: ApiEndpoint<CreateAgendaItemRequest, CreateAgendaItemResponse> = {
     path: '/api/items',
     method: 'post',
     auth: 'verifiedEmail',
     handler: async (req, res) => {
         try {
-            const data = createItemRequestSchema.parse(req.body);
+            const data = createAgendaItemRequestSchema.parse(req.body);
             const userId = req.auth!.userId!;
 
             const item = await ItemManager.getInstance().create(userId, {
@@ -63,7 +63,7 @@ export const createItemEndpoint: ApiEndpoint<CreateItemRequest, CreateItemRespon
 
             res.json({
                 success: true,
-                item: Serializer.serialize(item)
+                agendaItem: Serializer.serialize(item)
             });
         } catch (error) {
             let message = 'Failed to create item';

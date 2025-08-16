@@ -19,7 +19,6 @@ export const deletePersonEndpoint: ApiEndpoint<undefined, DeletePersonResponse> 
 
             res.json({
                 success: true,
-                deleted: true
             });
         } catch (error) {
             res.status(400).json({ success: false, error: 'Failed to delete person' });

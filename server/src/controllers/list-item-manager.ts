@@ -3,7 +3,7 @@ import {
     ListItemId,
     UserId,
     ListId,
-    UpdateItemRequest,
+    UpdateAgendaItemRequest,
     ListType
 } from "@timothyw/pat-common";
 import { ListItemModel } from "../models/mongo/list-item-data";
@@ -41,7 +41,7 @@ export default class ListItemManager {
     update(
         auth: AuthInfo,
         listItemId: ListItemId,
-        updates: UpdateItemRequest
+        updates: UpdateAgendaItemRequest
     ): Promise<ListItemData | null> {
         return updateDocument(auth, ListItemModel, listItemId, updates);
     }

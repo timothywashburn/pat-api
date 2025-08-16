@@ -1,7 +1,7 @@
 import {
     Person,
     PersonId, PersonNoteData, PersonNoteId,
-    PersonProperty,
+    PersonPropertyData,
     UpdatePersonRequest,
     UserId
 } from "@timothyw/pat-common";
@@ -16,7 +16,7 @@ export default class PersonManager {
 
     async create(userId: UserId, data: {
         name: string;
-        properties?: PersonProperty[];
+        properties?: PersonPropertyData[];
         notes?: PersonNoteId[];
     }): Promise<Person> {
         const person = new PersonModel({

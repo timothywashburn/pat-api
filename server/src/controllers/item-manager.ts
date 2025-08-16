@@ -1,4 +1,4 @@
-import { CreateItemRequest, ItemData, ItemId, UpdateItemRequest, UserId } from "@timothyw/pat-common";
+import { CreateAgendaItemRequest, AgendaItemData, ItemId, UpdateAgendaItemRequest, UserId } from "@timothyw/pat-common";
 import { ItemModel } from "../models/mongo/item-data";
 import { updateDocument } from "../utils/db-doc-utils";
 import { AuthInfo } from "../api/types";
@@ -8,7 +8,7 @@ export default class ItemManager {
 
     private constructor() {}
 
-    async create(userId: UserId, data: CreateItemRequest): Promise<ItemData> {
+    async create(userId: UserId, data: CreateAgendaItemRequest): Promise<AgendaItemData> {
         const todo = new ItemModel({
             userId,
             ...data,
@@ -21,22 +21,22 @@ export default class ItemManager {
         return doc.toObject();
     }
 
-    getById(itemId: ItemId): Promise<ItemData | null> {
+    getById(itemId: ItemId): Promise<AgendaItemData | null> {
         return ItemModel.findById(itemId).lean();
     }
 
-    getAllByUser(userId: UserId): Promise<ItemData[]> {
+    getAllByUser(userId: UserId): Promise<AgendaItemData[]> {
         return ItemModel.find({ userId }).lean();
     }
 
-    getPending(userId: UserId): Promise<ItemData[]> {
+    getPending(userId: UserId): Promise<AgendaItemData[]> {
         return ItemModel.find({
             userId,
             completed: false
         }).sort({ dueDate: 1 }).lean();
     }
 
-    getOverdue(userId: UserId): Promise<ItemData[]> {
+    getOverdue(userId: UserId): Promise<AgendaItemData[]> {
         return ItemModel.find({
             userId,
             completed: false,
@@ -47,9 +47,9 @@ export default class ItemManager {
     update(
         auth: AuthInfo,
         itemId: ItemId,
-        updates: UpdateItemRequest
-    ): Promise<ItemData | null> {
-        return updateDocument<ItemData, UpdateItemRequest>(auth, ItemModel, itemId, updates);
+        updates: UpdateAgendaItemRequest
+    ): Promise<AgendaItemData | null> {
+        return updateDocument<AgendaItemData, UpdateAgendaItemRequest>(auth, ItemModel, itemId, updates);
     }
 
     // update(

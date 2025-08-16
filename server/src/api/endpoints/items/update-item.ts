@@ -3,18 +3,18 @@ import ItemManager from '../../../controllers/item-manager';
 import { z } from 'zod';
 import {
     ItemId, Serializer,
-    UpdateItemRequest,
-    updateItemRequestSchema,
-    UpdateItemResponse
+    UpdateAgendaItemRequest,
+    updateAgendaItemRequestSchema,
+    UpdateAgendaItemResponse
 } from "@timothyw/pat-common";
 
-export const updateItemEndpoint: ApiEndpoint<UpdateItemRequest, UpdateItemResponse> = {
+export const updateItemEndpoint: ApiEndpoint<UpdateAgendaItemRequest, UpdateAgendaItemResponse> = {
     path: '/api/items/:itemId',
     method: 'put',
     auth: 'verifiedEmail',
     handler: async (req, res) => {
         try {
-            const data = updateItemRequestSchema.parse(req.body);
+            const data = updateAgendaItemRequestSchema.parse(req.body);
             const itemId = req.params.itemId as ItemId;
 
             const item = await ItemManager.getInstance().update(req.auth!, itemId, {
@@ -36,7 +36,7 @@ export const updateItemEndpoint: ApiEndpoint<UpdateItemRequest, UpdateItemRespon
 
             res.json({
                 success: true,
-                item: Serializer.serialize(item)
+                agendaItem: Serializer.serialize(item)
             });
         } catch (error) {
             let message = 'Failed to update item';

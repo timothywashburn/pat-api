@@ -1,8 +1,8 @@
 import { Schema, model, Types } from 'mongoose';
-import { ItemData } from "@timothyw/pat-common";
+import { AgendaItemData } from "@timothyw/pat-common";
 import { v4 as uuidv4 } from 'uuid';
 
-const itemSchema = new Schema<ItemData>({
+const itemSchema = new Schema<AgendaItemData>({
     _id: {
         type: String,
         required: true,
@@ -45,4 +45,4 @@ const itemSchema = new Schema<ItemData>({
     timestamps: true,
 });
 
-export const ItemModel = model<ItemData>('Item', itemSchema, 'items');
+export const ItemModel = model<AgendaItemData>('Item', itemSchema, 'items');

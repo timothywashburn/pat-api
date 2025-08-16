@@ -1,8 +1,8 @@
 import { ApiEndpoint } from '../../types';
 import NotificationTemplateManager from '../../../controllers/notification-template-manager';
-import { DeleteNotificationTemplateRequest, DeleteNotificationTemplateResponse } from "@timothyw/pat-common";
+import { DeleteNotificationTemplateResponse } from "@timothyw/pat-common";
 
-export const deleteNotificationTemplateEndpoint: ApiEndpoint<DeleteNotificationTemplateRequest, DeleteNotificationTemplateResponse> = {
+export const deleteNotificationTemplateEndpoint: ApiEndpoint<undefined, DeleteNotificationTemplateResponse> = {
     path: '/api/notifications/templates/:templateId',
     method: 'delete',
     auth: 'verifiedEmail',

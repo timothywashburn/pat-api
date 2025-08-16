@@ -2,19 +2,19 @@ import { ApiEndpoint } from '../../types';
 import ItemManager from '../../../controllers/item-manager';
 import { z } from 'zod';
 import {
-    CompleteItemRequest,
-    completeItemRequestSchema,
-    CompleteItemResponse,
+    CompleteAgendaItemRequest,
+    completeAgendaItemRequestSchema,
+    CompleteAgendaItemResponse,
     ItemId, Serializer,
 } from "@timothyw/pat-common";
 
-export const completeItemEndpoint: ApiEndpoint<CompleteItemRequest, CompleteItemResponse> = {
+export const completeItemEndpoint: ApiEndpoint<CompleteAgendaItemRequest, CompleteAgendaItemResponse> = {
     path: '/api/items/:itemId/complete',
     method: 'put',
     auth: 'verifiedEmail',
     handler: async (req, res) => {
         try {
-            const data = completeItemRequestSchema.parse(req.body);
+            const data = completeAgendaItemRequestSchema.parse(req.body);
             const itemId = req.params.itemId as ItemId;
             const item = await ItemManager.getInstance().setCompleted(itemId, data.completed);
 
@@ -28,7 +28,7 @@ export const completeItemEndpoint: ApiEndpoint<CompleteItemRequest, CompleteItem
 
             res.json({
                 success: true,
-                item: Serializer.serialize(item)
+                agendaItem: Serializer.serialize(item)
             });
         } catch (error) {
             let message = 'Failed to update item completion status';

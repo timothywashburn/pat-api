@@ -1,8 +1,8 @@
 import { ApiEndpoint } from '../../types';
 import ItemManager from '../../../controllers/item-manager';
-import { DeleteItemResponse, ItemId } from "@timothyw/pat-common";
+import { DeleteAgendaItemResponse, ItemId } from "@timothyw/pat-common";
 
-export const deleteItemEndpoint: ApiEndpoint<undefined, DeleteItemResponse> = {
+export const deleteItemEndpoint: ApiEndpoint<undefined, DeleteAgendaItemResponse> = {
     path: '/api/items/:itemId',
     method: 'delete',
     auth: 'verifiedEmail',
@@ -21,7 +21,6 @@ export const deleteItemEndpoint: ApiEndpoint<undefined, DeleteItemResponse> = {
 
             res.json({
                 success: true,
-                deleted: true
             });
         } catch (error) {
             res.status(400).json({

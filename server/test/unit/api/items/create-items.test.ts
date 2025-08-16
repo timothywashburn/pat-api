@@ -1,7 +1,6 @@
 import { TestContext } from '../../../main';
 import { ItemModel } from "../../../../src/models/mongo/item-data";
-import { ApiResponseBody } from "../../../../src/api/types";
-import { CreateItemResponse, ItemData, ItemId, Serializer } from "@timothyw/pat-common";
+import { CreateAgendaItemResponse, AgendaItemData, Serializer } from "@timothyw/pat-common";
 import { post } from "../../../test-utils";
 
 export async function runCreateItemsTest(context: TestContext) {
@@ -58,7 +57,7 @@ export async function runCreateItemsTest(context: TestContext) {
 }
 
 async function createItem(context: TestContext, data: Record<string, any>) {
-    const response = await post<Record<string, any>, CreateItemResponse>(
+    const response = await post<Record<string, any>, CreateAgendaItemResponse>(
         context,
         "/api/items",
         {
@@ -68,6 +67,6 @@ async function createItem(context: TestContext, data: Record<string, any>) {
     );
 
     if (!response.success) throw new Error(`failed to create item: ${data.name}`);
-    const item = Serializer.deserialize<ItemData>(response.item);
+    const item = Serializer.deserialize<AgendaItemData>(response.agendaItem);
     context.itemIds.push(item._id);
 }

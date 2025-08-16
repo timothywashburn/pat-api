@@ -1,7 +1,6 @@
 import { TestContext } from '../../../main';
 import { ItemModel } from '../../../../src/models/mongo/item-data';
-import { ApiResponseBody } from "../../../../src/api/types";
-import { UpdateItemResponse } from "@timothyw/pat-common";
+import { UpdateAgendaItemResponse } from "@timothyw/pat-common";
 import { put } from "../../../test-utils";
 
 export async function runUpdateItemTest(context: TestContext) {
@@ -14,15 +13,15 @@ export async function runUpdateItemTest(context: TestContext) {
         notes: 'New item description worked!'
     };
 
-    const updateResponse = await put<typeof updates, UpdateItemResponse>(
+    const updateResponse = await put<typeof updates, UpdateAgendaItemResponse>(
         context,
         `/api/items/${context.itemIds[0]}`,
         updates
     );
 
     if (!updateResponse.success) throw new Error('failed to update item');
-    if (updateResponse.item.name !== updates.name) throw new Error('name not updated in response');
-    if (updateResponse.item.notes !== updates.notes) throw new Error('notes not updated in response');
+    if (updateResponse.agendaItem.name !== updates.name) throw new Error('name not updated in response');
+    if (updateResponse.agendaItem.notes !== updates.notes) throw new Error('notes not updated in response');
 
     const item = await ItemModel.findById(context.itemIds[0]);
     if (!item) throw new Error('item not found in database');

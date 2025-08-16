@@ -1,8 +1,6 @@
 import { TestContext } from '../../../main';
-import { Types } from 'mongoose';
 import {ItemModel} from "../../../../src/models/mongo/item-data";
-import { ApiResponseBody } from "../../../../src/api/types";
-import { DeleteItemResponse } from "@timothyw/pat-common";
+import { DeleteAgendaItemResponse } from "@timothyw/pat-common";
 import { del } from "../../../test-utils";
 
 export async function runDeleteItemTest(context: TestContext) {
@@ -12,7 +10,7 @@ export async function runDeleteItemTest(context: TestContext) {
 
     const deleteId = context.itemIds.pop();
 
-    const deleteResponse = await del<DeleteItemResponse>(
+    const deleteResponse = await del<DeleteAgendaItemResponse>(
         context,
         `/api/items/${deleteId}`
     );

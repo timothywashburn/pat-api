@@ -1,8 +1,8 @@
 import { Schema, model, Types } from 'mongoose';
-import { PersonData, PersonProperty } from "@timothyw/pat-common";
+import { PersonData, PersonPropertyData } from "@timothyw/pat-common";
 import { v4 as uuidv4 } from 'uuid';
 
-const personPropertySchema = new Schema<PersonProperty>({
+const personPropertySchema = new Schema<PersonPropertyData>({
     key: {
         type: String,
         required: true,

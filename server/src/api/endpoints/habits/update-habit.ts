@@ -2,13 +2,11 @@ import { ApiEndpoint } from '../../types';
 import HabitManager from '../../../controllers/habit-manager';
 import { z } from 'zod';
 import {
-    Habit,
     HabitId, Serializer,
     UpdateHabitRequest,
     updateHabitRequestSchema,
     UpdateHabitResponse
 } from "@timothyw/pat-common";
-import { HabitFrequency } from "@timothyw/pat-common/src/types/models";
 
 export const updateHabitEndpoint: ApiEndpoint<UpdateHabitRequest, UpdateHabitResponse> = {
     path: '/api/habits/:habitId',

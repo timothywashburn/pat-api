@@ -1,7 +1,6 @@
 import { ApiEndpoint } from '../../types';
-import { PreviewNotificationTemplateRequest, PreviewNotificationTemplateResponse } from "@timothyw/pat-common";
+import { PreviewNotificationTemplateRequest, PreviewNotificationTemplateResponse, NotificationContext } from "@timothyw/pat-common";
 import { TemplateEngine } from '../../../utils/template-engine';
-import { NotificationContext } from "@timothyw/pat-common";
 import { ItemModel } from '../../../models/mongo/item-data';
 
 export enum NotificationParentType {

@@ -1,8 +1,6 @@
 import { TestContext } from '../../../main';
 import { ItemModel } from '../../../../src/models/mongo/item-data';
-import { Types } from 'mongoose';
-import { CompleteItemResponse, DeleteItemResponse } from "@timothyw/pat-common";
-import { ApiResponseBody } from "../../../../src/api/types";
+import { CompleteAgendaItemResponse } from "@timothyw/pat-common";
 import { put } from "../../../test-utils";
 
 export async function runCompleteItemTest(context: TestContext) {
@@ -10,27 +8,27 @@ export async function runCompleteItemTest(context: TestContext) {
         throw new Error('missing required context for complete item test');
     }
 
-    const completeResponse = await put<{ completed: boolean }, CompleteItemResponse>(
+    const completeResponse = await put<{ completed: boolean }, CompleteAgendaItemResponse>(
         context,
         `/api/items/${context.itemIds[1]}/complete`,
         { completed: true }
     );
 
     if (!completeResponse.success) throw new Error('failed to complete item');
-    if (!completeResponse.item.completed) throw new Error('item not marked as completed');
+    if (!completeResponse.agendaItem.completed) throw new Error('item not marked as completed');
 
     const item = await ItemModel.findById(context.itemIds[1]);
     if (!item) throw new Error('item not found in database');
     if (!item.completed) throw new Error('item not marked as completed in database');
 
-    const uncompleteResponse = await put<{ completed: boolean }, CompleteItemResponse>(
+    const uncompleteResponse = await put<{ completed: boolean }, CompleteAgendaItemResponse>(
         context,
         `/api/items/${context.itemIds[1]}/complete`,
         { completed: false }
     );
 
     if (!uncompleteResponse.success) throw new Error('failed to uncomplete item');
-    if (uncompleteResponse.item.completed) throw new Error('item not marked as uncompleted');
+    if (uncompleteResponse.agendaItem.completed) throw new Error('item not marked as uncompleted');
 
     const updatedItem = await ItemModel.findById(context.itemIds[1]);
     if (!updatedItem) throw new Error('item not found in database');

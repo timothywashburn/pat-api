@@ -16,7 +16,7 @@ class NotificationTemplateManager {
     /**
      * Get all notification templates for a user
      */
-    async getAllByUser(userId: UserId, entityType?: NotificationEntityType, entityId?: string): Promise<NotificationTemplateData[]> {
+    async getAllByUser(userId: UserId, entityType: NotificationEntityType, entityId: string): Promise<NotificationTemplateData[]> {
         // If requesting templates for a specific entity, handle sync logic
         if (entityType && entityId) {
             return this.getEffectiveTemplatesForEntity(userId, entityType, entityId);
