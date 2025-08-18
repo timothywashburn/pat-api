@@ -1,78 +1,135 @@
-import { UserId, NotificationTemplateData, CreateNotificationTemplateData, CreateNotificationTemplateRequest, NotificationEntityType, NotificationTemplateId } from "@timothyw/pat-common";
+import {
+    CreateNotificationTemplateRequest,
+    ItemId,
+    NotificationEntityType,
+    NotificationTemplateData,
+    NotificationTemplateId,
+    NotificationTemplateLevel,
+    UserId,
+} from "@timothyw/pat-common";
 import { NotificationTemplateModel } from "../models/mongo/notification-template-data";
-import { EntitySyncStateModel } from "../models/mongo/entity-sync-state";
-import { v4 as uuidv4 } from 'uuid';
+import ItemManager from "./item-manager";
+import { ItemModel } from "../models/mongo/item-data";
+import { ThoughtModel } from "../models/mongo/thought-data";
+import { TimeBasedHandler } from "../notifications/time-based-handler";
+import NotificationManager from "./notification-manager";
 
 class NotificationTemplateManager {
-    private static instance: NotificationTemplateManager;
+    static async getEffectiveTemplates(
+        userId: UserId,
+        targetLevel: NotificationTemplateLevel,
+        targetEntityType: NotificationEntityType,
+        targetId: string
+    ): Promise<NotificationTemplateData[]> {
+        if (targetLevel == NotificationTemplateLevel.PARENT) {
+            return await this.getTemplates(userId, targetEntityType, targetId);
+        } else if (targetLevel == NotificationTemplateLevel.ENTITY) {
+            const isSynced = await this.getEntitySyncState(userId, targetEntityType, targetId);
 
-    static getInstance(): NotificationTemplateManager {
-        if (!NotificationTemplateManager.instance) {
-            NotificationTemplateManager.instance = new NotificationTemplateManager();
+            if (isSynced) {
+                const parentId = await this.getParentID(targetEntityType, targetId);
+                return await this.getTemplates(userId, targetEntityType, parentId);
+            } else {
+                return await this.getTemplates(userId, targetEntityType, targetId);
+            }
+        } else {
+            throw new Error('Unreachable');
         }
-        return NotificationTemplateManager.instance;
     }
 
-    /**
-     * Get all notification templates for a user
-     */
-    async getAllByUser(userId: UserId, entityType: NotificationEntityType, entityId: string): Promise<NotificationTemplateData[]> {
-        // If requesting templates for a specific entity, handle sync logic
-        if (entityType && entityId) {
-            return this.getEffectiveTemplatesForEntity(userId, entityType, entityId);
-        }
-        
-        const query: any = { userId, active: true };
-        
-        if (entityType) {
-            query.entityType = entityType;
-        }
-        
-        if (entityId !== undefined) {
-            query.entityId = entityId;
-        }
-        
-        const templates = await NotificationTemplateModel.find(query).sort({ createdAt: -1 });
+    static async getTemplates(userId: UserId, targetEntityType: NotificationEntityType, targetId: string): Promise<NotificationTemplateData[]> {
+        const templates = await NotificationTemplateModel.find({
+            userId,
+            targetEntityType: targetEntityType,
+            targetId,
+            active: true
+        }).sort({ createdAt: -1 });
+
         return templates.map(template => template.toObject());
     }
 
-    /**
-     * Get a specific notification template by ID
-     */
-    async getById(templateId: string, userId: UserId): Promise<NotificationTemplateData | null> {
-        const template = await NotificationTemplateModel.findOne({ _id: templateId, userId });
-        return template ? template.toObject() : null;
+    static async getEntitiesForParent(userId: UserId, entityType: NotificationEntityType, parentId: string): Promise<any[]> {
+        try {
+            switch (entityType) {
+                case NotificationEntityType.AGENDA_ITEM:
+                    const items = await ItemManager.getInstance().getAllByUser(userId);
+                    return items.filter(item => item.category === parentId);
+                // case NotificationEntityType.AGENDA_PANEL:
+                //     const incompleteItems = await ItemModel.countDocuments({
+                //         userId,
+                //         category: parentId,
+                //         completed: false
+                //     });
+                //     return [{
+                //         incompleteItems
+                //     }];
+                // case NotificationEntityType.INBOX_PANEL:
+                //     const inboxCount = await ThoughtModel.countDocuments({
+                //         userId,
+                //     });
+                //     return [{
+                //         inboxCount
+                //     }];
+                default:
+                    throw new Error(`Type ${entityType} does not have a parent`);
+            }
+        } catch (error) {
+            console.error('Error fetching entities for template:', error);
+            return [];
+        }
     }
 
-    /**
-     * Create a new notification template
-     */
-    async create(userId: UserId, templateRequest: CreateNotificationTemplateRequest): Promise<NotificationTemplateData> {
-        const templateData: CreateNotificationTemplateData = {
-            ...templateRequest,
-            userId,
-            inheritedFrom: templateRequest.inheritedFrom as NotificationTemplateId
-        };
-        
+    static async getEntityData(userId: UserId, entityType: NotificationEntityType, entityId: string): Promise<any> {
+        try {
+            switch (entityType) {
+                case NotificationEntityType.AGENDA_ITEM:
+                    const item = await ItemModel.findById(entityId);
+                    return item ? item.toObject() : null;
+
+                case NotificationEntityType.AGENDA_PANEL:
+                    const incompleteItems = await ItemModel.countDocuments({
+                        userId,
+                        completed: false
+                    });
+                    return {
+                        incompleteItems
+                    };
+
+                case NotificationEntityType.INBOX_PANEL:
+                    const inboxCount = await ThoughtModel.countDocuments({
+                        userId,
+                    });
+                    return {
+                        inboxCount
+                    };
+
+                default:
+                    console.warn('Unknown entity type:', entityType);
+                    return null;
+            }
+        } catch (error) {
+            console.error('Error fetching entity data:', error);
+            return null;
+        }
+    }
+
+    static async create(userId: UserId, data: CreateNotificationTemplateRequest): Promise<NotificationTemplateData> {
         const template = await NotificationTemplateModel.create({
-            _id: uuidv4(),
-            ...templateData,
-            createdAt: new Date(),
-            updatedAt: new Date()
+            userId,
+            ...data,
         });
 
-        return template.toObject();
+        const templateObject = template.toObject();
+        await this.onNewTemplate(templateObject);
+        return templateObject;
     }
 
-    /**
-     * Update a notification template
-     */
-    async update(templateId: string, userId: UserId, updates: Partial<NotificationTemplateData>): Promise<NotificationTemplateData | null> {
+    static async update(templateId: NotificationTemplateId, userId: UserId, updates: Partial<NotificationTemplateData>): Promise<NotificationTemplateData | null> {
         const template = await NotificationTemplateModel.findOneAndUpdate(
             { _id: templateId, userId },
-            { 
-                ...updates, 
-                updatedAt: new Date() 
+            {
+                ...updates,
+                updatedAt: new Date()
             },
             { new: true }
         );
@@ -80,324 +137,108 @@ class NotificationTemplateManager {
         return template ? template.toObject() : null;
     }
 
-    /**
-     * Delete a notification template
-     */
-    async delete(templateId: string, userId: UserId): Promise<boolean> {
-        // Delete the template
+    static async delete(templateId: string, userId: UserId): Promise<boolean> {
         const result = await NotificationTemplateModel.deleteOne({ _id: templateId, userId });
         return result.deletedCount > 0;
     }
 
-    /**
-     * Sync/unsync a template with its parent
-     */
-    async syncWithParent(templateId: string, userId: UserId, sync: boolean): Promise<NotificationTemplateData | null> {
-        if (sync) {
-            // Reset to inherit from parent
-            const template = await NotificationTemplateModel.findOne({ _id: templateId, userId });
-            if (!template || !template.inheritedFrom) {
-                throw new Error('Template has no parent to sync with');
-            }
+    static async getParentID(entityType: NotificationEntityType, entityId?: string): Promise<string> {
+        let subId: string | null;
 
-            const parentTemplate = await NotificationTemplateModel.findById(template.inheritedFrom);
-            if (!parentTemplate) {
-                throw new Error('Parent template not found');
-            }
-
-            // Copy parent template properties
-            const updatedTemplate = await NotificationTemplateModel.findOneAndUpdate(
-                { _id: templateId, userId },
-                {
-                    trigger: parentTemplate.trigger,
-                    content: parentTemplate.content,
-                    customized: false,
-                    updatedAt: new Date()
-                },
-                { new: true }
-            );
-
-            return updatedTemplate ? updatedTemplate.toObject() : null;
-        } else {
-            // Mark as customized (unsynced)
-            const updatedTemplate = await NotificationTemplateModel.findOneAndUpdate(
-                { _id: templateId, userId },
-                {
-                    customized: true,
-                    updatedAt: new Date()
-                },
-                { new: true }
-            );
-
-            return updatedTemplate ? updatedTemplate.toObject() : null;
-        }
-    }
-
-    /**
-     * Get parent templates for an entity type (from defaults)
-     */
-    async getParentTemplates(userId: UserId, entityType: NotificationEntityType): Promise<NotificationTemplateData[]> {
-        const parentDefaultsType = this.getParentDefaultsType(entityType);
-        if (!parentDefaultsType) return [];
-
-        const templates = await NotificationTemplateModel.find({
-            userId,
-            entityType: parentDefaultsType,
-            entityId: { $exists: false }, // Default templates have no entityId
-            active: true
-        });
-        return templates.map(template => template.toObject());
-    }
-
-    /**
-     * Create inherited templates for a new entity
-     */
-    async createInheritedTemplates(userId: UserId, entityType: NotificationEntityType, entityId: string): Promise<NotificationTemplateData[]> {
-        const parentTemplates = await this.getParentTemplates(userId, entityType);
-        const createdTemplates: NotificationTemplateData[] = [];
-
-        for (const parentTemplate of parentTemplates) {
-            const childTemplate = await NotificationTemplateModel.create({
-                _id: uuidv4(),
-                userId,
-                entityType,
-                entityId,
-                name: parentTemplate.name,
-                description: parentTemplate.description,
-                trigger: parentTemplate.trigger,
-                content: parentTemplate.content,
-                active: parentTemplate.active,
-                inheritedFrom: parentTemplate._id,
-                customized: false,
-                createdAt: new Date(),
-                updatedAt: new Date()
-            });
-
-            createdTemplates.push(childTemplate.toObject());
-        }
-
-        return createdTemplates;
-    }
-
-
-    /**
-     * Get the parent defaults type for inheritance
-     */
-    private getParentDefaultsType(entityType: NotificationEntityType): NotificationEntityType | null {
         switch (entityType) {
-            case 'agenda_item':
-                return 'agenda_defaults';
-            case 'habit':
-                return 'habits_defaults';
-            default:
-                return null; // No parent defaults for these entity types
+            case NotificationEntityType.AGENDA_ITEM:
+                const item = await ItemManager.getInstance().getById(entityId as ItemId);
+                subId = item!.category ?? null;
+                break;
+            case NotificationEntityType.AGENDA_PANEL:
+            case NotificationEntityType.INBOX_PANEL:
+                subId = null;
+                break;
         }
+
+        if (!subId) throw new Error();
+
+        return `${entityType}_${subId}`;
     }
 
-    /**
-     * Get templates for a specific entity including inherited ones
-     */
-    async getEffectiveTemplates(userId: UserId, entityType: NotificationEntityType, entityId: string): Promise<NotificationTemplateData[]> {
-        // Get entity-specific templates
-        const query = { userId, entityType, entityId, active: true };
-        const entityTemplates = await NotificationTemplateModel.find(query).sort({ createdAt: -1 });
-        
-        // Get parent templates (only non-customized ones that aren't overridden)
-        const parentTemplates = await this.getParentTemplates(userId, entityType);
-        const entityTemplateNames = new Set(entityTemplates.map((t: any) => t.name));
-        
-        const effectiveInheritedTemplates = parentTemplates.filter(
-            t => !entityTemplateNames.has(t.name)
-        );
-
-        return [...entityTemplates.map((t: any) => t.toObject()), ...effectiveInheritedTemplates];
-    }
-
-    /**
-     * Get effective templates for an entity (handles sync state)
-     */
-    async getEffectiveTemplatesForEntity(userId: UserId, entityType: NotificationEntityType, entityId: string): Promise<NotificationTemplateData[]> {
-        // Check if entity is synced with parent
-        const isSynced = await this.getEntitySyncState(userId, entityType, entityId);
-        
-        if (isSynced) {
-            // Return parent templates (read-only)
-            return await this.getParentTemplates(userId, entityType);
-        } else {
-            // Return individual templates for this entity
-            const templates = await NotificationTemplateModel.find({
-                userId,
-                entityType,
-                entityId,
-                active: true
-            }).sort({ createdAt: -1 });
-            
-            return templates.map(template => template.toObject());
-        }
-    }
-
-    /**
-     * Break inheritance for a virtual template (convert inherited template to real template)
-     */
-    async breakInheritanceForVirtualTemplate(userId: UserId, parentTemplateId: string, entityId: string): Promise<NotificationTemplateData | null> {
-        // Get the parent template
-        const parentTemplate = await NotificationTemplateModel.findById(parentTemplateId);
-        if (!parentTemplate) {
-            throw new Error('Parent template not found');
-        }
-
-        // Determine the entity type based on the parent
-        const entityType = this.getChildEntityType(parentTemplate.entityType);
-        if (!entityType) {
-            throw new Error('Cannot determine entity type for inheritance');
-        }
-
-        // Create a new real template based on the parent
-        const newTemplate = await NotificationTemplateModel.create({
-            _id: uuidv4(),
+    static async getEntitySyncState(userId: UserId, entityType: NotificationEntityType, entityId?: string): Promise<boolean> {
+        const exists = await NotificationTemplateModel.exists({
             userId,
             entityType,
             entityId,
-            name: parentTemplate.name,
-            description: parentTemplate.description,
-            trigger: parentTemplate.trigger,
-            content: parentTemplate.content,
-            active: parentTemplate.active,
-            inheritedFrom: parentTemplate._id,
-            customized: true, // Mark as customized since user broke sync
-            createdAt: new Date(),
-            updatedAt: new Date()
+            active: true
         });
 
-        return newTemplate.toObject();
+        return !exists;
     }
 
-    /**
-     * Get the child entity type for inheritance breaking
-     */
-    private getChildEntityType(parentEntityType: NotificationEntityType): NotificationEntityType | null {
-        switch (parentEntityType) {
-            case 'agenda':
-                return 'agenda_item';
-            case 'habits':
-                return 'habit';
-            default:
-                return null;
-        }
-    }
-
-    /**
-     * Get sync state for an entity
-     * No record = synced (default), record exists = not synced
-     */
-    async getEntitySyncState(userId: UserId, entityType: NotificationEntityType, entityId: string): Promise<boolean> {
-        try {
-            const syncState = await EntitySyncStateModel.findOne({
-                userId,
-                entityType,
-                entityId
-            }).maxTimeMS(5000); // 5 second timeout
-            
-            // If no record exists, entity is synced (default behavior)
-            // If record exists, entity is not synced (syncState.synced should always be false)
-            return !syncState;
-        } catch (error) {
-            console.error('Error in getEntitySyncState:', error);
-            return true; // Default to synced on error
-        }
-    }
-
-    /**
-     * Set sync state for an entity
-     * Only stores records for non-synced entities (synced = default when no record exists)
-     */
-    async setEntitySyncState(userId: UserId, entityType: NotificationEntityType, entityId: string, synced: boolean): Promise<void> {
-        if (synced) {
-            // Remove record - no record means synced (default)
-            await EntitySyncStateModel.deleteOne({ userId, entityType, entityId });
-        } else {
-            // Create/update record - presence of record means not synced
-            await EntitySyncStateModel.findOneAndUpdate(
-                { userId, entityType, entityId },
-                { 
-                    synced: false,
-                    updatedAt: new Date() 
-                },
-                { upsert: true }
-            );
-        }
-    }
-
-    /**
-     * Break sync for an entity - copy all parent templates as individual templates
-     */
-    async breakEntitySync(userId: UserId, entityType: NotificationEntityType, entityId: string): Promise<NotificationTemplateData[]> {
-        // Get parent templates
-        const parentTemplates = await this.getParentTemplates(userId, entityType);
-        const copiedTemplates: NotificationTemplateData[] = [];
-
-        // Copy each parent template as an individual template
-        for (const parentTemplate of parentTemplates) {
-            const copiedTemplate = await NotificationTemplateModel.create({
-                _id: uuidv4(),
-                userId,
-                entityType,
-                entityId,
-                name: parentTemplate.name,
-                description: parentTemplate.description,
-                trigger: parentTemplate.trigger,
-                content: parentTemplate.content,
-                active: parentTemplate.active,
-                inheritedFrom: parentTemplate._id,
-                customized: true, // Mark as customized since it's now individual
-                createdAt: new Date(),
-                updatedAt: new Date()
-            });
-
-            copiedTemplates.push(copiedTemplate.toObject());
-        }
-
-        // Set sync state to false
-        await this.setEntitySyncState(userId, entityType, entityId, false);
-
-        return copiedTemplates;
-    }
-
-    /**
-     * Enable sync for an entity - delete all individual templates and inherit from parent
-     */
-    async enableEntitySync(userId: UserId, entityType: NotificationEntityType, entityId: string): Promise<void> {
-        // Delete all individual templates for this entity
+    // note: since this is at the entity level, these templates are NotificationTemplateLevel.ENTITY
+    static async enableEntitySync(userId: UserId, entityType: NotificationEntityType, entityId: string): Promise<void> {
         await NotificationTemplateModel.deleteMany({
             userId,
             entityType,
             entityId
         });
-
-        // Set sync state to true
-        await this.setEntitySyncState(userId, entityType, entityId, true);
     }
 
-    /**
-     * Update child templates when parent template changes
-     */
-    async updateChildTemplates(parentTemplateId: string): Promise<void> {
-        const parentTemplate = await NotificationTemplateModel.findById(parentTemplateId);
-        if (!parentTemplate) return;
+    // note: since this is at the entity level, these templates are NotificationTemplateLevel.ENTITY
+    static async breakEntitySync(userId: UserId, targetEntityType: NotificationEntityType, targetId: string): Promise<NotificationTemplateData[]> {
+        // even though this is a call to effective, it should only return parent templates (because sync is on)
+        const parentTemplates = await NotificationTemplateManager.getEffectiveTemplates(
+            userId, NotificationTemplateLevel.ENTITY, targetEntityType, targetId);
 
-        // Update all non-customized child templates
-        await NotificationTemplateModel.updateMany(
-            { 
-                inheritedFrom: parentTemplateId, 
-                customized: false 
-            },
-            {
-                trigger: parentTemplate.trigger,
-                content: parentTemplate.content,
-                active: parentTemplate.active,
-                updatedAt: new Date()
-            }
+        return await Promise.all(
+            parentTemplates.map(async template => {
+                const { _id, createdAt, updatedAt, ...rest } = template;
+                const newTemplate = await NotificationTemplateModel.create(rest);
+                return newTemplate.toObject();
+            })
         );
+    }
+
+    static async onNewTemplate(template: NotificationTemplateData): Promise<void> {
+        const handler = NotificationManager.getHandler(template.trigger.type);
+
+        if (template.targetLevel == NotificationTemplateLevel.PARENT) {
+            console.log(`🌐 Template is a parent template (${template.targetId})`);
+
+            const entities = await NotificationTemplateManager.getEntitiesForParent(template.userId, template.targetEntityType, template.targetId);
+            console.log(`📊 Found ${entities.length} entities for parent template ${template.userId}`);
+
+            for (const entity of entities) {
+                try {
+                    console.log(`📅 Loading parent template for entity ${entity._id}`);
+                    await handler.schedule(template.userId, {
+                        templateId: template._id,
+                    });
+                } catch (error) {
+                    console.error(`❌ Failed to schedule template ${template._id} for entity ${entity._id}:`, error);
+                }
+            }
+        } else if (template.targetLevel == NotificationTemplateLevel.ENTITY) {
+            console.log(`📌 Template is specific to entity (${template.targetEntityType})`);
+
+            const entityData = await NotificationTemplateManager.getEntityData(template.userId, template.targetEntityType, template.targetId);
+            if (entityData) {
+                console.log(`📅 Scheduling specific template for ${template.targetEntityType} ${template.targetId}`);
+                await handler.schedule(template.userId, {
+                    templateId: template._id,
+                });
+            } else {
+                console.warn(`⚠️  Entity ${template.targetId} not found for template ${template._id}`);
+            }
+        }
+    }
+
+    static async onNewEntity(userId: UserId, targetEntityType: NotificationEntityType, targetId: string): Promise<void> {
+        const templates = await NotificationTemplateManager.getTemplates(userId, targetEntityType, targetId);
+
+        for (const template of templates) {
+            const handler = NotificationManager.getHandler(template.trigger.type);
+            await handler.schedule(template.userId, {
+                templateId: template._id,
+            });
+        }
     }
 }
 

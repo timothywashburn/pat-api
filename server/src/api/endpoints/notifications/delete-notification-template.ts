@@ -1,6 +1,6 @@
 import { ApiEndpoint } from '../../types';
 import NotificationTemplateManager from '../../../controllers/notification-template-manager';
-import { DeleteNotificationTemplateResponse } from "@timothyw/pat-common";
+import { DeleteNotificationTemplateResponse, NotificationTemplateId } from "@timothyw/pat-common";
 
 export const deleteNotificationTemplateEndpoint: ApiEndpoint<undefined, DeleteNotificationTemplateResponse> = {
     path: '/api/notifications/templates/:templateId',
@@ -8,9 +8,9 @@ export const deleteNotificationTemplateEndpoint: ApiEndpoint<undefined, DeleteNo
     auth: 'verifiedEmail',
     handler: async (req, res) => {
         try {
-            const { templateId } = req.params;
+            const { templateId } = req.params as { templateId: NotificationTemplateId };
 
-            const deleted = await NotificationTemplateManager.getInstance().delete(
+            const deleted = await NotificationTemplateManager.delete(
                 templateId,
                 req.auth!.userId!
             );

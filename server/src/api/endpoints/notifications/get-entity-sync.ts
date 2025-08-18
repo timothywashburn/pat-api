@@ -1,44 +1,42 @@
 import { ApiEndpoint } from '../../types';
 import NotificationTemplateManager from '../../../controllers/notification-template-manager';
+import {
+    GetEntitySyncRequest,
+    GetEntitySyncResponse,
+    getEntitySyncRequestSchema,
+    NotificationEntityType
+} from "@timothyw/pat-common";
+import { z } from 'zod';
 
-interface GetEntitySyncResponse {
-    success: boolean;
-    synced: boolean;
-    hasParentTemplates: boolean;
-    error?: string;
-}
-
-export const getEntitySyncEndpoint: ApiEndpoint<undefined, GetEntitySyncResponse> = {
+export const getEntitySyncEndpoint: ApiEndpoint<GetEntitySyncRequest, GetEntitySyncResponse> = {
     path: '/api/notifications/entity-sync',
     method: 'get',
     auth: 'verifiedEmail',
     handler: async (req, res) => {
         try {
-            const { entityType, entityId } = req.query;
+            const data = getEntitySyncRequestSchema.parse(req.query);
             const userId = req.auth!.userId!;
-            const manager = NotificationTemplateManager.getInstance();
 
-            if (!entityType || !entityId) {
-                res.status(400).json({
-                    success: false,
-                    error: 'Missing entityType or entityId'
-                });
-                return;
-            }
-
-            const synced = await manager.getEntitySyncState(userId, entityType as any, entityId as string);
-            const parentTemplates = await manager.getParentTemplates(userId, entityType as any);
+            const synced = await NotificationTemplateManager.getEntitySyncState(userId, data.targetEntityType, data.targetId);
             
             res.json({
                 success: true,
-                synced,
-                hasParentTemplates: parentTemplates.length > 0
+                synced
             });
         } catch (error) {
             console.error('Error getting entity sync state:', error);
-            res.status(500).json({
+            
+            let message = 'Failed to get entity sync state';
+            let status = 500;
+
+            if (error instanceof z.ZodError) {
+                message = error.errors[0].message;
+                status = 400;
+            }
+
+            res.status(status).json({
                 success: false,
-                error: 'Failed to get entity sync state'
+                error: message
             });
         }
     }

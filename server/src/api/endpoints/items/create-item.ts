@@ -4,12 +4,14 @@ import { z } from 'zod';
 import {
     CreateAgendaItemRequest,
     createAgendaItemRequestSchema,
-    CreateAgendaItemResponse, Serializer
+    CreateAgendaItemResponse,
+    NotificationEntityType,
+    NotificationTriggerType,
+    Serializer
 } from "@timothyw/pat-common";
 import NotificationManager from "../../../controllers/notification-manager";
-import { NotificationType } from "../../../models/notification-handler";
-import { GenericNotificationHandler } from "../../../notifications/generic-notification-handler";
-import { NotificationTemplateModel } from "../../../models/mongo/notification-template-data";
+import { TimeBasedHandler } from "../../../notifications/time-based-handler";
+import NotificationTemplateManager from "../../../controllers/notification-template-manager";
 
 export const createItemEndpoint: ApiEndpoint<CreateAgendaItemRequest, CreateAgendaItemResponse> = {
     path: '/api/items',
@@ -37,29 +39,31 @@ export const createItemEndpoint: ApiEndpoint<CreateAgendaItemRequest, CreateAgen
                 return;
             }
 
-            // TODO: figure out a better way to handle objectids as itemids
-            await NotificationManager.getHandler(NotificationType.ITEM_DEADLINE).schedule(userId, {
-                itemId: item._id,
-                notificationNumber: 1
-            });
+            // // TODO: figure out a better way to handle objectids as itemids
+            // await NotificationManager.getHandler(NotificationType.ITEM_DEADLINE).schedule(userId, {
+            //     itemId: item._id,
+            //     notificationNumber: 1
+            // });
 
-            // Schedule generic template notifications for this new agenda item
-            // Only apply global templates (without specific entityId)
-            const genericHandler = NotificationManager.getHandler(NotificationType.GENERIC_TEMPLATE) as GenericNotificationHandler;
-            const templates = await NotificationTemplateModel.find({
-                userId,
-                entityType: 'agenda_item',
-                active: true,
-                $or: [
-                    { entityId: { $exists: false } },
-                    { entityId: null }
-                ]
-            });
+            // // Schedule generic template notifications for this new agenda item
+            // // Only apply global templates (without specific entityId)
+            // const genericHandler = NotificationManager.getHandler(NotificationType.GENERIC_TEMPLATE) as GenericNotificationHandler;
+            // const templates = await NotificationTemplateModel.find({
+            //     userId,
+            //     entityType: 'agenda_item',
+            //     active: true,
+            //     $or: [
+            //         { entityId: { $exists: false } },
+            //         { entityId: null }
+            //     ]
+            // });
+            //
+            // for (const template of templates) {
+            //     console.log(`📋 Found global template "${template.name}" for new agenda item ${item._id}`);
+            //     await genericHandler.loadTemplate(template.toObject(), item._id.toString(), item);
+            // }
 
-            for (const template of templates) {
-                console.log(`📋 Found global template "${template.name}" for new agenda item ${item._id}`);
-                await genericHandler.scheduleFromTemplate(template.toObject(), item._id.toString(), item);
-            }
+            await NotificationTemplateManager.onNewEntity(userId, NotificationEntityType.AGENDA_ITEM, item._id);
 
             res.json({
                 success: true,

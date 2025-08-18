@@ -46,10 +46,8 @@ import {getNotificationTemplatesEndpoint} from "../api/endpoints/notifications/g
 import {createNotificationTemplateEndpoint} from "../api/endpoints/notifications/create-notification-template";
 import {updateNotificationTemplateEndpoint} from "../api/endpoints/notifications/update-notification-template";
 import {deleteNotificationTemplateEndpoint} from "../api/endpoints/notifications/delete-notification-template";
-import {previewNotificationTemplateEndpoint} from "../api/endpoints/notifications/preview-notification-template";
-import {syncNotificationTemplateEndpoint} from "../api/endpoints/notifications/sync-notification-template";
 import {getEntitySyncEndpoint} from "../api/endpoints/notifications/get-entity-sync";
-import {entitySyncEndpoint} from "../api/endpoints/notifications/entity-sync";
+import {setEntitySyncEndpoint} from "../api/endpoints/notifications/set-entity-sync";
 
 export default class ApiManager {
     private static instance: ApiManager;
@@ -116,10 +114,8 @@ export default class ApiManager {
         this.addEndpoint(createNotificationTemplateEndpoint);
         this.addEndpoint(updateNotificationTemplateEndpoint);
         this.addEndpoint(deleteNotificationTemplateEndpoint);
-        this.addEndpoint(previewNotificationTemplateEndpoint);
-        this.addEndpoint(syncNotificationTemplateEndpoint);
         this.addEndpoint(getEntitySyncEndpoint);
-        this.addEndpoint(entitySyncEndpoint);
+        this.addEndpoint(setEntitySyncEndpoint);
 
         console.log(`registered ${this.endpoints.length} api endpoints`);
     }

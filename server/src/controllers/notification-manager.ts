@@ -5,38 +5,34 @@ import RedisManager from "./redis-manager";
 import {
     NotificationHandler,
     NotificationData,
-    NotificationType,
 } from "../models/notification-handler";
 import {
-    ItemDeadlineNotificationHandler,
-} from "../notifications/item-deadline-notification";
-import {
-    ClearInboxNotificationHandler,
-} from "../notifications/clear-inbox-notification";
-import {
-    GenericNotificationHandler,
-} from "../notifications/generic-notification-handler";
+    TimeBasedHandler,
+} from "../notifications/time-based-handler";
 import NotificationRunner from "./notification-runner";
 import NotificationSender from "./notification-sender";
+import { NotificationTemplateModel } from "../models/mongo/notification-template-data";
+import { NotificationTemplateData, NotificationTriggerType } from "@timothyw/pat-common";
+import NotificationTemplateManager from "./notification-template-manager";
 
 export type NotificationId = string & { readonly __brand: "NotificationId" };
 
 export type QueuedNotification = {
     id: NotificationId;
     handler: NotificationHandler<any, any>;
-    data: NotificationData
+    data: NotificationData;
 }
 
 type NotificationHandlerMap = {
-    [NotificationType.ITEM_DEADLINE]: ItemDeadlineNotificationHandler;
-    [NotificationType.CLEAR_INBOX]: ClearInboxNotificationHandler;
-    [NotificationType.GENERIC_TEMPLATE]: GenericNotificationHandler;
+    // [NotificationType.ITEM_DEADLINE]: ItemDeadlineNotificationHandler;
+    // [NotificationType.CLEAR_INBOX]: ClearInboxNotificationHandler;
+    [NotificationTriggerType.TIME_BASED]: TimeBasedHandler;
     // [NotificationType.TODAY_TODO]: TodayTodoNotificationHandler;
 };
 
 export default class NotificationManager {
     private static instance: NotificationManager;
-    static handlers = new Map<NotificationType, NotificationHandler>();
+    static handlers = new Map<NotificationTriggerType, NotificationHandler>();
 
     private readonly _expoToken: string;
     private readonly expo: Expo;
@@ -57,20 +53,27 @@ export default class NotificationManager {
     static async init(): Promise<void> {
         if (NotificationManager.instance) throw new Error("NotificationManager is already initialized");
         NotificationManager.instance = new NotificationManager();
-        for (let handler of NotificationManager.handlers.values()) await handler.onApiStart();
+
+        const templateDocs = await NotificationTemplateModel.find({ active: true });
+        const templates: NotificationTemplateData[] = templateDocs.map(doc => doc.toObject());
+
+        console.log(`📋 Found ${templates.length} active notification templates`);
+        await Promise.all(
+            templates.map(template => NotificationTemplateManager.onNewTemplate(template))
+        );
     }
 
     registerHandlers() {
-        this.registerHandler(new ItemDeadlineNotificationHandler());
-        this.registerHandler(new ClearInboxNotificationHandler());
-        this.registerHandler(new GenericNotificationHandler());
+        // this.registerHandler(new ItemDeadlineNotificationHandler());
+        // this.registerHandler(new ClearInboxNotificationHandler());
+        this.registerHandler(new TimeBasedHandler());
     }
 
     registerHandler(handler: NotificationHandler) {
         NotificationManager.handlers.set(handler.type, handler);
     }
 
-    static getHandler(type: NotificationType): NotificationHandler {
+    static getHandler(type: NotificationTriggerType): NotificationHandler {
         const handler = NotificationManager.handlers.get(type);
         if (!handler) {
             throw new Error(`notification handler for type ${type} not found`);

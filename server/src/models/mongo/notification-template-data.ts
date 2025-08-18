@@ -1,40 +1,17 @@
 import { Schema, model } from 'mongoose';
-import { NotificationTemplateData } from "@timothyw/pat-common";
+import {
+    NotificationEntityType,
+    NotificationTemplateData,
+    NotificationTemplateLevel,
+    NotificationTriggerType,
+} from "@timothyw/pat-common";
 import { v4 as uuidv4 } from 'uuid';
 
-const notificationTriggerSchema = new Schema({
+const triggerSchema = new Schema({
     type: {
         type: String,
-        enum: ['time_based', 'event_based', 'recurring'],
+        enum: Object.values(NotificationTriggerType),
         required: true
-    },
-    conditions: {
-        type: Schema.Types.Mixed,
-        required: true,
-        default: {}
-    },
-    timing: {
-        type: Schema.Types.Mixed,
-        required: true,
-        default: {}
-    }
-}, { _id: false });
-
-const notificationContentSchema = new Schema({
-    title: {
-        type: String,
-        required: true,
-        trim: true
-    },
-    body: {
-        type: String,
-        required: true,
-        trim: true
-    },
-    variables: {
-        type: Map,
-        of: String,
-        default: new Map()
     }
 }, { _id: false });
 
@@ -49,47 +26,39 @@ const notificationTemplateSchema = new Schema<NotificationTemplateData>({
         required: true,
         index: true
     },
-    entityType: {
+    targetLevel: { // template is either at parent level or entity level
         type: String,
-        // enum: Object.values(NotificationEntityType), // TODO: turn back on after the situation is less cursed
+        enum: Object.values(NotificationTemplateLevel),
+        required: true,
+        index: true,
+    },
+    targetEntityType: { // for parents the entity type of the child so it can fetch them, for entities so they can fetch themselves
+        type: String,
+        enum: Object.values(NotificationEntityType),
         required: true,
         index: true
     },
-    entityId: {
-        type: String,
-        index: true,
-        sparse: true // allows null/undefined values to be indexed
-    },
-    name: {
+    targetId: { // either a composite id if TargetType.PARENT like agenda could have {entityType}_category, otherwise _id of the entity
         type: String,
         required: true,
-        trim: true
+        index: true
     },
-    description: {
-        type: String,
-        trim: true
-    },
+    // entityType: { // the type of entity this template applies to
+    //     type: String,
+    //     required: true,
+    //     index: true
+    // },
+    // entityId: { // some entities have associated data, this id references that
+    //     type: String,
+    //     index: true,
+    // },
     trigger: {
-        type: notificationTriggerSchema,
-        required: true
-    },
-    content: {
-        type: notificationContentSchema,
+        type: triggerSchema,
         required: true
     },
     active: {
         type: Boolean,
         default: true,
-        index: true
-    },
-    inheritedFrom: {
-        type: String,
-        index: true,
-        sparse: true
-    },
-    customized: {
-        type: Boolean,
-        default: false,
         index: true
     }
 }, {
@@ -99,6 +68,5 @@ const notificationTemplateSchema = new Schema<NotificationTemplateData>({
 // Compound indexes for efficient queries
 notificationTemplateSchema.index({ userId: 1, entityType: 1, active: 1 });
 notificationTemplateSchema.index({ userId: 1, entityId: 1, active: 1 });
-notificationTemplateSchema.index({ inheritedFrom: 1 });
 
 export const NotificationTemplateModel = model<NotificationTemplateData>('NotificationTemplate', notificationTemplateSchema, 'notification_templates');

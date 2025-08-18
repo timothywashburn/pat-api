@@ -1,6 +1,13 @@
 import { ApiEndpoint } from '../../types';
 import NotificationTemplateManager from '../../../controllers/notification-template-manager';
-import { UpdateNotificationTemplateRequest, UpdateNotificationTemplateResponse, Serializer } from "@timothyw/pat-common";
+import {
+    UpdateNotificationTemplateRequest,
+    UpdateNotificationTemplateResponse,
+    Serializer,
+    updateNotificationTemplateRequestSchema,
+    NotificationTemplateId
+} from "@timothyw/pat-common";
+import { z } from 'zod';
 
 export const updateNotificationTemplateEndpoint: ApiEndpoint<UpdateNotificationTemplateRequest, UpdateNotificationTemplateResponse> = {
     path: '/api/notifications/templates/:templateId',
@@ -8,10 +15,10 @@ export const updateNotificationTemplateEndpoint: ApiEndpoint<UpdateNotificationT
     auth: 'verifiedEmail',
     handler: async (req, res) => {
         try {
-            const { templateId } = req.params;
-            const updates = req.body;
+            const { templateId } = req.params as { templateId: NotificationTemplateId };
+            const updates = updateNotificationTemplateRequestSchema.parse(req.body);
 
-            const template = await NotificationTemplateManager.getInstance().update(
+            const template = await NotificationTemplateManager.update(
                 templateId,
                 req.auth!.userId!,
                 updates
@@ -25,20 +32,24 @@ export const updateNotificationTemplateEndpoint: ApiEndpoint<UpdateNotificationT
                 return;
             }
 
-            // Update child templates if this is a parent template
-            if (!template.entityId) {
-                await NotificationTemplateManager.getInstance().updateChildTemplates(templateId);
-            }
-
             res.json({
                 success: true,
                 template: Serializer.serialize(template)
             });
         } catch (error) {
             console.error('Error updating notification template:', error);
-            res.status(500).json({
+            
+            let message = 'Failed to update notification template';
+            let status = 500;
+
+            if (error instanceof z.ZodError) {
+                message = error.errors[0].message;
+                status = 400;
+            }
+
+            res.status(status).json({
                 success: false,
-                error: 'Failed to update notification template'
+                error: message
             });
         }
     }
