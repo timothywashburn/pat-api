@@ -161,11 +161,11 @@ class NotificationTemplateManager {
         return `${entityType}_${subId}`;
     }
 
-    static async getEntitySyncState(userId: UserId, entityType: NotificationEntityType, entityId?: string): Promise<boolean> {
+    static async getEntitySyncState(userId: UserId, targetEntityType: NotificationEntityType, targetId: string): Promise<boolean> {
         const exists = await NotificationTemplateModel.exists({
             userId,
-            entityType,
-            entityId,
+            targetEntityType,
+            targetId,
             active: true
         });
 
@@ -173,11 +173,11 @@ class NotificationTemplateManager {
     }
 
     // note: since this is at the entity level, these templates are NotificationTemplateLevel.ENTITY
-    static async enableEntitySync(userId: UserId, entityType: NotificationEntityType, entityId: string): Promise<void> {
+    static async enableEntitySync(userId: UserId, targetEntityType: NotificationEntityType, targetId: string): Promise<void> {
         await NotificationTemplateModel.deleteMany({
             userId,
-            entityType,
-            entityId
+            targetEntityType,
+            targetId
         });
     }
 
@@ -190,7 +190,14 @@ class NotificationTemplateManager {
         return await Promise.all(
             parentTemplates.map(async template => {
                 const { _id, createdAt, updatedAt, ...rest } = template;
-                const newTemplate = await NotificationTemplateModel.create(rest);
+
+                const entityTemplate = {
+                    ...rest,
+                    targetLevel: NotificationTemplateLevel.ENTITY,
+                    targetId: targetId
+                };
+                
+                const newTemplate = await NotificationTemplateModel.create(entityTemplate);
                 return newTemplate.toObject();
             })
         );
