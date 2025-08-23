@@ -23,7 +23,7 @@ export default class MailjetManager {
             };
 
             const verificationToken = sign(tokenPayload, process.env.JWT_SECRET!, { expiresIn: '48h' });
-            const verificationLink = `https://${process.env.API_URL}/api/auth/verify-email?token=${verificationToken}`;
+            const verificationLink = `${process.env.API_URL}/api/auth/verify-email?token=${verificationToken}`;
 
             const data = {
                 Messages: [{

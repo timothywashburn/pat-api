@@ -12,39 +12,39 @@ export const verifyEmailEndpoint: ApiEndpoint = {
             const { token } = req.query as VerifyEmailQuery;
 
             if (!token) {
-                res.redirect(`https://${process.env.API_URL}/verify-fail?error=invalid-token`);
+                res.redirect(`${process.env.API_URL}/verify-fail?error=invalid-token`);
                 return;
             }
 
             const decoded = AuthManager.getInstance().verifyToken(token);
             if (!decoded) {
-                res.redirect(`https://${process.env.API_URL}/verify-fail?error=invalid-token`);
+                res.redirect(`${process.env.API_URL}/verify-fail?error=invalid-token`);
                 return;
             }
 
             const auth = await AuthDataModel.findById(decoded.authId);
             if (!auth) {
-                res.redirect(`https://${process.env.API_URL}/verify-fail?error=verification-failed`);
+                res.redirect(`${process.env.API_URL}/verify-fail?error=verification-failed`);
                 return;
             }
 
             if (auth.emailVerified) {
-                res.redirect(`https://${process.env.API_URL}/verify-fail?error=already-verified`);
+                res.redirect(`${process.env.API_URL}/verify-fail?error=already-verified`);
                 return;
             }
 
             const success = await AuthManager.getInstance().verifyEmail(decoded.authId);
             if (!success) {
-                res.redirect(`https://${process.env.API_URL}/verify-fail?error=verification-failed`);
+                res.redirect(`${process.env.API_URL}/verify-fail?error=verification-failed`);
                 return;
             }
 
             SocketManager.getInstance().emitToUser(decoded.userId, SocketMessageType.CLIENT_VERIFY_EMAIL_RESPONSE);
 
-            res.redirect(`https://${process.env.API_URL}/verify-success`);
+            res.redirect(`${process.env.API_URL}/verify-success`);
         } catch (error) {
             console.error('Error in verifyEmail:', error);
-            res.redirect(`https://${process.env.API_URL}/verify-fail?error=verification-failed`);
+            res.redirect(`${process.env.API_URL}/verify-fail?error=verification-failed`);
         }
     }
 };
