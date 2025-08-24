@@ -1,6 +1,6 @@
 import NotificationManager, { NotificationId, QueuedNotification } from "./notification-manager";
 import RedisManager from "./redis-manager";
-import { NotificationData } from "../models/notification-handler";
+import { NotificationData } from "../models/notification-scheduler";
 import { isNotNull } from "../utils/misc";
 
 export default class NotificationRunner {

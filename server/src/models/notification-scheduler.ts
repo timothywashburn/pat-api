@@ -33,7 +33,7 @@ export interface NotificationContent {
 
 export type ScheduleDataResult<U extends NotificationData> = Promise<Omit<U, 'type'>[] | undefined>;
 
-export abstract class NotificationHandler<
+export abstract class NotificationScheduler<
     T extends NotificationContext = NotificationContext,
     U extends NotificationData = NotificationData
 > {

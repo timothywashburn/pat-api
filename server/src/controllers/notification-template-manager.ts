@@ -11,7 +11,7 @@ import { NotificationTemplateModel } from "../models/mongo/notification-template
 import ItemManager from "./item-manager";
 import { ItemModel } from "../models/mongo/item-data";
 import { ThoughtModel } from "../models/mongo/thought-data";
-import { TimeBasedHandler } from "../notifications/time-based-handler";
+import { TimeBasedScheduler } from "../notifications/schedulers/time-based-scheduler";
 import NotificationManager from "./notification-manager";
 
 class NotificationTemplateManager {

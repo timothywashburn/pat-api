@@ -3,12 +3,12 @@ import { Expo } from 'expo-server-sdk';
 import { randomBytes } from 'crypto';
 import RedisManager from "./redis-manager";
 import {
-    NotificationHandler,
+    NotificationScheduler,
     NotificationData,
-} from "../models/notification-handler";
+} from "../models/notification-scheduler";
 import {
-    TimeBasedHandler,
-} from "../notifications/time-based-handler";
+    TimeBasedScheduler,
+} from "../notifications/schedulers/time-based-scheduler";
 import NotificationRunner from "./notification-runner";
 import NotificationSender from "./notification-sender";
 import { NotificationTemplateModel } from "../models/mongo/notification-template-data";
@@ -19,20 +19,20 @@ export type NotificationId = string & { readonly __brand: "NotificationId" };
 
 export type QueuedNotification = {
     id: NotificationId;
-    handler: NotificationHandler<any, any>;
+    handler: NotificationScheduler<any, any>;
     data: NotificationData;
 }
 
 type NotificationHandlerMap = {
     // [NotificationType.ITEM_DEADLINE]: ItemDeadlineNotificationHandler;
     // [NotificationType.CLEAR_INBOX]: ClearInboxNotificationHandler;
-    [NotificationTriggerType.TIME_BASED]: TimeBasedHandler;
+    [NotificationTriggerType.TIME_BASED]: TimeBasedScheduler;
     // [NotificationType.TODAY_TODO]: TodayTodoNotificationHandler;
 };
 
 export default class NotificationManager {
     private static instance: NotificationManager;
-    static handlers = new Map<NotificationTriggerType, NotificationHandler>();
+    static handlers = new Map<NotificationTriggerType, NotificationScheduler>();
 
     private readonly _expoToken: string;
     private readonly expo: Expo;
@@ -66,14 +66,14 @@ export default class NotificationManager {
     registerHandlers() {
         // this.registerHandler(new ItemDeadlineNotificationHandler());
         // this.registerHandler(new ClearInboxNotificationHandler());
-        this.registerHandler(new TimeBasedHandler());
+        this.registerHandler(new TimeBasedScheduler());
     }
 
-    registerHandler(handler: NotificationHandler) {
+    registerHandler(handler: NotificationScheduler) {
         NotificationManager.handlers.set(handler.type, handler);
     }
 
-    static getHandler(type: NotificationTriggerType): NotificationHandler {
+    static getHandler(type: NotificationTriggerType): NotificationScheduler {
         const handler = NotificationManager.handlers.get(type);
         if (!handler) {
             throw new Error(`notification handler for type ${type} not found`);

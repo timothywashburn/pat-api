@@ -2,16 +2,16 @@ import {
     NotificationContent,
     NotificationContext,
     NotificationData,
-    NotificationHandler,
+    NotificationScheduler,
     ScheduleDataResult
-} from "../models/notification-handler";
+} from "../../models/notification-scheduler";
 import {
     NotificationTemplateData,
     NotificationTriggerType,
     UserId
 } from "@timothyw/pat-common";
-import { NotificationTemplateModel } from "../models/mongo/notification-template-data";
-import NotificationTemplateManager from "../controllers/notification-template-manager";
+import { NotificationTemplateModel } from "../../models/mongo/notification-template-data";
+import NotificationTemplateManager from "../../controllers/notification-template-manager";
 
 interface TimeBasedNotificationContext extends NotificationContext {
 }
@@ -20,7 +20,7 @@ interface GenericNotificationData extends NotificationData {
     templateId: string;
 }
 
-export class TimeBasedHandler extends NotificationHandler<TimeBasedNotificationContext, GenericNotificationData> {
+export class TimeBasedScheduler extends NotificationScheduler<TimeBasedNotificationContext, GenericNotificationData> {
     type = NotificationTriggerType.TIME_BASED;
     
     protected async getScheduleData(userId: UserId, context: TimeBasedNotificationContext): ScheduleDataResult<GenericNotificationData> {

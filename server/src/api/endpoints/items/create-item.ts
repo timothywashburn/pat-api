@@ -10,7 +10,7 @@ import {
     Serializer
 } from "@timothyw/pat-common";
 import NotificationManager from "../../../controllers/notification-manager";
-import { TimeBasedHandler } from "../../../notifications/time-based-handler";
+import { TimeBasedScheduler } from "../../../notifications/schedulers/time-based-scheduler";
 import NotificationTemplateManager from "../../../controllers/notification-template-manager";
 
 export const createItemEndpoint: ApiEndpoint<CreateAgendaItemRequest, CreateAgendaItemResponse> = {

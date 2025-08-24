@@ -1,7 +1,7 @@
 import UserManager from "./user-manager";
 import { Expo, ExpoPushMessage, ExpoPushTicket } from "expo-server-sdk";
 import { QueuedNotification } from "./notification-manager";
-import { NotificationContent } from "../models/notification-handler";
+import { NotificationContent } from "../models/notification-scheduler";
 
 type ToSend = {
     notification: QueuedNotification;
