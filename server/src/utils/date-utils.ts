@@ -23,11 +23,11 @@ export default class DateUtils {
         return fromZonedTime(localDateTime, timezone);
     }
 
-    static nextTimeInTimezoneAsUTC(hours: number, minutes: number, seconds: number, timezone: string): Date {
-        const now = new Date();
-        const utcDate = this.dateInTimezoneAsUTC(this.toLocalDateOnlyString(now, timezone), hours, minutes, seconds, timezone);
-        if (!isBefore(utcDate, now)) return utcDate;
-        const nextDay = addDays(now, 1);
+    static nextTimeInTimezoneAsUTC(hours: number, minutes: number, seconds: number, timezone: string, date: Date = new Date()): Date {
+        // const now = new Date();
+        const utcDate = this.dateInTimezoneAsUTC(this.toLocalDateOnlyString(date, timezone), hours, minutes, seconds, timezone);
+        if (!isBefore(utcDate, date)) return utcDate;
+        const nextDay = addDays(date, 1);
         return this.dateInTimezoneAsUTC(this.toLocalDateOnlyString(nextDay, timezone), hours, minutes, seconds, timezone);
     }
 

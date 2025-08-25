@@ -45,6 +45,11 @@ export default class UserManager {
         return UserConfigModel.findById(userId).lean();
     }
 
+    async getTimezone(userId: UserId): Promise<string> {
+        const user = await UserConfigModel.findById(userId).lean();
+        return user?.timezone || 'America/Los_Angeles';
+    }
+
     update(
         auth: AuthInfo,
         userId: UserId,

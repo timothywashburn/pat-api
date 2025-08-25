@@ -18,10 +18,6 @@ export interface AgendaItemUpcomingDeadlineContext extends VariantContext {
     lastSent?: Date;
 }
 
-// export interface AgendaItemUpcomingDeadlineData extends VariantData {
-//     test: string;
-// }
-
 export class AgendaItemUpcomingDeadline extends NotificationVariant<AgendaItemUpcomingDeadlineContext> {
     schedulerType = NotificationSchedulerType.RELATIVE_DATE;
     variantType = NotificationVariantType.AGENDA_ITEM_UPCOMING_DEADLINE;

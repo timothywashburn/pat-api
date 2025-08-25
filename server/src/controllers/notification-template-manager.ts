@@ -12,6 +12,7 @@ import ItemManager from "./item-manager";
 import { ItemModel } from "../models/mongo/item-data";
 import { ThoughtModel } from "../models/mongo/thought-data";
 import NotificationManager from "./notification-manager";
+import { HabitModel } from "../models/mongo/habit-data";
 
 class NotificationTemplateManager {
     static async getTemplateById(templateId: NotificationTemplateId): Promise<NotificationTemplateData | null> {
@@ -89,6 +90,10 @@ class NotificationTemplateManager {
                     const item = await ItemModel.findById(entityId);
                     return item ? item.toObject() : null;
 
+                case NotificationEntityType.HABIT:
+                    const habit = await HabitModel.findById(entityId);
+                    return habit ? habit.toObject() : null;
+
                 case NotificationEntityType.AGENDA_PANEL:
                     const incompleteItems = await ItemModel.countDocuments({
                         userId,
@@ -153,6 +158,7 @@ class NotificationTemplateManager {
                 const item = await ItemManager.getInstance().getById(entityId as ItemId);
                 subId = item!.category ?? null;
                 break;
+            case NotificationEntityType.HABIT:
             case NotificationEntityType.AGENDA_PANEL:
             case NotificationEntityType.INBOX_PANEL:
                 subId = null;

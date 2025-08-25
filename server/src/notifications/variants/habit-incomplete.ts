@@ -9,16 +9,13 @@ import HabitManager from "../../controllers/habit-manager";
 import HabitEntryManager from "../../controllers/habit-entry-manager";
 import DateUtils from "../../utils/date-utils";
 import { HabitEntryStatus } from "@timothyw/pat-common/dist/types/models";
+import UserManager from "../../controllers/user-manager";
 
-// export interface AgendaItemUpcomingDeadlineContext extends VariantContext {
-//
-// }
-
-export interface AgendaItemUpcomingDeadlineData extends VariantData {
-    test: string;
+export interface HabitIncompleteContext extends VariantContext {
+    lastRollover?: Date;
 }
 
-export class HabitIncomplete extends NotificationVariant<AgendaItemUpcomingDeadlineData> {
+export class HabitIncomplete extends NotificationVariant<HabitIncompleteContext> {
     schedulerType = NotificationSchedulerType.RELATIVE_DATE;
     variantType = NotificationVariantType.HABIT_INCOMPLETE;
 
@@ -36,7 +33,8 @@ export class HabitIncomplete extends NotificationVariant<AgendaItemUpcomingDeadl
             return null;
         }
 
-        const todayDateOnlyString = DateUtils.toLocalDateOnlyString(new Date(), 'America/Los_Angeles'); // TODO: I forget how I'm supposed to do this
+        const timezone = await UserManager.getInstance().getTimezone(data.userId);
+        const todayDateOnlyString = DateUtils.toLocalDateOnlyString(new Date(), timezone);
         const status = await HabitEntryManager.getInstance().getStatusByDate(habitId, todayDateOnlyString);
         if (status === HabitEntryStatus.COMPLETED) {
             console.log(`Habit ${habitId} already completed for today.`);
@@ -49,7 +47,7 @@ export class HabitIncomplete extends NotificationVariant<AgendaItemUpcomingDeadl
         };
     }
 
-    async attemptSchedule(userId: UserId, context: VariantContext) {
+    async attemptSchedule(userId: UserId, context: HabitIncompleteContext) {
         const template = await NotificationTemplateManager.getTemplateById(context.templateId);
         if (!template || !template.active || template.variantData.type !== this.variantType) return;
 
@@ -60,11 +58,14 @@ export class HabitIncomplete extends NotificationVariant<AgendaItemUpcomingDeadl
             return;
         }
 
+        const timezone = await UserManager.getInstance().getTimezone(userId);
+        const [hours, minutes] = habit.rolloverTime.split(':').map(Number);
+
         const scheduler = NotificationManager.getScheduler(template.schedulerData.type) as RelativeDateScheduler;
         const scheduledTime = await scheduler.getScheduleTime(userId, {
             templateId: template._id,
-            date: new Date(), // TODO: no idea how I'm supposed to get the right date for this
-            offsetMinutes: 0
+            date: DateUtils.nextTimeInTimezoneAsUTC(hours, minutes, 0, timezone, context.lastRollover),
+            offsetMinutes: -60
         });
         if (!scheduledTime) return;
 
@@ -72,6 +73,26 @@ export class HabitIncomplete extends NotificationVariant<AgendaItemUpcomingDeadl
             templateId: template._id,
             userId,
             scheduledTime: scheduledTime.getTime().toString(),
+        });
+    }
+
+    async onPostSend(data: NotificationData): Promise<void> {
+        const template = await NotificationTemplateManager.getTemplateById(data.templateId);
+        if (!template || !template.active || template.variantData.type !== this.variantType) return;
+
+        const habitId = template.targetId as HabitId;
+        const habit = await HabitManager.getInstance().getById(habitId);
+        if (!habit) {
+            console.error('Habit not found for template:', template._id);
+            return;
+        }
+
+        const timezone = await UserManager.getInstance().getTimezone(data.userId);
+        const [hours, minutes] = habit.rolloverTime.split(':').map(Number);
+
+        await this.attemptSchedule(data.userId, {
+            templateId: template._id,
+            lastRollover: new Date(DateUtils.nextTimeInTimezoneAsUTC(hours, minutes, 0, timezone).getTime() + 1),
         });
     }
 }

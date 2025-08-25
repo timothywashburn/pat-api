@@ -8,27 +8,43 @@ import {
 import { post } from "../../../test-utils";
 
 export async function runCreateNotificationTemplatesTest(context: TestContext) {
-    const secondItemId = context.itemIds[1];
-    
-    const response = await post<CreateNotificationTemplateRequest, CreateNotificationTemplateResponse>(
+    let response;
+
+    // response = await post<CreateNotificationTemplateRequest, CreateNotificationTemplateResponse>(
+    //     context,
+    //     "/api/notifications/templates",
+    //     {
+    //         targetLevel: NotificationTemplateLevel.ENTITY,
+    //         targetEntityType: NotificationEntityType.AGENDA_ITEM,
+    //         targetId: context.itemIds[1],
+    //         schedulerData: {
+    //             type: NotificationSchedulerType.RELATIVE_DATE,
+    //             offsetMinutes: -60
+    //         },
+    //         variantData: {
+    //             type: NotificationVariantType.AGENDA_ITEM_UPCOMING_DEADLINE
+    //         },
+    //         active: true
+    //     }
+    // );
+    // if (!response.success) throw new Error(`Failed to create notification template`);
+
+    response = await post<CreateNotificationTemplateRequest, CreateNotificationTemplateResponse>(
         context,
         "/api/notifications/templates",
         {
             targetLevel: NotificationTemplateLevel.ENTITY,
-            targetEntityType: NotificationEntityType.AGENDA_ITEM,
-            targetId: secondItemId,
+            targetEntityType: NotificationEntityType.HABIT,
+            targetId: context.habitIds[1],
             schedulerData: {
                 type: NotificationSchedulerType.RELATIVE_DATE,
                 offsetMinutes: -60
             },
             variantData: {
-                type: NotificationVariantType.AGENDA_ITEM_UPCOMING_DEADLINE
+                type: NotificationVariantType.HABIT_INCOMPLETE
             },
             active: true
         }
     );
-    
-    if (!response.success) {
-        throw new Error(`Failed to create notification template`);
-    }
+    if (!response.success) throw new Error(`Failed to create notification template`);
 }
