@@ -6,11 +6,8 @@ import {
     createAgendaItemRequestSchema,
     CreateAgendaItemResponse,
     NotificationEntityType,
-    NotificationTriggerType,
     Serializer
 } from "@timothyw/pat-common";
-import NotificationManager from "../../../controllers/notification-manager";
-import { TimeBasedScheduler } from "../../../notifications/schedulers/time-based-scheduler";
 import NotificationTemplateManager from "../../../controllers/notification-template-manager";
 
 export const createItemEndpoint: ApiEndpoint<CreateAgendaItemRequest, CreateAgendaItemResponse> = {
@@ -44,24 +41,6 @@ export const createItemEndpoint: ApiEndpoint<CreateAgendaItemRequest, CreateAgen
             //     itemId: item._id,
             //     notificationNumber: 1
             // });
-
-            // // Schedule generic template notifications for this new agenda item
-            // // Only apply global templates (without specific entityId)
-            // const genericHandler = NotificationManager.getHandler(NotificationType.GENERIC_TEMPLATE) as GenericNotificationHandler;
-            // const templates = await NotificationTemplateModel.find({
-            //     userId,
-            //     entityType: 'agenda_item',
-            //     active: true,
-            //     $or: [
-            //         { entityId: { $exists: false } },
-            //         { entityId: null }
-            //     ]
-            // });
-            //
-            // for (const template of templates) {
-            //     console.log(`📋 Found global template "${template.name}" for new agenda item ${item._id}`);
-            //     await genericHandler.loadTemplate(template.toObject(), item._id.toString(), item);
-            // }
 
             await NotificationTemplateManager.onNewEntity(userId, NotificationEntityType.AGENDA_ITEM, item._id);
 

@@ -3,17 +3,9 @@ import {
     NotificationEntityType,
     NotificationTemplateData,
     NotificationTemplateLevel,
-    NotificationTriggerType,
+    NotificationSchedulerType,
 } from "@timothyw/pat-common";
 import { v4 as uuidv4 } from 'uuid';
-
-const triggerSchema = new Schema({
-    type: {
-        type: String,
-        enum: Object.values(NotificationTriggerType),
-        required: true
-    }
-}, { _id: false });
 
 const notificationTemplateSchema = new Schema<NotificationTemplateData>({
     _id: {
@@ -43,18 +35,22 @@ const notificationTemplateSchema = new Schema<NotificationTemplateData>({
         required: true,
         index: true
     },
-    // entityType: { // the type of entity this template applies to
-    //     type: String,
-    //     required: true,
-    //     index: true
-    // },
-    // entityId: { // some entities have associated data, this id references that
-    //     type: String,
-    //     index: true,
-    // },
-    trigger: {
-        type: triggerSchema,
+    schedulerData: {
+        type: new Schema({
+            type: {
+                type: String,
+                enum: Object.values(NotificationSchedulerType),
+                required: true
+            },
+            days: [Number],
+            time: String,
+            date: String,
+            offsetMinutes: Number
+        }),
         required: true
+    },
+    variantData: {
+        type: Schema.Types.Mixed
     },
     active: {
         type: Boolean,

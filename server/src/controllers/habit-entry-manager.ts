@@ -30,4 +30,9 @@ export default class HabitEntryManager {
     async getByHabitId(habitId: string): Promise<HabitEntryData[]> {
         return HabitEntryModel.find({ habitId }).sort({ date: 1 }).lean();
     }
+
+    async getStatusByDate(habitId: string, date: DateOnlyString): Promise<HabitEntryStatus | null> {
+        const entry = await HabitEntryModel.findOne({ habitId, date }).lean();
+        return entry?.status || null;
+    }
 }

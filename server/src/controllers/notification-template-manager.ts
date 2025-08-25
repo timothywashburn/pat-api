@@ -11,10 +11,13 @@ import { NotificationTemplateModel } from "../models/mongo/notification-template
 import ItemManager from "./item-manager";
 import { ItemModel } from "../models/mongo/item-data";
 import { ThoughtModel } from "../models/mongo/thought-data";
-import { TimeBasedScheduler } from "../notifications/schedulers/time-based-scheduler";
 import NotificationManager from "./notification-manager";
 
 class NotificationTemplateManager {
+    static async getTemplateById(templateId: NotificationTemplateId): Promise<NotificationTemplateData | null> {
+        return NotificationTemplateModel.findById(templateId).lean();
+    }
+
     static async getEffectiveTemplates(
         userId: UserId,
         targetLevel: NotificationTemplateLevel,
@@ -204,7 +207,7 @@ class NotificationTemplateManager {
     }
 
     static async onNewTemplate(template: NotificationTemplateData): Promise<void> {
-        const handler = NotificationManager.getHandler(template.trigger.type);
+        const variant = NotificationManager.getVariant(template.variantData.type);
 
         if (template.targetLevel == NotificationTemplateLevel.PARENT) {
             console.log(`🌐 Template is a parent template (${template.targetId})`);
@@ -215,7 +218,7 @@ class NotificationTemplateManager {
             for (const entity of entities) {
                 try {
                     console.log(`📅 Loading parent template for entity ${entity._id}`);
-                    await handler.schedule(template.userId, {
+                    await variant.attemptSchedule(template.userId, {
                         templateId: template._id,
                     });
                 } catch (error) {
@@ -228,7 +231,7 @@ class NotificationTemplateManager {
             const entityData = await NotificationTemplateManager.getEntityData(template.userId, template.targetEntityType, template.targetId);
             if (entityData) {
                 console.log(`📅 Scheduling specific template for ${template.targetEntityType} ${template.targetId}`);
-                await handler.schedule(template.userId, {
+                await variant.attemptSchedule(template.userId, {
                     templateId: template._id,
                 });
             } else {
@@ -241,8 +244,8 @@ class NotificationTemplateManager {
         const templates = await NotificationTemplateManager.getTemplates(userId, targetEntityType, targetId);
 
         for (const template of templates) {
-            const handler = NotificationManager.getHandler(template.trigger.type);
-            await handler.schedule(template.userId, {
+            const variant = NotificationManager.getVariant(template.variantData.type);
+            await variant.attemptSchedule(template.userId, {
                 templateId: template._id,
             });
         }

@@ -1,20 +1,15 @@
-import NotificationManager from "../controllers/notification-manager";
 import {
-    NotificationTemplateData,
-    NotificationTemplateLevel,
-    NotificationTriggerType,
+    NotificationTemplateId,
+    NotificationSchedulerType,
     UserId
 } from "@timothyw/pat-common";
-import RedisManager from "../controllers/redis-manager";
-import { NotificationTemplateModel } from "./mongo/notification-template-data";
-import NotificationTemplateManager from "../controllers/notification-template-manager";
 
-export interface NotificationContext {
-    templateId: string;
+export interface SchedulerContext {
+    templateId: NotificationTemplateId;
 }
 
 export interface NotificationData {
-    type: NotificationTriggerType;
+    templateId: NotificationTemplateId;
     userId: UserId;
     scheduledTime: string;
 }
@@ -24,43 +19,17 @@ export interface NotificationContent {
     body: string;
 }
 
-// export enum NotificationType {
-//     ITEM_DEADLINE = 'item_deadline',
-//     CLEAR_INBOX = 'clear_inbox',
-//     TIME_BASED = 'generic_template',
-//     // TODAY_TODO = 'today_todo',
-// }
+export abstract class NotificationScheduler<T extends SchedulerContext = SchedulerContext, > {
+    abstract type: NotificationSchedulerType;
 
-export type ScheduleDataResult<U extends NotificationData> = Promise<Omit<U, 'type'>[] | undefined>;
+    abstract getScheduleTime(userId: UserId, context: T): Promise<Date | null>;
 
-export abstract class NotificationScheduler<
-    T extends NotificationContext = NotificationContext,
-    U extends NotificationData = NotificationData
-> {
-    abstract type: NotificationTriggerType;
+    async onPostSend(data: NotificationData): Promise<void> {}
 
-    // going to change context from generic T --> NotificationContext
-    protected abstract getScheduleData(userId: UserId, context: NotificationContext): ScheduleDataResult<U>;
-    abstract getContent(userId: UserId, data: U): Promise<NotificationContent | null>;
-
-    // async onApiStart(): Promise<void> {}
-    async onPostSend(data: U): Promise<void> {}
-
-    // going to change context from generic T --> NotificationContext
-    async schedule(userId: UserId, context: NotificationContext) {
-        const notificationManager = NotificationManager.getInstance();
-        const schedules = await this.getScheduleData(userId, context);
-        if (!schedules) return;
-        await Promise.all(schedules.map(data => notificationManager.scheduleNotification({
-            type: this.type,
-            ...data
-        })));
-    }
-
-    async unscheduleAllForUser(userId: UserId) {
-        const client = RedisManager.getInstance().getClient();
-        const keys = await client.keys(`user:${userId}:notifications`);
-        await Promise.all(keys.map(key => client.del(key)));
-        await client.zrem(`global:notifications`, keys);
-    }
+    // async unscheduleAllForUser(userId: UserId) {
+    //     const client = RedisManager.getInstance().getClient();
+    //     const keys = await client.keys(`user:${userId}:notifications`);
+    //     await Promise.all(keys.map(key => client.del(key)));
+    //     await client.zrem(`global:notifications`, keys);
+    // }
 }
