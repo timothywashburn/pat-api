@@ -4,7 +4,7 @@ import {
     NotificationEntityType,
     NotificationTemplateData,
     NotificationTemplateId,
-    NotificationTemplateLevel,
+    NotificationTemplateLevel, NotificationTemplateSyncState,
     UserId,
 } from "@timothyw/pat-common";
 import { NotificationDesyncModel, NotificationTemplateModel } from "../models/mongo/notification-template-data";
@@ -28,11 +28,11 @@ class NotificationTemplateManager {
         if (targetLevel == NotificationTemplateLevel.PARENT) {
             return await this.getTemplates(userId, targetEntityType, targetId);
         } else if (targetLevel == NotificationTemplateLevel.ENTITY) {
-            const isSynced = await this.getEntitySyncState(userId, targetId);
+            const syncState = await this.getEntitySyncState(userId, targetEntityType, targetId);
 
-            if (isSynced) {
+            if (syncState == NotificationTemplateSyncState.SYNCED) {
                 const parentId = await this.getParentID(targetEntityType, targetId);
-                return await this.getTemplates(userId, targetEntityType, parentId);
+                return await this.getTemplates(userId, targetEntityType, parentId!);
             } else {
                 return await this.getTemplates(userId, targetEntityType, targetId);
             }
@@ -46,7 +46,7 @@ class NotificationTemplateManager {
             userId,
             targetEntityType: targetEntityType,
             targetId,
-            active: true
+            // active: true // I don't think we should have this here otherwise the client doesn't receive inactive templates
         }).sort({ createdAt: -1 });
 
         return templates.map(template => template.toObject());
@@ -150,33 +150,47 @@ class NotificationTemplateManager {
         return result.deletedCount > 0;
     }
 
-    static async getParentID(entityType: NotificationEntityType, entityId?: string): Promise<string> {
-        let subId: string | null;
+    static async getParentID(entityType: NotificationEntityType, entityId?: string): Promise<string | null> {
+        let subId: string | null = null;
 
         switch (entityType) {
             case NotificationEntityType.AGENDA_ITEM:
                 const item = await ItemManager.getInstance().getById(entityId as ItemId);
-                subId = item!.category ?? null;
+                if (!item!.category) return null;
+                subId = item!.category;
                 break;
             case NotificationEntityType.HABIT:
+                break;
             case NotificationEntityType.AGENDA_PANEL:
             case NotificationEntityType.INBOX_PANEL:
-                subId = null;
-                break;
+                return null;
         }
 
-        if (!subId) throw new Error();
+        if (!subId) entityType;
 
         return `${entityType}_${subId}`;
     }
 
-    static async getEntitySyncState(userId: UserId, targetId: string): Promise<boolean> {
+    static hasParent(entityType: NotificationEntityType): boolean {
+        switch (entityType) {
+            case NotificationEntityType.AGENDA_ITEM:
+                return true;
+            case NotificationEntityType.HABIT:
+            case NotificationEntityType.AGENDA_PANEL:
+            case NotificationEntityType.INBOX_PANEL:
+                return false;
+        }
+    }
+
+    static async getEntitySyncState(userId: UserId, entityType: NotificationEntityType, targetId: string): Promise<NotificationTemplateSyncState> {
+        if (!this.hasParent(entityType)) return NotificationTemplateSyncState.NO_PARENT;
+
         const exists = await NotificationDesyncModel.exists({
             userId,
             targetId,
         });
 
-        return !exists;
+        return exists ? NotificationTemplateSyncState.DESYNCED : NotificationTemplateSyncState.SYNCED;
     }
 
     // note: since this is at the entity level, these templates are NotificationTemplateLevel.ENTITY
@@ -221,6 +235,8 @@ class NotificationTemplateManager {
     }
 
     static async onNewTemplate(template: NotificationTemplateData): Promise<void> {
+        if (!template.active) return;
+
         const variant = NotificationManager.getVariant(template.variantData.type);
 
         if (template.targetLevel == NotificationTemplateLevel.PARENT) {
@@ -258,6 +274,7 @@ class NotificationTemplateManager {
         const templates = await NotificationTemplateManager.getTemplates(userId, targetEntityType, targetId);
 
         for (const template of templates) {
+            if (!template.active) continue;
             const variant = NotificationManager.getVariant(template.variantData.type);
             await variant.attemptSchedule(template.userId, {
                 templateId: template._id,
