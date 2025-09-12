@@ -83,15 +83,15 @@ class NotificationTemplateManager {
         }
     }
 
-    static async getEntityData(userId: UserId, entityType: NotificationEntityType, entityId: string): Promise<any> {
+    static async getEntityData(userId: UserId, entityType: NotificationEntityType, targetId: string): Promise<any> {
         try {
             switch (entityType) {
                 case NotificationEntityType.AGENDA_ITEM:
-                    const item = await ItemModel.findById(entityId);
+                    const item = await ItemModel.findById(targetId);
                     return item ? item.toObject() : null;
 
                 case NotificationEntityType.HABIT:
-                    const habit = await HabitModel.findById(entityId);
+                    const habit = await HabitModel.findById(targetId);
                     return habit ? habit.toObject() : null;
 
                 case NotificationEntityType.AGENDA_PANEL:
@@ -150,12 +150,12 @@ class NotificationTemplateManager {
         return result.deletedCount > 0;
     }
 
-    static async getParentID(entityType: NotificationEntityType, entityId?: string): Promise<string | null> {
+    static async getParentID(entityType: NotificationEntityType, targetId?: string): Promise<string | null> {
         let subId: string | null = null;
 
         switch (entityType) {
             case NotificationEntityType.AGENDA_ITEM:
-                const item = await ItemManager.getInstance().getById(entityId as ItemId);
+                const item = await ItemManager.getInstance().getById(targetId as ItemId);
                 if (!item!.category) return null;
                 subId = item!.category;
                 break;
@@ -166,8 +166,7 @@ class NotificationTemplateManager {
                 return null;
         }
 
-        if (!subId) entityType;
-
+        if (!subId) return entityType;
         return `${entityType}_${subId}`;
     }
 
