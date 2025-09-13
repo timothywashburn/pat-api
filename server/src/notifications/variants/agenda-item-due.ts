@@ -18,13 +18,13 @@ export interface AgendaItemUpcomingDeadlineContext extends VariantContext {
     lastSent?: Date;
 }
 
-export class AgendaItemUpcomingDeadline extends NotificationVariant<AgendaItemUpcomingDeadlineContext> {
-    schedulerType = NotificationSchedulerType.RELATIVE_DATE;
-    variantType = NotificationVariantType.AGENDA_ITEM_UPCOMING_DEADLINE;
+export class AgendaItemDue extends NotificationVariant<AgendaItemUpcomingDeadlineContext> {
+    schedulerType = NotificationSchedulerType.RELATIVE_DATE as const;
+    variantType = NotificationVariantType.AGENDA_ITEM_DUE as const;
 
     async getContent(data: NotificationData): Promise<NotificationContent | null> {
         const template = await NotificationTemplateManager.getTemplateById(data.templateId);
-        if (!template || !template.active || template.variantData.type !== this.variantType) {
+        if (!template || !template.active || template.schedulerData.type != this.schedulerType || template.variantData.type !== this.variantType) {
             console.error('Template not found or inactive:', data.templateId);
             return null;
         }
@@ -47,7 +47,7 @@ export class AgendaItemUpcomingDeadline extends NotificationVariant<AgendaItemUp
 
     async attemptSchedule(userId: UserId, context: AgendaItemUpcomingDeadlineContext) {
         const template = await NotificationTemplateManager.getTemplateById(context.templateId);
-        if (!template || !template.active || template.variantData.type !== this.variantType) return;
+        if (!template || !template.active || template.schedulerData.type != this.schedulerType || template.variantData.type !== this.variantType) return;
 
         const itemId = template.targetId as ItemId;
         const item = await ItemManager.getInstance().getById(itemId);
@@ -70,7 +70,7 @@ export class AgendaItemUpcomingDeadline extends NotificationVariant<AgendaItemUp
             scheduledTime = await scheduler.getScheduleTime(userId, {
                 templateId: template._id,
                 date: item.dueDate,
-                offsetMinutes: -60
+                offsetMinutes: template.schedulerData.offsetMinutes
             });
             if (!scheduledTime) return;
         }
@@ -84,7 +84,7 @@ export class AgendaItemUpcomingDeadline extends NotificationVariant<AgendaItemUp
 
     async onPostSend(data: NotificationData): Promise<void> {
         const template = await NotificationTemplateManager.getTemplateById(data.templateId);
-        if (!template || !template.active || template.variantData.type !== this.variantType) return;
+        if (!template || !template.active || template.schedulerData.type != this.schedulerType || template.variantData.type !== this.variantType) return;
 
         await this.attemptSchedule(data.userId, {
             templateId: template._id,

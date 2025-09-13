@@ -29,6 +29,25 @@ export async function runCreateNotificationTemplatesTest(context: TestContext) {
     // );
     // if (!response.success) throw new Error(`Failed to create notification template`);
 
+    // response = await post<CreateNotificationTemplateRequest, CreateNotificationTemplateResponse>(
+    //     context,
+    //     "/api/notifications/templates",
+    //     {
+    //         targetLevel: NotificationTemplateLevel.ENTITY,
+    //         targetEntityType: NotificationEntityType.HABIT,
+    //         targetId: context.habitIds[1],
+    //         schedulerData: {
+    //             type: NotificationSchedulerType.RELATIVE_DATE,
+    //             offsetMinutes: -60
+    //         },
+    //         variantData: {
+    //             type: NotificationVariantType.HABIT_DUE
+    //         },
+    //         active: true
+    //     }
+    // );
+    // if (!response.success) throw new Error(`Failed to create notification template`);
+
     response = await post<CreateNotificationTemplateRequest, CreateNotificationTemplateResponse>(
         context,
         "/api/notifications/templates",
@@ -37,11 +56,12 @@ export async function runCreateNotificationTemplatesTest(context: TestContext) {
             targetEntityType: NotificationEntityType.HABIT,
             targetId: context.habitIds[1],
             schedulerData: {
-                type: NotificationSchedulerType.RELATIVE_DATE,
-                offsetMinutes: -60
+                type: NotificationSchedulerType.DAY_TIME,
+                days: [0,1,2,3,4,5,6],
+                time: "17:54"
             },
             variantData: {
-                type: NotificationVariantType.HABIT_INCOMPLETE
+                type: NotificationVariantType.HABIT_TIMED_REMINDER
             },
             active: true
         }

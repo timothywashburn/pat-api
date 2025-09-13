@@ -1,14 +1,11 @@
 import {
     SchedulerContext,
-    NotificationData,
     NotificationScheduler,
 } from "../../models/notification-scheduler";
 import {
     NotificationSchedulerType,
     UserId
 } from "@timothyw/pat-common";
-import NotificationTemplateManager from "../../controllers/notification-template-manager";
-import NotificationManager from "../../controllers/notification-manager";
 
 interface RelativeDateContext extends SchedulerContext {
     date: Date;

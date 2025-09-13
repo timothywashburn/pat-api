@@ -15,13 +15,13 @@ export interface HabitIncompleteContext extends VariantContext {
     lastRollover?: Date;
 }
 
-export class HabitIncomplete extends NotificationVariant<HabitIncompleteContext> {
-    schedulerType = NotificationSchedulerType.RELATIVE_DATE;
-    variantType = NotificationVariantType.HABIT_INCOMPLETE;
+export class HabitDue extends NotificationVariant<HabitIncompleteContext> {
+    schedulerType = NotificationSchedulerType.RELATIVE_DATE as const;
+    variantType = NotificationVariantType.HABIT_DUE as const;
 
     async getContent(data: NotificationData): Promise<NotificationContent | null> {
         const template = await NotificationTemplateManager.getTemplateById(data.templateId);
-        if (!template || !template.active || template.variantData.type !== this.variantType) {
+        if (!template || !template.active || template.schedulerData.type != this.schedulerType || template.variantData.type !== this.variantType) {
             console.error('Template not found or inactive:', data.templateId);
             return null;
         }
@@ -49,7 +49,7 @@ export class HabitIncomplete extends NotificationVariant<HabitIncompleteContext>
 
     async attemptSchedule(userId: UserId, context: HabitIncompleteContext) {
         const template = await NotificationTemplateManager.getTemplateById(context.templateId);
-        if (!template || !template.active || template.variantData.type !== this.variantType) return;
+        if (!template || !template.active || template.schedulerData.type != this.schedulerType || template.variantData.type !== this.variantType) return;
 
         const habitId = template.targetId as HabitId;
         const habit = await HabitManager.getInstance().getById(habitId);
@@ -65,7 +65,7 @@ export class HabitIncomplete extends NotificationVariant<HabitIncompleteContext>
         const scheduledTime = await scheduler.getScheduleTime(userId, {
             templateId: template._id,
             date: DateUtils.nextTimeInTimezoneAsUTC(hours, minutes, 0, timezone, context.lastRollover),
-            offsetMinutes: -60
+            offsetMinutes: template.schedulerData.offsetMinutes
         });
         if (!scheduledTime) return;
 
@@ -78,7 +78,7 @@ export class HabitIncomplete extends NotificationVariant<HabitIncompleteContext>
 
     async onPostSend(data: NotificationData): Promise<void> {
         const template = await NotificationTemplateManager.getTemplateById(data.templateId);
-        if (!template || !template.active || template.variantData.type !== this.variantType) return;
+        if (!template || !template.active || template.schedulerData.type != this.schedulerType || template.variantData.type !== this.variantType) return;
 
         const habitId = template.targetId as HabitId;
         const habit = await HabitManager.getInstance().getById(habitId);

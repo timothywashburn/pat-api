@@ -9,13 +9,17 @@ import {
 import {
     RelativeDateScheduler,
 } from "../notifications/schedulers/relative-date-scheduler";
+import {
+    DayTimeScheduler,
+} from "../notifications/schedulers/day-time-scheduler";
 import { NotificationTemplateModel } from "../models/mongo/notification-template-data";
 import { NotificationTemplateData, NotificationSchedulerType, NotificationVariantType } from "@timothyw/pat-common";
 import NotificationTemplateManager from "./notification-template-manager";
 import { NotificationVariant, VariantData } from "../models/notification-variant";
-import { AgendaItemUpcomingDeadline } from "../notifications/variants/agenda-item-upcoming-deadline";
+import { AgendaItemDue } from "../notifications/variants/agenda-item-due";
 import NotificationSender from "./notification-sender";
-import { HabitIncomplete } from "../notifications/variants/habit-incomplete";
+import { HabitDue } from "../notifications/variants/habit-due";
+import { HabitTimedReminder } from "../notifications/variants/habit-timed-reminder";
 
 export type NotificationId = string & { readonly __brand: "NotificationId" };
 
@@ -66,6 +70,7 @@ export default class NotificationManager {
         // this.registerHandler(new ItemDeadlineNotificationHandler());
         // this.registerHandler(new ClearInboxNotificationHandler());
         this.registerScheduler(new RelativeDateScheduler());
+        this.registerScheduler(new DayTimeScheduler());
     }
 
     static registerScheduler(scheduler: NotificationScheduler) {
@@ -73,8 +78,9 @@ export default class NotificationManager {
     }
 
     static registerVariants() {
-        this.registerVariant(new AgendaItemUpcomingDeadline());
-        this.registerVariant(new HabitIncomplete());
+        this.registerVariant(new AgendaItemDue());
+        this.registerVariant(new HabitDue());
+        this.registerVariant(new HabitTimedReminder());
     }
 
     static registerVariant(variant: NotificationVariant) {
