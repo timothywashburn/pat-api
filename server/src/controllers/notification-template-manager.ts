@@ -4,7 +4,8 @@ import {
     NotificationEntityType,
     NotificationTemplateData,
     NotificationTemplateId,
-    NotificationTemplateLevel, NotificationTemplateSyncState,
+    NotificationTemplateLevel,
+    NotificationTemplateSyncState,
     UserId,
 } from "@timothyw/pat-common";
 import { NotificationDesyncModel, NotificationTemplateModel } from "../models/mongo/notification-template-data";
@@ -163,6 +164,7 @@ class NotificationTemplateManager {
                 break;
             case NotificationEntityType.AGENDA_PANEL:
             case NotificationEntityType.INBOX_PANEL:
+            case NotificationEntityType.HABIT_PANEL:
                 return null;
         }
 
@@ -177,6 +179,7 @@ class NotificationTemplateManager {
             case NotificationEntityType.HABIT:
             case NotificationEntityType.AGENDA_PANEL:
             case NotificationEntityType.INBOX_PANEL:
+            case NotificationEntityType.HABIT_PANEL:
                 return false;
         }
     }
