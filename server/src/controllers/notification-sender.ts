@@ -11,7 +11,7 @@ type ToSend = {
     content: NotificationContent;
 }[];
 
-const NOTIFICATION_DRY_RUN = true;
+const NOTIFICATION_DRY_RUN = false;
 
 export default class NotificationSender {
     private queue: QueuedNotification[] = [];
