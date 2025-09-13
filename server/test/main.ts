@@ -44,6 +44,7 @@ import { runCreatePersonNotesTest } from "./unit/api/person/create-person-notes.
 import { runGetPersonNotesTest } from "./unit/api/person/get-person-notes.test";
 import { runUpdatePersonNoteTest } from "./unit/api/person/update-person-note.test";
 import { runDeletePersonNoteTest } from "./unit/api/person/delete-person-note.test";
+import { runCreateNotificationTemplatesTest } from "./unit/api/notifications/create-notification-templates.test";
 
 config({ path: resolve(__dirname, '../../.env') });
 
@@ -125,7 +126,9 @@ const tests: Test[] = [
     { name: 'update habit', run: runUpdateHabitTest },
     { name: 'create habit entries', run: runCreateHabitEntriesTest },
     { name: 'delete habit entry', run: runDeleteHabitEntryTest },
-    { name: 'delete habit', run: runDeleteHabitTest }
+    { name: 'delete habit', run: runDeleteHabitTest },
+
+    { name: 'create notification templates', run: runCreateNotificationTemplatesTest }
 ];
 
 async function runTests() {

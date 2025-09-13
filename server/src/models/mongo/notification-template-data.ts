@@ -3,17 +3,9 @@ import {
     NotificationEntityType,
     NotificationTemplateData,
     NotificationTemplateLevel,
-    NotificationTriggerType,
+    NotificationSchedulerType, NotificationDesyncData,
 } from "@timothyw/pat-common";
 import { v4 as uuidv4 } from 'uuid';
-
-const triggerSchema = new Schema({
-    type: {
-        type: String,
-        enum: Object.values(NotificationTriggerType),
-        required: true
-    }
-}, { _id: false });
 
 const notificationTemplateSchema = new Schema<NotificationTemplateData>({
     _id: {
@@ -43,18 +35,22 @@ const notificationTemplateSchema = new Schema<NotificationTemplateData>({
         required: true,
         index: true
     },
-    // entityType: { // the type of entity this template applies to
-    //     type: String,
-    //     required: true,
-    //     index: true
-    // },
-    // entityId: { // some entities have associated data, this id references that
-    //     type: String,
-    //     index: true,
-    // },
-    trigger: {
-        type: triggerSchema,
+    schedulerData: {
+        type: new Schema({
+            type: {
+                type: String,
+                enum: Object.values(NotificationSchedulerType),
+                required: true
+            },
+            days: [Number],
+            time: String,
+            date: String,
+            offsetMinutes: Number
+        }),
         required: true
+    },
+    variantData: {
+        type: Schema.Types.Mixed
     },
     active: {
         type: Boolean,
@@ -65,8 +61,23 @@ const notificationTemplateSchema = new Schema<NotificationTemplateData>({
     timestamps: true,
 });
 
-// Compound indexes for efficient queries
 notificationTemplateSchema.index({ userId: 1, entityType: 1, active: 1 });
 notificationTemplateSchema.index({ userId: 1, entityId: 1, active: 1 });
 
+const notificationDesyncSchema = new Schema<NotificationDesyncData>({
+    userId: {
+        type: String,
+        required: true,
+        index: true
+    },
+    targetId: {
+        type: String,
+        required: true,
+        index: true
+    },
+}, {
+    timestamps: true,
+});
+
 export const NotificationTemplateModel = model<NotificationTemplateData>('NotificationTemplate', notificationTemplateSchema, 'notification_templates');
+export const NotificationDesyncModel = model<NotificationDesyncData>('NotificationDesync', notificationDesyncSchema, 'notification_desyncs');
