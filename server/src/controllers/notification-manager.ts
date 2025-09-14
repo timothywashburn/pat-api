@@ -13,7 +13,12 @@ import {
     DayTimeScheduler,
 } from "../notifications/schedulers/day-time-scheduler";
 import { NotificationTemplateModel } from "../models/mongo/notification-template-data";
-import { NotificationTemplateData, NotificationSchedulerType, NotificationVariantType } from "@timothyw/pat-common";
+import {
+    NotificationTemplateData,
+    NotificationSchedulerType,
+    NotificationVariantType,
+    NotificationTemplateId
+} from "@timothyw/pat-common";
 import NotificationTemplateManager from "./notification-template-manager";
 import { NotificationVariant, VariantContext, VariantData } from "../models/notification-variant";
 import { AgendaItemDue } from "../notifications/variants/agenda-item-due";
@@ -120,7 +125,7 @@ export default class NotificationManager {
         const client = RedisManager.getInstance().getClient();
         const data = await client.hgetall(`notification:${id}`) as unknown as NotificationData;
 
-        if (!data) {
+        if (!data || Object.keys(data).length === 0) {
             console.log(`notification ${id} not found`);
             return;
         }
@@ -128,5 +133,19 @@ export default class NotificationManager {
         await client.del(`notification:${id}`);
         await client.zrem(`user:${data.userId}:notifications`, id);
         await client.zrem('global:notifications', id);
+
+        this.runner.removeFromQueue(id);
+    }
+
+    static async removeNotifications(templateId: NotificationTemplateId) {
+        const client = RedisManager.getInstance().getClient();
+        const allNotifications = await client.zrange('global:notifications', 0, -1);
+
+        for (const notificationId of allNotifications) {
+            const data = await client.hgetall(`notification:${notificationId}`) as unknown as NotificationData;
+            if (data.templateId === templateId.toString()) await this.removeNotification(notificationId as NotificationId);
+        }
+
+        console.log(`Removed all notifications for template ${templateId}`);
     }
 }

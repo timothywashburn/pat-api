@@ -142,11 +142,15 @@ class NotificationTemplateManager {
             { new: true }
         );
 
-        return template ? template.toObject() : null;
+        const templateObject = template!.toObject();
+        await NotificationManager.removeNotifications(templateId);
+        await this.onNewTemplate(templateObject);
+        return templateObject;
     }
 
-    static async delete(templateId: string, userId: UserId): Promise<boolean> {
+    static async delete(templateId: NotificationTemplateId, userId: UserId): Promise<boolean> {
         const result = await NotificationTemplateModel.deleteOne({ _id: templateId, userId });
+        await NotificationManager.removeNotifications(templateId);
         return result.deletedCount > 0;
     }
 

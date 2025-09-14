@@ -192,4 +192,13 @@ export default class NotificationSender {
     public getQueue(): QueuedNotification[] {
         return this.queue;
     }
+
+    public removeFromQueue(notificationId: NotificationId): boolean {
+        const index = this.queue.findIndex(n => n.id === notificationId);
+        if (index !== -1) {
+            this.queue.splice(index, 1);
+            return true;
+        }
+        return false;
+    }
 }
