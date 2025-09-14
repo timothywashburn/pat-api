@@ -14,6 +14,7 @@ import { ItemModel } from "../models/mongo/item-data";
 import { ThoughtModel } from "../models/mongo/thought-data";
 import NotificationManager from "./notification-manager";
 import { HabitModel } from "../models/mongo/habit-data";
+import { assertNever } from "../utils/misc";
 
 class NotificationTemplateManager {
     static async getTemplateById(templateId: NotificationTemplateId): Promise<NotificationTemplateData | null> {
@@ -59,24 +60,15 @@ class NotificationTemplateManager {
                 case NotificationEntityType.AGENDA_ITEM:
                     const items = await ItemManager.getInstance().getAllByUser(userId);
                     return items.filter(item => item.category === parentId);
-                // case NotificationEntityType.AGENDA_PANEL:
-                //     const incompleteItems = await ItemModel.countDocuments({
-                //         userId,
-                //         category: parentId,
-                //         completed: false
-                //     });
-                //     return [{
-                //         incompleteItems
-                //     }];
-                // case NotificationEntityType.INBOX_PANEL:
-                //     const inboxCount = await ThoughtModel.countDocuments({
-                //         userId,
-                //     });
-                //     return [{
-                //         inboxCount
-                //     }];
-                default:
+                case NotificationEntityType.HABIT:
+                    const habits = await HabitModel.find({ userId });
+                    return habits.map(habit => habit.toObject());
+                case NotificationEntityType.AGENDA_PANEL:
+                case NotificationEntityType.INBOX_PANEL:
+                case NotificationEntityType.HABIT_PANEL:
                     throw new Error(`Type ${entityType} does not have a parent`);
+                default:
+                    return assertNever(entityType);
             }
         } catch (error) {
             console.error('Error fetching entities for template:', error);
@@ -112,9 +104,16 @@ class NotificationTemplateManager {
                         inboxCount
                     };
 
+                case NotificationEntityType.HABIT_PANEL:
+                    const habitCount = await HabitModel.countDocuments({
+                        userId,
+                    });
+                    return {
+                        habitCount
+                    };
+
                 default:
-                    console.warn('Unknown entity type:', entityType);
-                    return null;
+                    return assertNever(entityType);
             }
         } catch (error) {
             console.error('Error fetching entity data:', error);
@@ -249,9 +248,10 @@ class NotificationTemplateManager {
 
             for (const entity of entities) {
                 try {
-                    console.log(`📅 Loading parent template for entity ${entity._id}`);
-                    await variant.attemptSchedule(template.userId, {
-                        templateId: template._id,
+                    console.log(`📅 Scheduling parent template for ${template.targetEntityType} ${entity._id}`);
+                    await variant.attemptSchedule(template.userId, template, entity, {
+                        template: template,
+                        entity: entity,
                     });
                 } catch (error) {
                     console.error(`❌ Failed to schedule template ${template._id} for entity ${entity._id}:`, error);
@@ -263,7 +263,7 @@ class NotificationTemplateManager {
             const entityData = await NotificationTemplateManager.getEntityData(template.userId, template.targetEntityType, template.targetId);
             if (entityData) {
                 console.log(`📅 Scheduling specific template for ${template.targetEntityType} ${template.targetId}`);
-                await variant.attemptSchedule(template.userId, {
+                await variant.attemptSchedule(template.userId, template, entityData, {
                     templateId: template._id,
                 });
             } else {
@@ -272,15 +272,13 @@ class NotificationTemplateManager {
         }
     }
 
-    static async onNewEntity(userId: UserId, targetEntityType: NotificationEntityType, targetId: string): Promise<void> {
+    static async onNewEntity(userId: UserId, targetEntityType: NotificationEntityType, targetId: string, entity: any): Promise<void> {
         const templates = await NotificationTemplateManager.getTemplates(userId, targetEntityType, targetId);
 
         for (const template of templates) {
             if (!template.active) continue;
             const variant = NotificationManager.getVariant(template.variantData.type);
-            await variant.attemptSchedule(template.userId, {
-                templateId: template._id,
-            });
+            await variant.attemptSchedule(template.userId, template, entity, {});
         }
     }
 }

@@ -1,5 +1,12 @@
 import { NotificationVariant, VariantContext, VariantData } from "../../models/notification-variant";
-import { HabitId, ItemId, NotificationSchedulerType, NotificationVariantType, UserId } from "@timothyw/pat-common";
+import {
+    HabitData,
+    HabitId,
+    ItemId,
+    NotificationSchedulerType, NotificationTemplateData,
+    NotificationVariantType,
+    UserId
+} from "@timothyw/pat-common";
 import ItemManager from "../../controllers/item-manager";
 import { NotificationContent, NotificationData } from "../../models/notification-scheduler";
 import { RelativeDateScheduler } from "../schedulers/relative-date-scheduler";
@@ -15,7 +22,7 @@ export interface HabitIncompleteContext extends VariantContext {
     lastRollover?: Date;
 }
 
-export class HabitDue extends NotificationVariant<HabitIncompleteContext> {
+export class HabitDue extends NotificationVariant<HabitData, HabitIncompleteContext> {
     schedulerType = NotificationSchedulerType.RELATIVE_DATE as const;
     variantType = NotificationVariantType.HABIT_DUE as const;
 
@@ -47,12 +54,14 @@ export class HabitDue extends NotificationVariant<HabitIncompleteContext> {
         };
     }
 
-    async attemptSchedule(userId: UserId, context: HabitIncompleteContext) {
-        const template = await NotificationTemplateManager.getTemplateById(context.templateId);
+    async attemptSchedule(userId: UserId, template: NotificationTemplateData, entity: HabitData, context: HabitIncompleteContext) {
+        // const template = await NotificationTemplateManager.getTemplateById(context.templateId);
         if (!template || !template.active || template.schedulerData.type != this.schedulerType || template.variantData.type !== this.variantType) return;
 
-        const habitId = template.targetId as HabitId;
-        const habit = await HabitManager.getInstance().getById(habitId);
+        // const habitId = template.targetId as HabitId;
+        // const habit = await HabitManager.getInstance().getById(habitId);
+        // console.log(habitId);
+        const habit = entity;
         if (!habit) {
             console.error('Habit not found for template:', template._id);
             return;
@@ -72,6 +81,7 @@ export class HabitDue extends NotificationVariant<HabitIncompleteContext> {
         await NotificationManager.scheduleNotification(template.variantData.type, {
             templateId: template._id,
             userId,
+            entityId: habit._id,
             scheduledTime: scheduledTime.getTime().toString(),
         });
     }
@@ -90,8 +100,9 @@ export class HabitDue extends NotificationVariant<HabitIncompleteContext> {
         const timezone = await UserManager.getInstance().getTimezone(data.userId);
         const [hours, minutes] = habit.rolloverTime.split(':').map(Number);
 
-        await this.attemptSchedule(data.userId, {
-            templateId: template._id,
+        const entityData = await NotificationTemplateManager.getEntityData(template.userId, template.targetEntityType, data.entityId);
+
+        await this.attemptSchedule(data.userId, template, entityData, {
             lastRollover: new Date(DateUtils.nextTimeInTimezoneAsUTC(hours, minutes, 0, timezone).getTime() + 1),
         });
     }

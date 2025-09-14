@@ -3,8 +3,9 @@ import {
     VariantContext,
 } from "../../models/notification-variant";
 import {
+    AgendaItemData,
     ItemId,
-    NotificationSchedulerType,
+    NotificationSchedulerType, NotificationTemplateData,
     NotificationVariantType,
     UserId
 } from "@timothyw/pat-common";
@@ -18,7 +19,7 @@ export interface AgendaItemUpcomingDeadlineContext extends VariantContext {
     lastSent?: Date;
 }
 
-export class AgendaItemDue extends NotificationVariant<AgendaItemUpcomingDeadlineContext> {
+export class AgendaItemDue extends NotificationVariant<AgendaItemData, AgendaItemUpcomingDeadlineContext> {
     schedulerType = NotificationSchedulerType.RELATIVE_DATE as const;
     variantType = NotificationVariantType.AGENDA_ITEM_DUE as const;
 
@@ -45,21 +46,22 @@ export class AgendaItemDue extends NotificationVariant<AgendaItemUpcomingDeadlin
         };
     }
 
-    async attemptSchedule(userId: UserId, context: AgendaItemUpcomingDeadlineContext) {
-        const template = await NotificationTemplateManager.getTemplateById(context.templateId);
+    async attemptSchedule(userId: UserId, template: NotificationTemplateData, entity: AgendaItemData, context: AgendaItemUpcomingDeadlineContext) {
+        // const template = await NotificationTemplateManager.getTemplateById(context.templateId);
         if (!template || !template.active || template.schedulerData.type != this.schedulerType || template.variantData.type !== this.variantType) return;
 
-        const itemId = template.targetId as ItemId;
-        const item = await ItemManager.getInstance().getById(itemId);
+        // const itemId = template.targetId as ItemId;
+        // const item = await ItemManager.getInstance().getById(itemId);
+        const item = entity;
         if (!item || !item.dueDate) {
-            console.error('Item not found or no due date:', itemId);
+            console.error('Item not found or no due date:', item._id);
             return;
         } else if (item.completed) {
-            console.log(`Item ${itemId} is completed, not scheduling notification.`);
+            console.log(`Item ${item._id} is completed, not scheduling notification.`);
             return;
         }
 
-        console.log(`\nScheduling notification for item ${itemId} with context:`, context);
+        console.log(`\nScheduling notification for item ${item._id} with context:`, context);
 
         let scheduledTime;
         if (context.lastSent) {
@@ -78,6 +80,7 @@ export class AgendaItemDue extends NotificationVariant<AgendaItemUpcomingDeadlin
         await NotificationManager.scheduleNotification(template.variantData.type, {
             templateId: template._id,
             userId,
+            entityId: item._id,
             scheduledTime: scheduledTime.getTime().toString(),
         });
     }
@@ -86,8 +89,9 @@ export class AgendaItemDue extends NotificationVariant<AgendaItemUpcomingDeadlin
         const template = await NotificationTemplateManager.getTemplateById(data.templateId);
         if (!template || !template.active || template.schedulerData.type != this.schedulerType || template.variantData.type !== this.variantType) return;
 
-        await this.attemptSchedule(data.userId, {
-            templateId: template._id,
+        const entityData = await NotificationTemplateManager.getEntityData(template.userId, template.targetEntityType, data.entityId);
+
+        await this.attemptSchedule(data.userId, template, entityData, {
             lastSent: new Date(Number(data.scheduledTime))
         });
     }

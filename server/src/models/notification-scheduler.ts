@@ -10,6 +10,7 @@ export interface SchedulerContext {
 
 export interface NotificationData {
     templateId: NotificationTemplateId;
+    entityId: string;
     userId: UserId;
     scheduledTime: string;
 }

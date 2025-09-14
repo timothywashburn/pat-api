@@ -1,5 +1,13 @@
 import { NotificationVariant, VariantContext } from "../../models/notification-variant";
-import { HabitId, NotificationSchedulerType, NotificationVariantType, UserId } from "@timothyw/pat-common";
+import {
+    Habit,
+    HabitData,
+    HabitId,
+    NotificationSchedulerType,
+    NotificationTemplateData,
+    NotificationVariantType,
+    UserId
+} from "@timothyw/pat-common";
 import { NotificationContent, NotificationData } from "../../models/notification-scheduler";
 import { DayTimeScheduler } from "../schedulers/day-time-scheduler";
 import NotificationManager from "../../controllers/notification-manager";
@@ -10,7 +18,7 @@ export interface HabitTimedReminderContext extends VariantContext {
     lastSent?: Date;
 }
 
-export class HabitTimedReminder extends NotificationVariant<HabitTimedReminderContext> {
+export class HabitTimedReminder extends NotificationVariant<HabitData, HabitTimedReminderContext> {
     schedulerType = NotificationSchedulerType.DAY_TIME as const;
     variantType = NotificationVariantType.HABIT_TIMED_REMINDER as const;
 
@@ -34,18 +42,17 @@ export class HabitTimedReminder extends NotificationVariant<HabitTimedReminderCo
         };
     }
 
-    async attemptSchedule(userId: UserId, context: HabitTimedReminderContext) {
-        const template = await NotificationTemplateManager.getTemplateById(context.templateId);
+    async attemptSchedule(userId: UserId, template: NotificationTemplateData, entity: HabitData, context: HabitTimedReminderContext) {
+        // const template = await NotificationTemplateManager.getTemplateById(context.templateId);
         if (!template || !template.active || template.schedulerData.type != this.schedulerType || template.variantData.type !== this.variantType) return;
 
-        const habitId = template.targetId as HabitId;
-        const habit = await HabitManager.getInstance().getById(habitId);
+        // const habitId = template.targetId as HabitId;
+        // const habit = await HabitManager.getInstance().getById(habitId);
+        const habit = entity;
         if (!habit) {
             console.error('Habit not found for template:', template._id);
             return;
         }
-
-        console.log(`\nScheduling timed reminder for habit ${habitId} with context:`, context);
 
         const scheduler = NotificationManager.getScheduler(template.schedulerData.type) as DayTimeScheduler;
         const scheduledTime = await scheduler.getScheduleTime(userId, {
@@ -59,6 +66,7 @@ export class HabitTimedReminder extends NotificationVariant<HabitTimedReminderCo
         await NotificationManager.scheduleNotification(template.variantData.type, {
             templateId: template._id,
             userId,
+            entityId: habit._id,
             scheduledTime: scheduledTime.getTime().toString(),
         });
     }
@@ -67,9 +75,9 @@ export class HabitTimedReminder extends NotificationVariant<HabitTimedReminderCo
         const template = await NotificationTemplateManager.getTemplateById(data.templateId);
         if (!template || !template.active || template.schedulerData.type != this.schedulerType || template.variantData.type !== this.variantType) return;
 
-        // Schedule the next occurrence of this reminder
-        await this.attemptSchedule(data.userId, {
-            templateId: template._id,
+        const entityData = await NotificationTemplateManager.getEntityData(template.userId, template.targetEntityType, data.entityId);
+
+        await this.attemptSchedule(data.userId, template, entityData, {
             lastSent: new Date(Number(data.scheduledTime))
         });
     }

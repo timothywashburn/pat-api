@@ -42,7 +42,7 @@ export const createItemEndpoint: ApiEndpoint<CreateAgendaItemRequest, CreateAgen
             //     notificationNumber: 1
             // });
 
-            await NotificationTemplateManager.onNewEntity(userId, NotificationEntityType.AGENDA_ITEM, item._id);
+            await NotificationTemplateManager.onNewEntity(userId, NotificationEntityType.AGENDA_ITEM, item._id, item);
 
             res.json({
                 success: true,

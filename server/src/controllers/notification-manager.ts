@@ -15,7 +15,7 @@ import {
 import { NotificationTemplateModel } from "../models/mongo/notification-template-data";
 import { NotificationTemplateData, NotificationSchedulerType, NotificationVariantType } from "@timothyw/pat-common";
 import NotificationTemplateManager from "./notification-template-manager";
-import { NotificationVariant, VariantData } from "../models/notification-variant";
+import { NotificationVariant, VariantContext, VariantData } from "../models/notification-variant";
 import { AgendaItemDue } from "../notifications/variants/agenda-item-due";
 import NotificationSender from "./notification-sender";
 import { HabitDue } from "../notifications/variants/habit-due";
@@ -61,9 +61,11 @@ export default class NotificationManager {
         const templates: NotificationTemplateData[] = templateDocs.map(doc => doc.toObject());
 
         console.log(`📋 Found ${templates.length} active notification templates`);
-        await Promise.all(
-            templates.map(template => NotificationTemplateManager.onNewTemplate(template))
-        );
+        // await Promise.all(
+        //     templates.map(template => NotificationTemplateManager.onNewTemplate(template))
+        // );
+        // easier to debug
+        for (let template of templates) await NotificationTemplateManager.onNewTemplate(template);
     }
 
     static registerSchedulers() {
@@ -94,7 +96,6 @@ export default class NotificationManager {
     }
 
     static getVariant(type: NotificationVariantType): NotificationVariant {
-        console.log(`Getting variant for type: ${type}`);
         const variant = NotificationManager.variants.get(type);
         if (!variant) throw new Error(`notification variant for type ${type} not found`);
         return variant;
