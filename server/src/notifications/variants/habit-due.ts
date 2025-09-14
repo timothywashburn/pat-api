@@ -33,7 +33,7 @@ export class HabitDue extends NotificationVariant<HabitData, HabitIncompleteCont
             return null;
         }
 
-        const habitId = template.targetId as HabitId;
+        const habitId = data.entityId as HabitId;
         const habit = await HabitManager.getInstance().getById(habitId);
         if (!habit) {
             console.error('Habit not found for template:', data.templateId);

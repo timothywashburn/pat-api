@@ -30,7 +30,7 @@ export class AgendaItemDue extends NotificationVariant<AgendaItemData, AgendaIte
             return null;
         }
 
-        const itemId = template.targetId as ItemId;
+        const itemId = data.entityId as ItemId;
         const item = await ItemManager.getInstance().getById(itemId);
         if (!item) {
             console.error('Item not found for template:', data.templateId);
