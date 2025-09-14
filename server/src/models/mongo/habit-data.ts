@@ -1,6 +1,6 @@
 import { Schema, model } from 'mongoose';
-import { HabitData, HabitFrequency } from "@timothyw/pat-common/dist/types/models/habit-data";
 import { v4 as uuidv4 } from 'uuid';
+import { HabitData, HabitFrequency } from "@timothyw/pat-common";
 
 const habitSchema = new Schema<HabitData>({
     _id: {
@@ -32,15 +32,13 @@ const habitSchema = new Schema<HabitData>({
         enum: Object.values(HabitFrequency),
         default: HabitFrequency.DAILY
     },
-    rolloverTime: {
-        type: String,
+    startOffsetMinutes: {
+        type: Number,
         required: true,
-        validate: {
-            validator: function(v: string) {
-                return /^([01]?[0-9]|2[0-3]):[0-5][0-9]$/.test(v);
-            },
-            message: 'rolloverTime must be in HH:MM format'
-        }
+    },
+    endOffsetMinutes: {
+        type: Number,
+        required: true,
     },
     firstDay: {
         type: String,

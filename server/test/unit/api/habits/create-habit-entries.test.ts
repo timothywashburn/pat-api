@@ -4,10 +4,9 @@ import {
     CreateHabitEntryRequest,
     CreateHabitEntryResponse,
     GetHabitsResponse,
-    Habit, Serializer,
+    Habit, HabitEntryStatus, Serializer,
     toDateString
 } from "@timothyw/pat-common";
-import { HabitEntryStatus } from "@timothyw/pat-common/dist/types/models/habit-data";
 import DateUtils from "../../../../src/utils/date-utils";
 import { get, post } from "../../../test-utils";
 

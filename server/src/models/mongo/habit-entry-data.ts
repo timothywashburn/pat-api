@@ -1,5 +1,5 @@
 import { Schema, model } from 'mongoose';
-import { HabitEntryData, HabitEntryStatus } from "@timothyw/pat-common/dist/types/models/habit-data";
+import { HabitEntryData, HabitEntryStatus } from "@timothyw/pat-common";
 import { v4 as uuidv4 } from 'uuid';
 
 const habitEntrySchema = new Schema<HabitEntryData>({

@@ -1,13 +1,13 @@
-import { NotificationVariant, VariantContext, VariantData } from "../../models/notification-variant";
+import { NotificationVariant, VariantContext } from "../../models/notification-variant";
 import {
-    HabitData,
+    DateOnlyString,
+    HabitData, HabitEntryStatus,
     HabitId,
     ItemId,
     NotificationSchedulerType, NotificationTemplateData,
     NotificationVariantType,
     UserId
 } from "@timothyw/pat-common";
-import ItemManager from "../../controllers/item-manager";
 import { NotificationContent, NotificationData } from "../../models/notification-scheduler";
 import { RelativeDateScheduler } from "../schedulers/relative-date-scheduler";
 import NotificationManager from "../../controllers/notification-manager";
@@ -15,7 +15,6 @@ import NotificationTemplateManager from "../../controllers/notification-template
 import HabitManager from "../../controllers/habit-manager";
 import HabitEntryManager from "../../controllers/habit-entry-manager";
 import DateUtils from "../../utils/date-utils";
-import { HabitEntryStatus } from "@timothyw/pat-common/dist/types/models";
 import UserManager from "../../controllers/user-manager";
 
 export interface HabitIncompleteContext extends VariantContext {
@@ -41,8 +40,14 @@ export class HabitDue extends NotificationVariant<HabitData, HabitIncompleteCont
         }
 
         const timezone = await UserManager.getInstance().getTimezone(data.userId);
-        const todayDateOnlyString = DateUtils.toLocalDateOnlyString(new Date(), timezone);
-        const status = await HabitEntryManager.getInstance().getStatusByDate(habitId, todayDateOnlyString);
+
+        const currentActiveDate = await HabitManager.getInstance().getCurrentActiveDate(habit, timezone);
+        if (!currentActiveDate) {
+            console.log(`No active habit period for habit ${habitId} at current time.`);
+            return null;
+        }
+
+        const status = await HabitEntryManager.getInstance().getStatusByDate(habitId, currentActiveDate);
         if (status === HabitEntryStatus.COMPLETED) {
             console.log(`Habit ${habitId} already completed for today.`);
             return null;
@@ -68,12 +73,11 @@ export class HabitDue extends NotificationVariant<HabitData, HabitIncompleteCont
         }
 
         const timezone = await UserManager.getInstance().getTimezone(userId);
-        const [hours, minutes] = habit.rolloverTime.split(':').map(Number);
 
         const scheduler = NotificationManager.getScheduler(template.schedulerData.type) as RelativeDateScheduler;
         const scheduledTime = await scheduler.getScheduleTime(userId, {
             templateId: template._id,
-            date: DateUtils.nextTimeInTimezoneAsUTC(hours, minutes, 0, timezone, context.lastRollover),
+            date: HabitManager.getInstance().getNextHabitEndTime(habit, context.lastRollover),
             offsetMinutes: template.schedulerData.offsetMinutes
         });
         if (!scheduledTime) return;
@@ -98,12 +102,11 @@ export class HabitDue extends NotificationVariant<HabitData, HabitIncompleteCont
         }
 
         const timezone = await UserManager.getInstance().getTimezone(data.userId);
-        const [hours, minutes] = habit.rolloverTime.split(':').map(Number);
 
         const entityData = await NotificationTemplateManager.getEntityData(template.userId, template.targetEntityType, data.entityId);
 
         await this.attemptSchedule(data.userId, template, entityData, {
-            lastRollover: new Date(DateUtils.nextTimeInTimezoneAsUTC(hours, minutes, 0, timezone).getTime() + 1),
+            lastRollover: new Date(HabitManager.getInstance().getNextHabitEndTime(habit).getTime() + 1),
         });
     }
 }

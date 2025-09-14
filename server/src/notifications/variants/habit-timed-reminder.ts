@@ -1,7 +1,7 @@
 import { NotificationVariant, VariantContext } from "../../models/notification-variant";
 import {
     Habit,
-    HabitData,
+    HabitData, HabitEntryStatus,
     HabitId,
     NotificationSchedulerType,
     NotificationTemplateData,
@@ -16,7 +16,6 @@ import HabitManager from "../../controllers/habit-manager";
 import UserManager from "../../controllers/user-manager";
 import DateUtils from "../../utils/date-utils";
 import HabitEntryManager from "../../controllers/habit-entry-manager";
-import { HabitEntryStatus } from "@timothyw/pat-common/dist/types/models";
 
 export interface HabitTimedReminderContext extends VariantContext {
     lastSent?: Date;

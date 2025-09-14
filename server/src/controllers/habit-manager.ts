@@ -1,14 +1,13 @@
 import { HabitModel } from '../models/mongo/habit-data';
 import { HabitEntryModel } from '../models/mongo/habit-entry-data';
 import {
-    CreateHabitRequest,
+    CreateHabitRequest, DateOnlyString,
     Habit,
-    HabitData,
+    HabitData, HabitEntryData, HabitEntryStatus,
     HabitId,
     HabitStats,
     toHabit, UpdateHabitRequest, UserId
 } from "@timothyw/pat-common";
-import { HabitEntryData, HabitEntryStatus } from "@timothyw/pat-common/dist/types/models/habit-data";
 import DateUtils from "../utils/date-utils";
 import UserManager from "./user-manager";
 import { isBefore } from "date-fns";
@@ -79,34 +78,6 @@ export default class HabitManager {
         return updateDocument(auth, HabitModel, habitId, updates);
     }
 
-    // update(
-    //     auth: AuthInfo,
-    //     habitId: HabitId,
-    //     updates: Partial<Pick<HabitData, 'name' | 'description' | 'notes' | 'frequency' | 'rolloverTime'>>
-    // ): Promise<HabitData | null> {
-    //
-    //     const set: any = {};
-    //     const unset: any = {};
-    //
-    //     Object.entries(updates).forEach(([key, value]) => {
-    //         if (value === null) {
-    //             unset[key] = "";
-    //         } else {
-    //             set[key] = value;
-    //         }
-    //     });
-    //
-    //     const updateOperation: any = {};
-    //     if (Object.keys(set).length > 0) updateOperation.$set = set;
-    //     if (Object.keys(unset).length > 0) updateOperation.$unset = unset;
-    //
-    //     return HabitModel.findOneAndUpdate(
-    //         { _id: habitId, userId: auth.userId },
-    //         updateOperation,
-    //         { new: true }
-    //     );
-    // }
-
     async delete(habitId: string, userId: string): Promise<boolean> {
         const habit = await HabitModel.findOneAndDelete({ _id: habitId, userId });
         if (habit) {
@@ -116,22 +87,58 @@ export default class HabitManager {
         return false;
     }
 
+    // TODO: make shared utils between frontend and backend
+    async getCurrentActiveDate(habit: HabitData, timezone: string): Promise<DateOnlyString | null> {
+        const now = new Date();
+        const yesterdayDate = new Date(now.getTime() - 24 * 60 * 60 * 1000);
+        let date = new Date(yesterdayDate);
+        date.setHours(0, 0, 0, 0);
+
+        for (let i = 0; i < 2; i++) {
+            const habitStart = new Date(date.getTime() + habit.startOffsetMinutes * 60 * 1000);
+            const habitEnd = new Date(date.getTime() + habit.endOffsetMinutes * 60 * 1000);
+
+            if (now.getTime() >= habitStart.getTime() && now.getTime() <= habitEnd.getTime()) {
+                return DateUtils.toLocalDateOnlyString(date, timezone);
+            }
+            date.setDate(date.getDate() + 1);
+        }
+        return null;
+    }
+
+    // TODO: this is ai slop
+    getNextHabitEndTime(habit: HabitData, fromDate?: Date): Date {
+        const now = fromDate || new Date();
+        let date = new Date(now);
+        date.setHours(0, 0, 0, 0);
+
+        // Look ahead up to 3 days to find the next habit period
+        for (let i = 0; i < 3; i++) {
+            const habitEnd = new Date(date.getTime() + habit.endOffsetMinutes * 60 * 1000);
+            if (habitEnd > now) {
+                return habitEnd;
+            }
+            date.setDate(date.getDate() + 1);
+        }
+
+        // Fallback to tomorrow's end time
+        const tomorrow = new Date(now);
+        tomorrow.setDate(tomorrow.getDate() + 1);
+        tomorrow.setHours(0, 0, 0, 0);
+        return new Date(tomorrow.getTime() + habit.endOffsetMinutes * 60 * 1000);
+    }
+
     private async calculateStats(habit: HabitData, entries: HabitEntryData[]): Promise<HabitStats> {
         const now = new Date();
 
         const user = await UserManager.getInstance().getById(habit.userId);
         const timezone = user?.timezone || 'America/Los_Angeles';
-        const hours = Number(habit.rolloverTime.split(':')[0]);
-        const minutes = Number(habit.rolloverTime.split(':')[1]);
 
-        const firstDayTime = DateUtils.dateInTimezoneAsUTC(habit.firstDay, hours, minutes, 0, timezone);
+        const firstDayTime = DateUtils.dateInTimezoneAsUTC(habit.firstDay, 0, habit.startOffsetMinutes, 0, timezone);
         let totalDays = Math.ceil((now.getTime() - firstDayTime.getTime()) / (1000 * 60 * 60 * 24));
 
-        const todayDateOnlyString = DateUtils.toLocalDateOnlyString(new Date(), timezone);
-        const yesterdayDateOnlyString = DateUtils.toLocalDateOnlyString(new Date(new Date().getTime() - 24 * 60 * 60 * 1000), timezone);
-        const rolloverDate = DateUtils.dateInTimezoneAsUTC(todayDateOnlyString, hours, minutes, 0, timezone);
-        const currentDateOnlyString = isBefore(new Date(), rolloverDate) ? yesterdayDateOnlyString : todayDateOnlyString;
-        const todayEntry = entries.find(e => e.date === currentDateOnlyString);
+        const currentActiveDate = await this.getCurrentActiveDate(habit, timezone);
+        const todayEntry = currentActiveDate ? entries.find(e => e.date === currentActiveDate) : null;
         if (!todayEntry) totalDays--;
 
         const completedDays = entries.filter(e => e.status === HabitEntryStatus.COMPLETED).length;

@@ -18,8 +18,15 @@ export default class DateUtils {
     }
 
     static dateInTimezoneAsUTC(dateString: DateOnlyString, hours: number, minutes: number, seconds: number, timezone: string): Date {
-        const timeString = `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
-        const localDateTime = new Date(`${dateString}T${timeString}`);
+        const totalSeconds = hours * 3600 + minutes * 60 + seconds;
+        const normalizedHours = Math.floor(totalSeconds / 3600) % 24;
+        const normalizedMinutes = Math.floor((totalSeconds % 3600) / 60);
+        const normalizedSeconds = totalSeconds % 60;
+        const additionalDays = Math.floor(totalSeconds / (24 * 3600));
+
+        const timeString = `${normalizedHours.toString().padStart(2, '0')}:${normalizedMinutes.toString().padStart(2, '0')}:${normalizedSeconds.toString().padStart(2, '0')}`;
+        const baseDateTime = new Date(`${dateString}T${timeString}`);
+        const localDateTime = addDays(baseDateTime, additionalDays);
         return fromZonedTime(localDateTime, timezone);
     }
 

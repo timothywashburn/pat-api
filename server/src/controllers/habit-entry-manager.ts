@@ -1,6 +1,5 @@
 import { HabitEntryModel } from '../models/mongo/habit-entry-data';
-import { HabitEntryData, HabitEntryStatus } from "@timothyw/pat-common/dist/types/models/habit-data";
-import { DateOnlyString } from "@timothyw/pat-common";
+import { DateOnlyString, HabitEntryData, HabitEntryStatus } from "@timothyw/pat-common";
 
 export default class HabitEntryManager {
     private static instance: HabitEntryManager;
