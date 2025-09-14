@@ -36,8 +36,6 @@ export const versionEndpoint: ApiEndpoint<undefined, VersionResponse> = {
         const minIOSBuildVersion = config._requiredBuildVersions.iOS;
         const minAndroidBuildVersion = config._requiredBuildVersions.android;
 
-        console.log(`Checking version: iOS ${iOSBuildVersion}; min iOS ${minIOSBuildVersion}, needs update: ${iOSBuildVersion && iOSBuildVersion < minIOSBuildVersion}`);
-
         let updateRequired = false;
         if (iOSBuildVersion && iOSBuildVersion < minIOSBuildVersion) updateRequired = true;
         if (androidBuildVersion && androidBuildVersion < minAndroidBuildVersion) updateRequired = true;

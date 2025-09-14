@@ -17,8 +17,11 @@ export default class NotificationSender {
     private queue: QueuedNotification[] = [];
 
     constructor() {
-        // setInterval(() => this.enqueueNotifications(), 10 * 60 * 1000);
-        setInterval(() => this.enqueueNotifications(), 5 * 1000);
+        if (process.env.NODE_ENV === 'development') {
+            setInterval(() => this.enqueueNotifications(), 5 * 1000);
+        } else {
+            setInterval(() => this.enqueueNotifications(), 10 * 60 * 1000);
+        }
 
         setInterval(() => this.sendNotifications(), 1000);
     }

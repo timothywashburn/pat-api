@@ -13,6 +13,10 @@ import { DayTimeScheduler } from "../schedulers/day-time-scheduler";
 import NotificationManager from "../../controllers/notification-manager";
 import NotificationTemplateManager from "../../controllers/notification-template-manager";
 import HabitManager from "../../controllers/habit-manager";
+import UserManager from "../../controllers/user-manager";
+import DateUtils from "../../utils/date-utils";
+import HabitEntryManager from "../../controllers/habit-entry-manager";
+import { HabitEntryStatus } from "@timothyw/pat-common/dist/types/models";
 
 export interface HabitTimedReminderContext extends VariantContext {
     lastSent?: Date;
@@ -36,9 +40,17 @@ export class HabitTimedReminder extends NotificationVariant<HabitData, HabitTime
             return null;
         }
 
+        const timezone = await UserManager.getInstance().getTimezone(data.userId);
+        const todayDateOnlyString = DateUtils.toLocalDateOnlyString(new Date(), timezone);
+        const status = await HabitEntryManager.getInstance().getStatusByDate(habitId, todayDateOnlyString);
+        if (status === HabitEntryStatus.COMPLETED) {
+            console.log(`Habit ${habitId} already completed for today.`);
+            return null;
+        }
+
         return {
             title: `Habit Reminder: ${habit.name}`,
-            body: `Time to work on your habit!`,
+            body: `Don't forget to complete your habit!`,
         };
     }
 

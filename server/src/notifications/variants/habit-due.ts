@@ -50,7 +50,7 @@ export class HabitDue extends NotificationVariant<HabitData, HabitIncompleteCont
 
         return {
             title: `Habit Incomplete: ${habit.name}`,
-            body: `Don't forget to complete your habit!`,
+            body: `Your habit is due soon!`,
         };
     }
 
