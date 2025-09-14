@@ -2,11 +2,12 @@ import { ApiEndpoint } from '../../types';
 import ItemManager from '../../../controllers/item-manager';
 import { z } from 'zod';
 import {
-    ItemId, Serializer,
+    ItemId, NotificationEntityType, Serializer,
     UpdateAgendaItemRequest,
     updateAgendaItemRequestSchema,
     UpdateAgendaItemResponse
 } from "@timothyw/pat-common";
+import NotificationTemplateManager from "../../../controllers/notification-template-manager";
 
 export const updateItemEndpoint: ApiEndpoint<UpdateAgendaItemRequest, UpdateAgendaItemResponse> = {
     path: '/api/items/:itemId',
@@ -15,6 +16,7 @@ export const updateItemEndpoint: ApiEndpoint<UpdateAgendaItemRequest, UpdateAgen
     handler: async (req, res) => {
         try {
             const data = updateAgendaItemRequestSchema.parse(req.body);
+            const userId = req.auth!.userId!;
             const itemId = req.params.itemId as ItemId;
 
             const item = await ItemManager.getInstance().update(req.auth!, itemId, {
@@ -33,6 +35,9 @@ export const updateItemEndpoint: ApiEndpoint<UpdateAgendaItemRequest, UpdateAgen
                 });
                 return;
             }
+
+            await NotificationTemplateManager.removeAllForEntity(userId, NotificationEntityType.AGENDA_ITEM, itemId);
+            await NotificationTemplateManager.onNewEntity(userId, NotificationEntityType.AGENDA_ITEM, item._id, item);
 
             res.json({
                 success: true,

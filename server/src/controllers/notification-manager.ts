@@ -137,7 +137,7 @@ export default class NotificationManager {
         this.runner.removeFromQueue(id);
     }
 
-    static async removeNotifications(templateId: NotificationTemplateId) {
+    static async removeNotificationsForTemplate(templateId: NotificationTemplateId) {
         const client = RedisManager.getInstance().getClient();
         const allNotifications = await client.zrange('global:notifications', 0, -1);
 
@@ -147,5 +147,17 @@ export default class NotificationManager {
         }
 
         console.log(`Removed all notifications for template ${templateId}`);
+    }
+
+    static async removeNotificationsForEntity(entityId: string) {
+        const client = RedisManager.getInstance().getClient();
+        const allNotifications = await client.zrange('global:notifications', 0, -1);
+
+        for (const notificationId of allNotifications) {
+            const data = await client.hgetall(`notification:${notificationId}`) as unknown as NotificationData;
+            if (data.entityId === entityId) await this.removeNotification(notificationId as NotificationId);
+        }
+
+        console.log(`Removed all notifications for entity ${entityId}`);
     }
 }

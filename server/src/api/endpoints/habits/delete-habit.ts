@@ -1,6 +1,7 @@
 import { ApiEndpoint } from '../../types';
 import HabitManager from '../../../controllers/habit-manager';
-import { DeleteHabitResponse } from "@timothyw/pat-common";
+import { DeleteHabitResponse, NotificationEntityType } from "@timothyw/pat-common";
+import NotificationTemplateManager from "../../../controllers/notification-template-manager";
 
 export const deleteHabitEndpoint: ApiEndpoint<undefined, DeleteHabitResponse> = {
     path: '/api/habits/:habitId',
@@ -20,7 +21,6 @@ export const deleteHabitEndpoint: ApiEndpoint<undefined, DeleteHabitResponse> = 
             }
 
             const deleted = await HabitManager.getInstance().delete(habitId, userId);
-
             if (!deleted) {
                 res.status(404).json({
                     success: false,
@@ -28,6 +28,8 @@ export const deleteHabitEndpoint: ApiEndpoint<undefined, DeleteHabitResponse> = 
                 });
                 return;
             }
+
+            await NotificationTemplateManager.removeAllForEntity(userId, NotificationEntityType.AGENDA_ITEM, habitId);
 
             res.json({
                 success: true,

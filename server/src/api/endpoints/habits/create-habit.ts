@@ -1,7 +1,14 @@
 import { ApiEndpoint } from '../../types';
 import HabitManager from '../../../controllers/habit-manager';
 import { z } from 'zod';
-import { CreateHabitRequest, createHabitRequestSchema, CreateHabitResponse, Serializer } from "@timothyw/pat-common";
+import {
+    CreateHabitRequest,
+    createHabitRequestSchema,
+    CreateHabitResponse,
+    NotificationEntityType,
+    Serializer
+} from "@timothyw/pat-common";
+import NotificationTemplateManager from "../../../controllers/notification-template-manager";
 
 export const createHabitEndpoint: ApiEndpoint<CreateHabitRequest, CreateHabitResponse> = {
     path: '/api/habits',
@@ -18,6 +25,8 @@ export const createHabitEndpoint: ApiEndpoint<CreateHabitRequest, CreateHabitRes
             if (!habitWithEntries) {
                 throw new Error('Failed to retrieve created habit');
             }
+
+            await NotificationTemplateManager.onNewEntity(userId, NotificationEntityType.HABIT, habit._id, habit);
 
             res.json({
                 success: true,

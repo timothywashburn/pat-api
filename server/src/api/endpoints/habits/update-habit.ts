@@ -2,11 +2,12 @@ import { ApiEndpoint } from '../../types';
 import HabitManager from '../../../controllers/habit-manager';
 import { z } from 'zod';
 import {
-    HabitId, Serializer,
+    HabitId, NotificationEntityType, Serializer,
     UpdateHabitRequest,
     updateHabitRequestSchema,
     UpdateHabitResponse
 } from "@timothyw/pat-common";
+import NotificationTemplateManager from "../../../controllers/notification-template-manager";
 
 export const updateHabitEndpoint: ApiEndpoint<UpdateHabitRequest, UpdateHabitResponse> = {
     path: '/api/habits/:habitId',
@@ -15,6 +16,7 @@ export const updateHabitEndpoint: ApiEndpoint<UpdateHabitRequest, UpdateHabitRes
     handler: async (req, res) => {
         try {
             const data = updateHabitRequestSchema.parse(req.body);
+            const userId = req.auth!.userId!;
             const habitId = req.params.habitId as HabitId;
 
             if (!habitId) {
@@ -36,10 +38,10 @@ export const updateHabitEndpoint: ApiEndpoint<UpdateHabitRequest, UpdateHabitRes
             }
 
             const habitWithEntries = await HabitManager.getInstance().getByIdWithEntries(habitId);
+            if (!habitWithEntries) throw new Error('Failed to retrieve updated habit');
 
-            if (!habitWithEntries) {
-                throw new Error('Failed to retrieve updated habit');
-            }
+            await NotificationTemplateManager.removeAllForEntity(userId, NotificationEntityType.AGENDA_ITEM, habitId);
+            await NotificationTemplateManager.onNewEntity(userId, NotificationEntityType.HABIT, habitWithEntries._id, habitWithEntries);
 
             res.json({
                 success: true,

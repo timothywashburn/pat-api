@@ -143,14 +143,14 @@ class NotificationTemplateManager {
         );
 
         const templateObject = template!.toObject();
-        await NotificationManager.removeNotifications(templateId);
+        await NotificationManager.removeNotificationsForTemplate(templateId);
         await this.onNewTemplate(templateObject);
         return templateObject;
     }
 
     static async delete(templateId: NotificationTemplateId, userId: UserId): Promise<boolean> {
         const result = await NotificationTemplateModel.deleteOne({ _id: templateId, userId });
-        await NotificationManager.removeNotifications(templateId);
+        await NotificationManager.removeNotificationsForTemplate(templateId);
         return result.deletedCount > 0;
     }
 
@@ -169,6 +169,8 @@ class NotificationTemplateManager {
             case NotificationEntityType.INBOX_PANEL:
             case NotificationEntityType.HABIT_PANEL:
                 return null;
+            default:
+                return assertNever(entityType);
         }
 
         if (!subId) return entityType;
@@ -177,13 +179,15 @@ class NotificationTemplateManager {
 
     static hasParent(entityType: NotificationEntityType): boolean {
         switch (entityType) {
+            case NotificationEntityType.HABIT:
             case NotificationEntityType.AGENDA_ITEM:
                 return true;
-            case NotificationEntityType.HABIT:
             case NotificationEntityType.AGENDA_PANEL:
             case NotificationEntityType.INBOX_PANEL:
             case NotificationEntityType.HABIT_PANEL:
                 return false;
+            default:
+                return assertNever(entityType);
         }
     }
 
@@ -276,14 +280,19 @@ class NotificationTemplateManager {
         }
     }
 
-    static async onNewEntity(userId: UserId, targetEntityType: NotificationEntityType, targetId: string, entity: any): Promise<void> {
-        const templates = await NotificationTemplateManager.getTemplates(userId, targetEntityType, targetId);
+    static async onNewEntity(userId: UserId, targetEntityType: NotificationEntityType, entityId: string, entity: any): Promise<void> {
+        const templates = await NotificationTemplateManager.getEffectiveTemplates(userId, NotificationTemplateLevel.ENTITY, targetEntityType, entityId);
 
         for (const template of templates) {
             if (!template.active) continue;
             const variant = NotificationManager.getVariant(template.variantData.type);
             await variant.attemptSchedule(template.userId, template, entity, {});
+            console.log(`📅 Scheduled template ${template._id} for new entity ${entityId}`);
         }
+    }
+
+    static async removeAllForEntity(userId: UserId, targetEntityType: NotificationEntityType, entityId: string): Promise<void> {
+        await NotificationManager.removeNotificationsForEntity(entityId);
     }
 }
 

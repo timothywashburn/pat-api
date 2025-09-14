@@ -1,6 +1,7 @@
 import { ApiEndpoint } from '../../types';
 import ItemManager from '../../../controllers/item-manager';
-import { DeleteAgendaItemResponse, ItemId } from "@timothyw/pat-common";
+import { DeleteAgendaItemResponse, ItemId, NotificationEntityType } from "@timothyw/pat-common";
+import NotificationTemplateManager from "../../../controllers/notification-template-manager";
 
 export const deleteItemEndpoint: ApiEndpoint<undefined, DeleteAgendaItemResponse> = {
     path: '/api/items/:itemId',
@@ -9,8 +10,9 @@ export const deleteItemEndpoint: ApiEndpoint<undefined, DeleteAgendaItemResponse
     handler: async (req, res) => {
         try {
             const itemId = req.params.itemId as ItemId;
-            const deleted = await ItemManager.getInstance().delete(itemId);
+            const userId = req.auth!.userId!;
 
+            const deleted = await ItemManager.getInstance().delete(itemId);
             if (!deleted) {
                 res.status(404).json({
                     success: false,
@@ -18,6 +20,8 @@ export const deleteItemEndpoint: ApiEndpoint<undefined, DeleteAgendaItemResponse
                 });
                 return;
             }
+
+            await NotificationTemplateManager.removeAllForEntity(userId, NotificationEntityType.AGENDA_ITEM, itemId);
 
             res.json({
                 success: true,
