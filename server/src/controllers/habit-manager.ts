@@ -10,10 +10,11 @@ import {
 } from "@timothyw/pat-common";
 import DateUtils from "../utils/date-utils";
 import UserManager from "./user-manager";
-import { isBefore } from "date-fns";
+import { addDays, isBefore, startOfDay } from "date-fns";
 import { AuthInfo } from "../api/types";
 import { updateDocument } from "../utils/db-doc-utils";
 import { toZonedTime } from "date-fns-tz";
+import { TZDate } from "@date-fns/tz";
 
 export default class HabitManager {
     private static instance: HabitManager;
@@ -111,17 +112,30 @@ export default class HabitManager {
         const checkDate = fromDate || new Date();
         const user = await UserManager.getInstance().getById(habit.userId);
 
-        let startOfDay = toZonedTime(checkDate, user!.timezone);
-        startOfDay.setHours(0, 0, 0, 0);
-        startOfDay.setDate(startOfDay.getDate() - 1);
+        const userStartOfDay = new TZDate(checkDate, user!.timezone);
+        userStartOfDay.setHours(0, 0, 0, 0);
+        userStartOfDay.setDate(userStartOfDay.getDate() - 1);
 
         for (let i = 0; i < 3; i++) {
-            const habitEnd = new Date(startOfDay.getTime() + habit.endOffsetMinutes * 60 * 1000);
-            if (habitEnd.getTime() > checkDate.getTime()) return habitEnd;
-            startOfDay.setDate(startOfDay.getDate() + 1);
+            // Calculate habit end time in user's timezone
+            const userHabitEnd = new TZDate(
+                userStartOfDay.getTime() + habit.endOffsetMinutes * 60 * 1000,
+                user!.timezone
+            );
+
+            console.log(`day ${i}: user habit end: ${userHabitEnd.toString()}`);
+
+            const utcHabitEnd = new Date(userHabitEnd.getTime());
+
+            if (utcHabitEnd.getTime() > checkDate.getTime()) {
+                console.log(`found next habit end time: ${utcHabitEnd.toISOString()}`);
+                return utcHabitEnd;
+            }
+
+            userStartOfDay.setDate(userStartOfDay.getDate() + 1);
         }
 
-        throw new Error('Could not find next habit end time');
+        throw new Error('could not find next habit end time');
     }
 
     private async calculateStats(habit: HabitData, entries: HabitEntryData[]): Promise<HabitStats> {

@@ -9,6 +9,7 @@
     "test": "ts-node test/main.ts"
   },
   "dependencies": {
+    "@date-fns/tz": "^1.4.1",
     "@timothyw/pat-common": "^1.0.154",
     "@types/uuid": "^10.0.0",
     "bcrypt": "^5.1.1",
