@@ -118,7 +118,7 @@ export default class NotificationManager {
         await client.zadd('global:notifications', data.scheduledTime, notificationID);
 
         const date = new Date(parseInt(data.scheduledTime));
-        console.log(`Scheduled notification ${notificationID} for user ${data.userId} at ${date.toLocaleString()}`);
+        console.log(`Scheduled notification ${notificationID} for user ${data.userId} at ${date.toLocaleString()} (${data.scheduledTime})`);
     }
 
     static async removeNotification(id: NotificationId): Promise<void> {
