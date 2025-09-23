@@ -70,7 +70,7 @@ const notificationDesyncSchema = new Schema<NotificationDesyncData>({
         required: true,
         index: true
     },
-    targetId: {
+    entityId: {
         type: String,
         required: true,
         index: true

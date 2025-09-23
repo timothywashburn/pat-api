@@ -17,7 +17,7 @@ export const getEntitySyncEndpoint: ApiEndpoint<GetEntitySyncRequest, GetEntityS
             const data = getEntitySyncRequestSchema.parse(req.query);
             const userId = req.auth!.userId!;
 
-            const syncState = await NotificationTemplateManager.getEntitySyncState(userId, data.targetEntityType, data.targetId);
+            const syncState = await NotificationTemplateManager.getEntitySyncState(userId, data.entityType, data.entityId);
 
             res.json({
                 success: true,

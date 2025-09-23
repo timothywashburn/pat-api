@@ -17,22 +17,27 @@ export const setEntitySyncEndpoint: ApiEndpoint<SetEntitySyncRequest, SetEntityS
             const userId = req.auth!.userId!;
 
             if (data.synced) {
-                // Enable sync - delete individual templates and inherit from parent
-                await NotificationTemplateManager.enableEntitySync(userId, data.targetEntityType, data.targetId);
+                // enable sync: delete individual templates and inherit from parent
+                await NotificationTemplateManager.enableEntitySync(userId, data.entityType, data.entityId);
 
                 res.json({
                     success: true,
                     synced: true,
                 });
             } else {
-                // Break sync - copy parent templates as individual templates
-                await NotificationTemplateManager.breakEntitySync(userId, data.targetEntityType, data.targetId);
+                // break sync: copy parent templates as individual templates
+                await NotificationTemplateManager.breakEntitySync(userId, data.entityType, data.entityId);
 
                 res.json({
                     success: true,
                     synced: false,
                 });
             }
+
+            // regardless, reschedule notifications for this entity
+            const entityData = await NotificationTemplateManager.getEntityData(userId, data.entityType, data.entityId);
+            await NotificationTemplateManager.removeAllForEntity(userId, data.entityType, data.entityType);
+            await NotificationTemplateManager.onNewEntity(userId, data.entityType, data.entityType, entityData);
         } catch (error) {
             console.error('Error updating entity sync:', error);
 

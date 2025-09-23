@@ -35,7 +35,7 @@ export class HabitDue extends NotificationVariant<HabitData, HabitIncompleteCont
         const habitId = data.entityId as HabitId;
         const habit = await HabitManager.getInstance().getById(habitId);
         if (!habit) {
-            console.error('Habit not found for template:', data.templateId);
+            console.error('Habit not found for template (getContent):', data.templateId);
             return null;
         }
 
@@ -68,7 +68,7 @@ export class HabitDue extends NotificationVariant<HabitData, HabitIncompleteCont
         // console.log(habitId);
         const habit = entity;
         if (!habit) {
-            console.error('Habit not found for template:', template._id);
+            console.error('Habit not found for template (attemptSchedule):', template._id);
             return;
         }
 
@@ -97,7 +97,7 @@ export class HabitDue extends NotificationVariant<HabitData, HabitIncompleteCont
         const habitId = template.targetId as HabitId;
         const habit = await HabitManager.getInstance().getById(habitId);
         if (!habit) {
-            console.error('Habit not found for template:', template._id);
+            console.error('Habit not found for template (onPostSend):', template._id);
             return;
         }
 
