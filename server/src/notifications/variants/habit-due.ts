@@ -77,7 +77,7 @@ export class HabitDue extends NotificationVariant<HabitData, HabitIncompleteCont
         const scheduler = NotificationManager.getScheduler(template.schedulerData.type) as RelativeDateScheduler;
         const scheduledTime = await scheduler.getScheduleTime(userId, {
             templateId: template._id,
-            date: HabitManager.getInstance().getNextHabitEndTime(habit, context.lastRollover),
+            date: await HabitManager.getInstance().getNextHabitEndTime(habit, context.lastRollover),
             offsetMinutes: template.schedulerData.offsetMinutes
         });
         if (!scheduledTime) return;
@@ -105,8 +105,9 @@ export class HabitDue extends NotificationVariant<HabitData, HabitIncompleteCont
 
         const entityData = await NotificationTemplateManager.getEntityData(template.userId, template.targetEntityType, data.entityId);
 
+        const nextEndTime = await HabitManager.getInstance().getNextHabitEndTime(habit);
         await this.attemptSchedule(data.userId, template, entityData, {
-            lastRollover: new Date(HabitManager.getInstance().getNextHabitEndTime(habit).getTime() + 1),
+            lastRollover: new Date(nextEndTime.getTime() + 1),
         });
     }
 }

@@ -13,6 +13,7 @@ import UserManager from "./user-manager";
 import { isBefore } from "date-fns";
 import { AuthInfo } from "../api/types";
 import { updateDocument } from "../utils/db-doc-utils";
+import { toZonedTime } from "date-fns-tz";
 
 export default class HabitManager {
     private static instance: HabitManager;
@@ -106,26 +107,21 @@ export default class HabitManager {
         return null;
     }
 
-    // TODO: this is ai slop
-    getNextHabitEndTime(habit: HabitData, fromDate?: Date): Date {
-        const now = fromDate || new Date();
-        let date = new Date(now);
-        date.setHours(0, 0, 0, 0);
+    async getNextHabitEndTime(habit: HabitData, fromDate?: Date): Promise<Date> {
+        const checkDate = fromDate || new Date();
+        const user = await UserManager.getInstance().getById(habit.userId);
 
-        // Look ahead up to 3 days to find the next habit period
+        let startOfDay = toZonedTime(checkDate, user!.timezone);
+        startOfDay.setHours(0, 0, 0, 0);
+        startOfDay.setDate(startOfDay.getDate() - 1);
+
         for (let i = 0; i < 3; i++) {
-            const habitEnd = new Date(date.getTime() + habit.endOffsetMinutes * 60 * 1000);
-            if (habitEnd > now) {
-                return habitEnd;
-            }
-            date.setDate(date.getDate() + 1);
+            const habitEnd = new Date(startOfDay.getTime() + habit.endOffsetMinutes * 60 * 1000);
+            if (habitEnd.getTime() > checkDate.getTime()) return habitEnd;
+            startOfDay.setDate(startOfDay.getDate() + 1);
         }
 
-        // Fallback to tomorrow's end time
-        const tomorrow = new Date(now);
-        tomorrow.setDate(tomorrow.getDate() + 1);
-        tomorrow.setHours(0, 0, 0, 0);
-        return new Date(tomorrow.getTime() + habit.endOffsetMinutes * 60 * 1000);
+        throw new Error('Could not find next habit end time');
     }
 
     private async calculateStats(habit: HabitData, entries: HabitEntryData[]): Promise<HabitStats> {
