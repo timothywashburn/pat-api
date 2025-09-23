@@ -117,21 +117,8 @@ export default class HabitManager {
         userStartOfDay.setDate(userStartOfDay.getDate() - 1);
 
         for (let i = 0; i < 3; i++) {
-            // Calculate habit end time in user's timezone
-            const userHabitEnd = new TZDate(
-                userStartOfDay.getTime() + habit.endOffsetMinutes * 60 * 1000,
-                user!.timezone
-            );
-
-            console.log(`day ${i}: user habit end: ${userHabitEnd.toString()}`);
-
-            const utcHabitEnd = new Date(userHabitEnd.getTime());
-
-            if (utcHabitEnd.getTime() > checkDate.getTime()) {
-                console.log(`found next habit end time: ${utcHabitEnd.toISOString()}`);
-                return utcHabitEnd;
-            }
-
+            const habitEndTime = new Date(userStartOfDay.getTime() + habit.endOffsetMinutes * 60 * 1000);
+            if (habitEndTime.getTime() > checkDate.getTime()) return habitEndTime;
             userStartOfDay.setDate(userStartOfDay.getDate() + 1);
         }
 
