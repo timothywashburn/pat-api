@@ -131,7 +131,8 @@ export default class ApiManager {
         });
 
         this.router.use((req, res, next) => {
-            if (!req.path.startsWith('/api')) {
+            // version check is excluded as it is used as a liveness probe
+            if (!req.path.startsWith('/api') || req.path === '/api/version') {
                 next();
                 return;
             }
