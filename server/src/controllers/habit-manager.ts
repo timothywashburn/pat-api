@@ -91,20 +91,24 @@ export default class HabitManager {
 
     // TODO: make shared utils between frontend and backend
     async getCurrentActiveDate(habit: HabitData, timezone: string): Promise<DateOnlyString | null> {
-        const now = new Date();
-        const yesterdayDate = new Date(now.getTime() - 24 * 60 * 60 * 1000);
-        let date = new Date(yesterdayDate);
-        date.setHours(0, 0, 0, 0);
+        const checkDate = new Date();
+        const user = await UserManager.getInstance().getById(habit.userId);
 
-        for (let i = 0; i < 2; i++) {
-            const habitStart = new Date(date.getTime() + habit.startOffsetMinutes * 60 * 1000);
-            const habitEnd = new Date(date.getTime() + habit.endOffsetMinutes * 60 * 1000);
+        const userStartOfDay = new TZDate(checkDate, user!.timezone);
+        userStartOfDay.setHours(0, 0, 0, 0);
+        userStartOfDay.setDate(userStartOfDay.getDate() - 1);
 
-            if (now.getTime() >= habitStart.getTime() && now.getTime() <= habitEnd.getTime()) {
-                return DateUtils.toLocalDateOnlyString(date, timezone);
+        for (let i = 0; i < 3; i++) {
+            const habitStartTime = new Date(userStartOfDay.getTime() + habit.startOffsetMinutes * 60 * 1000);
+            const habitEndTime = new Date(userStartOfDay.getTime() + habit.endOffsetMinutes * 60 * 1000);
+            const dateOnlyString = userStartOfDay.toISOString().split('T')[0] as DateOnlyString;
+            if (habitStartTime.getTime() < checkDate.getTime() && habitEndTime.getTime() > checkDate.getTime()) {
+                console.log(`returning from getCurrentActiveDate: ${dateOnlyString}, habitStartTime=${habitStartTime.getTime()}, habitEndTime=${habitEndTime.getTime()}, checkDate=${checkDate.getTime()}`);
+                return dateOnlyString;
             }
-            date.setDate(date.getDate() + 1);
+            userStartOfDay.setDate(userStartOfDay.getDate() + 1);
         }
+
         return null;
     }
 

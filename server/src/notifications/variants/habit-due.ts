@@ -41,6 +41,7 @@ export class HabitDue extends NotificationVariant<HabitData, HabitIncompleteCont
 
         const timezone = await UserManager.getInstance().getTimezone(data.userId);
 
+        // TODO: using now here is horrible
         const currentActiveDate = await HabitManager.getInstance().getCurrentActiveDate(habit, timezone);
         if (!currentActiveDate) {
             console.log(`No active habit period for habit ${habitId} at current time.`);
