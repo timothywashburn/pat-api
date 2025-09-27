@@ -69,7 +69,7 @@ export class HabitTimedReminder extends NotificationVariant<HabitData, HabitTime
         const scheduledTime = await scheduler.getScheduleTime(userId, {
             templateId: template._id,
             days: template.schedulerData.days,
-            time: template.schedulerData.time
+            offsetMinutes: template.schedulerData.offsetMinutes
         });
 
         if (!scheduledTime) return;

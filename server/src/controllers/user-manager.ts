@@ -32,6 +32,7 @@ export default class UserManager {
         return flattened;
     }
 
+    // TODO: desperately needs to be updated to be in line with the rest of the create methods
     async create(name: string, discordID?: string): Promise<UserData> {
         const userConfig = new UserConfigModel({
             name,

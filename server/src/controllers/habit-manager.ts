@@ -133,10 +133,11 @@ export default class HabitManager {
         const now = new Date();
 
         const user = await UserManager.getInstance().getById(habit.userId);
-        const timezone = user?.timezone || 'America/Los_Angeles';
+        const timezone = user!.timezone || 'America/Los_Angeles';
 
-        const firstDayTime = DateUtils.dateInTimezoneAsUTC(habit.firstDay, 0, habit.startOffsetMinutes, 0, timezone);
-        let totalDays = Math.ceil((now.getTime() - firstDayTime.getTime()) / (1000 * 60 * 60 * 24));
+        const startOfFirstDay = new TZDate(habit.firstDay, user!.timezone);
+        const startOfFirstHabit = new Date(startOfFirstDay.getTime() + habit.startOffsetMinutes * 60 * 1000);
+        let totalDays = Math.ceil((now.getTime() - startOfFirstHabit.getTime()) / (1000 * 60 * 60 * 24));
 
         const currentActiveDate = await this.getCurrentActiveDate(habit, timezone);
         const todayEntry = currentActiveDate ? entries.find(e => e.date === currentActiveDate) : null;

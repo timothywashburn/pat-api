@@ -48,7 +48,6 @@ class NotificationTemplateManager {
             userId,
             targetEntityType: targetEntityType,
             targetId,
-            // active: true // I don't think we should have this here otherwise the client doesn't receive inactive templates
         }).sort({ createdAt: -1 });
 
         return templates.map(template => template.toObject());
