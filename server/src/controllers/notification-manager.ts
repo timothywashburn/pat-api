@@ -25,6 +25,7 @@ import { AgendaItemDue } from "../notifications/variants/agenda-item-due";
 import NotificationSender, { FETCH_INTERVAL } from "./notification-sender";
 import { HabitDue } from "../notifications/variants/habit-due";
 import { HabitTimedReminder } from "../notifications/variants/habit-timed-reminder";
+import { ClearInboxTimedReminder } from "../notifications/variants/clear-inbox-timed-reminder";
 
 export type NotificationId = string & { readonly __brand: "NotificationId" };
 
@@ -88,6 +89,7 @@ export default class NotificationManager {
         this.registerVariant(new AgendaItemDue());
         this.registerVariant(new HabitDue());
         this.registerVariant(new HabitTimedReminder());
+        this.registerVariant(new ClearInboxTimedReminder());
     }
 
     static registerVariant(variant: NotificationVariant) {

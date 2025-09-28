@@ -91,8 +91,9 @@ export class AgendaItemDue extends NotificationVariant<AgendaItemData, AgendaIte
 
         const entityData = await NotificationTemplateManager.getEntityData(template.userId, template.targetEntityType, data.entityId);
 
-        await this.attemptSchedule(data.userId, template, entityData, {
-            lastSent: new Date(Number(data.scheduledTime))
-        });
+        // proof of concept for multiple notifications
+        // await this.attemptSchedule(data.userId, template, entityData, {
+        //     lastSent: new Date(Number(data.scheduledTime))
+        // });
     }
 }
