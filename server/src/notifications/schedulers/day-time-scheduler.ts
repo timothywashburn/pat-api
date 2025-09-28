@@ -23,19 +23,18 @@ export class DayTimeScheduler extends NotificationScheduler<DayTimeContext> {
         if (context.days.length === 0) return null;
         const timezone = await UserManager.getInstance().getTimezone(userId);
 
-        const startOfDay = new TZDate(new Date(), timezone);
+        const now = new Date();
+        const startOfDay = new TZDate(now, timezone);
         startOfDay.setHours(0, 0, 0, 0);
         const currentDayOfWeek = startOfDay.getDay();
-        
-        let daysToAdd = 0;
-        for (let i = 0; i <= 7; i++) {
+
+        const notificationTime = new Date(startOfDay.getTime() + context.offsetMinutes * 60 * 1000);
+        for (let i = 0; i < 8; i++) {
             const dayToCheck = (currentDayOfWeek + i) % 7;
-            if (context.days.includes(dayToCheck)) {
-                daysToAdd = i;
-                break;
-            }
+            if (context.days.includes(dayToCheck) && notificationTime.getTime() > now.getTime()) break;
+            notificationTime.setDate(notificationTime.getDate() + 1);
         }
-        
-        return new Date(startOfDay.getTime() + daysToAdd * 24 * 60 * 60 * 1000 + context.offsetMinutes * 60 * 1000);
+
+        return notificationTime;
     }
 }
