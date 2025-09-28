@@ -13,23 +13,56 @@ type ToSend = {
 
 const NOTIFICATION_DRY_RUN = false;
 
+export const FETCH_INTERVAL = 10 * 60 * 1000;
+
 export default class NotificationSender {
     private queue: QueuedNotification[] = [];
 
     constructor() {
         if (process.env.NODE_ENV === 'development') {
-            setInterval(() => this.enqueueNotifications(), 5 * 1000);
+            setInterval(() => this.fetchAndQueueNotifications(FETCH_INTERVAL * 2), 5 * 1000);
         } else {
-            setInterval(() => this.enqueueNotifications(), 10 * 60 * 1000);
+            setInterval(() => this.fetchAndQueueNotifications(FETCH_INTERVAL * 2), FETCH_INTERVAL);
         }
 
         setInterval(() => this.sendNotifications(), 1000);
     }
 
-    async enqueueNotifications() {
-        const notifications: QueuedNotification[] = await this.fetchDueNotifications(15 * 60 * 1000);
-        for (const notification of notifications) this.insertSorted(notification);
-        console.log(`${notifications.length} notification${notifications.length == 1 ? "" : "s"} queued`);
+    async queueNotification(id: NotificationId, data: NotificationData): Promise<boolean> {
+        if (this.queue.some(notification => notification.id === id)) return false;
+
+        const template = await NotificationTemplateManager.getTemplateById(data.templateId);
+        if (!template || !template.active) {
+            console.log(`notification template ${data.templateId} not found or inactive`);
+            return false;
+        }
+
+        const scheduler = NotificationManager.getScheduler(template.schedulerData.type);
+        const variant = NotificationManager.getVariant(template.variantData.type);
+        const notification: QueuedNotification = {
+            id,
+            scheduler,
+            variant,
+            data
+        }
+
+        const index = this.queue.findIndex(n => n.data.scheduledTime > notification.data.scheduledTime);
+        if (index === -1) {
+            this.queue.push(notification);
+        } else {
+            this.queue.splice(index, 0, notification);
+        }
+
+        return true;
+    }
+
+    public removeFromQueue(notificationId: NotificationId): boolean {
+        const index = this.queue.findIndex(n => n.id === notificationId);
+        if (index !== -1) {
+            this.queue.splice(index, 1);
+            return true;
+        }
+        return false;
     }
 
     async sendNotifications() {
@@ -38,13 +71,7 @@ export default class NotificationSender {
         const dueNotifications: QueuedNotification[] = [];
         while (this.queue.length > 0) {
             const nextNotification = this.queue[0];
-
-            if (Number(nextNotification.data.scheduledTime) > now.getTime()) {
-                const date = new Date(Number(nextNotification.data.scheduledTime));
-                // console.log(`next notification not due yet. scheduled for ${date.toLocaleString()}, current time ${now.toLocaleString()}`);
-                break;
-            }
-
+            if (Number(nextNotification.data.scheduledTime) > now.getTime()) break;
             dueNotifications.push(this.queue.shift()!);
         }
 
@@ -135,73 +162,29 @@ export default class NotificationSender {
         //     TODO: DO NOT IMPLEMENT YET
     }
 
-    async fetchDueNotifications(timeAhead: number): Promise<QueuedNotification[]> {
+    async fetchAndQueueNotifications(timeAhead: number): Promise<void> {
         const client = RedisManager.getInstance().getClient();
 
         // const now = Date.now();
-        // const futureTime = now + timeAhead;
         const now = 0;
         const futureTime = Date.now() + timeAhead;
 
-        const dueNotificationRefs = await client.zrangebyscore(
+        const dueNotificationIdStrings = await client.zrangebyscore(
             'global:notifications',
             now,
             futureTime
         );
 
-        if (dueNotificationRefs.length === 0) return [];
+        let notificationCount = 0;
+        for (let idString of dueNotificationIdStrings) {
+            const id = idString as NotificationId;
 
-        const notifications = await Promise.all(
-            dueNotificationRefs.map(async (ref) => {
-                const id = ref as NotificationId;
-                for (let queuedNotification of this.queue) if (queuedNotification.id === id) return null;
-                const data = await client.hgetall(`notification:${id}`) as unknown as NotificationData;
+            const data = await client.hgetall(`notification:${id}`) as unknown as NotificationData;
 
-                if (Object.keys(data).length === 0) {
-                    console.log(`notification ${id} not found in hash store`);
-                    return null;
-                }
-
-                const template = await NotificationTemplateManager.getTemplateById(data.templateId);
-                if (!template || !template.active) {
-                    console.log(`notification template ${data.templateId} not found or inactive`);
-                    return null;
-                }
-
-                const scheduler = NotificationManager.getScheduler(template.schedulerData.type);
-                const variant = NotificationManager.getVariant(template.variantData.type);
-
-                return {
-                    id,
-                    scheduler,
-                    variant,
-                    data
-                };
-            })
-        );
-
-        return notifications.filter(isNotNull);
-    }
-
-    private insertSorted(notification: QueuedNotification) {
-        const index = this.queue.findIndex(n => n.data.scheduledTime > notification.data.scheduledTime);
-        if (index === -1) {
-            this.queue.push(notification);
-        } else {
-            this.queue.splice(index, 0, notification);
+            let success = await this.queueNotification(id, data);
+            if (success) notificationCount++;
         }
-    }
 
-    public getQueue(): QueuedNotification[] {
-        return this.queue;
-    }
-
-    public removeFromQueue(notificationId: NotificationId): boolean {
-        const index = this.queue.findIndex(n => n.id === notificationId);
-        if (index !== -1) {
-            this.queue.splice(index, 1);
-            return true;
-        }
-        return false;
+        console.log(`${notificationCount} notification${notificationCount == 1 ? "" : "s"} queued`);
     }
 }

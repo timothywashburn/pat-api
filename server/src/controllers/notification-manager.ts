@@ -22,7 +22,7 @@ import {
 import NotificationTemplateManager from "./notification-template-manager";
 import { NotificationVariant, VariantContext, VariantData } from "../models/notification-variant";
 import { AgendaItemDue } from "../notifications/variants/agenda-item-due";
-import NotificationSender from "./notification-sender";
+import NotificationSender, { FETCH_INTERVAL } from "./notification-sender";
 import { HabitDue } from "../notifications/variants/habit-due";
 import { HabitTimedReminder } from "../notifications/variants/habit-timed-reminder";
 
@@ -51,7 +51,7 @@ export default class NotificationManager {
     private static _expoToken: string;
     static expo: Expo;
 
-    public static runner: NotificationSender;
+    public static sender: NotificationSender;
 
     static async init(): Promise<void> {
         this._expoToken = ConfigManager.getConfig().expo.token;
@@ -60,7 +60,7 @@ export default class NotificationManager {
         this.registerSchedulers();
         this.registerVariants();
 
-        this.runner = new NotificationSender();
+        this.sender = new NotificationSender();
 
         const templateDocs = await NotificationTemplateModel.find({ active: true });
         const templates: NotificationTemplateData[] = templateDocs.map(doc => doc.toObject());
@@ -110,15 +110,21 @@ export default class NotificationManager {
         variantType: NotificationVariantType,
         data: NotificationData
     ): Promise<void> {
-        const notificationID = variantType.toString() + '_' + randomBytes(16).toString('base64url');
+        const date = new Date(parseInt(data.scheduledTime));
+
+        const notificationID = variantType.toString() + '_' + randomBytes(16).toString('base64url') as NotificationId;
         const client = RedisManager.getInstance().getClient();
 
         await client.hset(`notification:${notificationID}`, { ...data });
         await client.zadd(`user:${data.userId}:notifications`, data.scheduledTime, notificationID);
         await client.zadd('global:notifications', data.scheduledTime, notificationID);
 
-        const date = new Date(parseInt(data.scheduledTime));
-        console.log(`Scheduled notification ${notificationID} for user ${data.userId} at ${date.toLocaleString()} (${data.scheduledTime})`);
+        if (date.getTime() - new Date().getTime() < FETCH_INTERVAL * 2) {
+            console.log(`notification ${notificationID} is due soon, queuing immediately`);
+            await this.sender.queueNotification(notificationID, data);
+        }
+
+        console.log(`scheduled notification ${notificationID} for user ${data.userId} at ${date.toLocaleString()} (${data.scheduledTime})`);
     }
 
     static async removeNotification(id: NotificationId): Promise<void> {
@@ -134,7 +140,7 @@ export default class NotificationManager {
         await client.zrem(`user:${data.userId}:notifications`, id);
         await client.zrem('global:notifications', id);
 
-        this.runner.removeFromQueue(id);
+        this.sender.removeFromQueue(id);
     }
 
     static async removeNotificationsForTemplate(templateId: NotificationTemplateId) {
