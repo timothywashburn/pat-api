@@ -5,6 +5,7 @@ import { isNotNull } from "../utils/misc";
 import NotificationTemplateManager from "./notification-template-manager";
 import { Expo, ExpoPushMessage, ExpoPushTicket } from "expo-server-sdk";
 import UserManager from "./user-manager";
+import Logger, { LogType } from "../utils/logger";
 
 type ToSend = {
     notification: QueuedNotification;
@@ -81,7 +82,7 @@ export default class NotificationSender {
         for (let notification of dueNotifications) {
             const content = await notification.variant.getContent(notification.data);
             if (!content) {
-                console.log(`notification ${notification.id} cancelled`);
+                Logger.logUser(notification.data.userId, LogType.UNCLASSIFIED, `notification ${notification.id} cancelled`);
                 continue;
             }
 
@@ -95,7 +96,7 @@ export default class NotificationSender {
             await notification.variant.onPostSend(notification.data);
         }
 
-        console.log(`finished sending ${dueNotifications.length} notification${dueNotifications.length == 1 ? "" : "s"}`);
+        Logger.logSystem(LogType.UNCLASSIFIED, `finished sending ${dueNotifications.length} notification${dueNotifications.length == 1 ? "" : "s"}`);
     }
 
     async send(toSend: ToSend): Promise<void> {
@@ -117,7 +118,7 @@ export default class NotificationSender {
 
                 const user = await UserManager.getInstance().getById(userId);
                 if (!user || !user.sandbox || !user.sandbox.devices || user.sandbox.devices.length === 0) {
-                    console.log(`no devices found for user ${userId}`)
+                    Logger.logUser(userId, LogType.UNCLASSIFIED, `no devices found for user ${userId}`)
                     continue;
                 }
 
@@ -125,7 +126,7 @@ export default class NotificationSender {
 
                 for (const pushToken of pushTokens) {
                     if (!Expo.isExpoPushToken(pushToken)) {
-                        console.log(`invalid expo push token: ${pushToken}`)
+                        Logger.errorUser(userId, LogType.UNCLASSIFIED, `invalid expo push token: ${pushToken}`)
                         continue;
                     }
 
@@ -146,15 +147,15 @@ export default class NotificationSender {
                 try {
                     const ticketChunk = await NotificationManager.expo.sendPushNotificationsAsync(chunk);
                     tickets.push(...ticketChunk);
-                    console.log(`sent notifications chunk with ${chunk.length} messages`)
+                    Logger.logSystem(LogType.UNCLASSIFIED, `sent notifications chunk with ${chunk.length} messages`)
                 } catch (error) {
-                    console.log(`error sending notification chunk: ${error}`)
+                    console.error(`error sending notification chunk: ${error}`)
                 }
             }
 
             await this.handlePushNotificationTickets(tickets);
         } catch (error) {
-            console.log(`error in sendToDevices: ${error}`)
+            console.error(`error in sendToDevices: ${error}`)
         }
     }
 
@@ -185,6 +186,6 @@ export default class NotificationSender {
             if (success) notificationCount++;
         }
 
-        console.log(`${notificationCount} notification${notificationCount == 1 ? "" : "s"} queued`);
+        Logger.logSystem(LogType.UNCLASSIFIED, `${notificationCount} notification${notificationCount == 1 ? "" : "s"} queued`);
     }
 }

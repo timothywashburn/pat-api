@@ -102,10 +102,7 @@ export default class HabitManager {
             const habitStartTime = new Date(userStartOfDay.getTime() + habit.startOffsetMinutes * 60 * 1000);
             const habitEndTime = new Date(userStartOfDay.getTime() + habit.endOffsetMinutes * 60 * 1000);
             const dateOnlyString = userStartOfDay.toISOString().split('T')[0] as DateOnlyString;
-            if (habitStartTime.getTime() < checkDate.getTime() && habitEndTime.getTime() > checkDate.getTime()) {
-                console.log(`returning from getCurrentActiveDate: ${dateOnlyString}, habitStartTime=${habitStartTime.getTime()}, habitEndTime=${habitEndTime.getTime()}, checkDate=${checkDate.getTime()}`);
-                return dateOnlyString;
-            }
+            if (habitStartTime.getTime() < checkDate.getTime() && habitEndTime.getTime() > checkDate.getTime()) return dateOnlyString;
             userStartOfDay.setDate(userStartOfDay.getDate() + 1);
         }
 

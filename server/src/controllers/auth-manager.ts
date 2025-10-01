@@ -23,8 +23,8 @@ export default class AuthManager {
         const tokenId = randomBytes(32).toString('hex');
 
         const tokenPayload: TokenPayload = {
-            authId: auth._id.toString(),
-            userId: userId.toString()
+            authId: auth._id,
+            userId: userId
         };
 
         const refreshPayload: RefreshTokenPayload = {

@@ -18,8 +18,8 @@ export default class MailjetManager {
     async sendVerificationEmail(auth: AuthData): Promise<boolean> {
         try {
             const tokenPayload: TokenPayload = {
-                authId: auth._id.toString(),
-                userId: auth.userId.toString()
+                authId: auth._id,
+                userId: auth.userId
             };
 
             const verificationToken = sign(tokenPayload, process.env.JWT_SECRET!, { expiresIn: '48h' });

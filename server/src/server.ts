@@ -9,9 +9,9 @@ import { createServer } from 'http';
 import SocketManager from "./controllers/socket-manager";
 import NotificationManager from "./controllers/notification-manager";
 import RedisManager from "./controllers/redis-manager";
-import Logger from "./utils/logger";
+import Logger, { LogType } from "./utils/logger";
 
-Logger.logSystem("starting server");
+Logger.logSystem(LogType.UNCLASSIFIED, "starting server");
 
 config({ path: resolve(__dirname, '../../.env') });
 
@@ -39,12 +39,12 @@ config({ path: resolve(__dirname, '../../.env') });
 
     const port = 3000;
     server.listen(port, () => {
-        console.log(`server listening on port ${port}`);
+        Logger.logSystem(LogType.UNCLASSIFIED, `server listening on port ${port}`);
     });
 
     try {
-        const bot = new Bot();
-        await bot.start();
+        // const bot = new Bot();
+        // await bot.start();
     } catch (error) {
         console.error('Failed to initialize Discord bot', error);
     }

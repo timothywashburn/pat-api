@@ -14,6 +14,7 @@ import { NotificationContent, NotificationData } from "../../models/notification
 import { RelativeDateScheduler } from "../schedulers/relative-date-scheduler";
 import NotificationManager from "../../controllers/notification-manager";
 import NotificationTemplateManager from "../../controllers/notification-template-manager";
+import Logger, { LogType } from "../../utils/logger";
 
 export interface AgendaItemUpcomingDeadlineContext extends VariantContext {
     lastSent?: Date;
@@ -26,17 +27,17 @@ export class AgendaItemDue extends NotificationVariant<AgendaItemData, AgendaIte
     async getContent(data: NotificationData): Promise<NotificationContent | null> {
         const template = await NotificationTemplateManager.getTemplateById(data.templateId);
         if (!template || !template.active || template.schedulerData.type != this.schedulerType || template.variantData.type !== this.variantType) {
-            console.error('Template not found or inactive:', data.templateId);
+            Logger.logUser(data.userId, LogType.UNCLASSIFIED, 'template not found or inactive:', data.templateId);
             return null;
         }
 
         const itemId = data.entityId as ItemId;
         const item = await ItemManager.getInstance().getById(itemId);
         if (!item) {
-            console.error('Item not found for template:', data.templateId);
+            Logger.logUser(data.userId, LogType.UNCLASSIFIED, 'Item not found for template:', data.templateId);
             return null;
         } else if (item.completed) {
-            console.log(`Item ${itemId} is completed, cancelling notification.`);
+            Logger.logUser(data.userId, LogType.UNCLASSIFIED, `Item ${itemId} is completed, cancelling notification.`);
             return null;
         }
 
@@ -54,14 +55,12 @@ export class AgendaItemDue extends NotificationVariant<AgendaItemData, AgendaIte
         // const item = await ItemManager.getInstance().getById(itemId);
         const item = entity;
         if (!item || !item.dueDate) {
-            console.error('Item not found or no due date:', item._id);
+            Logger.logUser(userId, LogType.UNCLASSIFIED, 'item not found or no due date:', item._id);
             return;
         } else if (item.completed) {
-            console.log(`Item ${item._id} is completed, not scheduling notification.`);
+            Logger.logUser(userId, LogType.UNCLASSIFIED, `item ${item._id} is completed, not scheduling notification.`);
             return;
         }
-
-        console.log(`\nScheduling notification for item ${item._id} with context:`, context);
 
         let scheduledTime;
         if (context.lastSent) {

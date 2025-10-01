@@ -10,13 +10,14 @@ import {
     ClientVerifyEmailResponseData
 } from "@timothyw/pat-common";
 import AuthManager from "./auth-manager";
+import Logger, { LogType } from "../utils/logger";
 
 export default class SocketManager {
     private static instance: SocketManager;
     private io: Server;
 
     private constructor(server: HttpServer) {
-        console.log('[socket] initializing manager...');
+        Logger.logSystem(LogType.SOCKET, 'initializing socket manager');
 
         this.io = new Server(server, {
             path: '/ws',
@@ -39,34 +40,35 @@ export default class SocketManager {
                     socket.handshake.headers.authorization?.replace('Bearer ', '');
 
                 if (!token) {
-                    console.log(`[socket] auth failed for socket ${socket.id}: no token`);
+                    Logger.logSystem(LogType.SOCKET, `auth failed for socket ${socket.id}: no token`);
                     return next(new Error('Authentication error'));
                 }
 
                 const decoded = verify(token, process.env.JWT_SECRET!) as TokenPayload;
                 socket.data.authId = decoded.authId;
                 socket.data.userId = decoded.userId;
-                console.log(`[socket] auth success for socket ${socket.id} user ${decoded.userId}`);
+                Logger.logUser(decoded.userId, LogType.SOCKET, `auth success for socket ${socket.id} user ${decoded.userId}`);
                 next();
             } catch (error) {
-                console.log(`[socket] auth failed for socket ${socket.id}:`, error);
+                Logger.logSystem(LogType.SOCKET, `auth failed for socket ${socket.id}:`);
+                console.error(error);
                 next(new Error('Authentication error'));
             }
         });
 
         this.io.on('connection', (socket: Socket) => {
             const userId = socket.data.userId;
-            console.log(`[socket] client connected - id: ${socket.id} user: ${userId}`);
+            Logger.logUser(userId, LogType.SOCKET, `client connected - id: ${socket.id} user: ${userId}`);
 
             socket.join(`user:${userId}`);
 
             socket.on(SocketMessageType.SERVER_HEARTBEAT, (message: SocketMessage<ServerHeartbeatData>) => {
-                console.log(`[socket] heartbeat from ${socket.id} at ${message.data.timestamp}`);
+                Logger.logUser(userId.userId, LogType.SOCKET, `heartbeat from ${socket.id} at ${message.data.timestamp}`);
                 this.emitToUser(socket.data.userId, SocketMessageType.CLIENT_HEARTBEAT_ACK);
             });
 
             socket.on(SocketMessageType.SERVER_VERIFY_EMAIL_CHECK, async (_message) => {
-                console.log(`[socket] verify email check from ${socket.id}`);
+                Logger.logUser(userId.userId, LogType.SOCKET, `verify email check from ${socket.id}`);
 
                 let emailVerified = await AuthManager.getInstance().isVerified(socket.data.authId);
                 let data: ClientVerifyEmailResponseData = {
@@ -76,18 +78,18 @@ export default class SocketManager {
             });
 
             socket.on('disconnect', (reason) => {
-                console.log(`[socket] client disconnected - id: ${socket.id} user: ${userId} reason: ${reason}`);
+                Logger.logUser(userId.userId, LogType.SOCKET, `client disconnected - id: ${socket.id} user: ${userId} reason: ${reason}`);
             });
         });
 
         this.io.engine.on('connection_error', (err) => {
+            // TODO: not sure how to replace console log here (need user id)
             console.log(`[socket] connection error - code: ${err.code} message: ${err.message}`);
         });
     }
 
     emitToUser<T>(userId: UserId, type: SocketMessageType, data: T = {} as T) {
         let message: SocketMessage<T> = {type, userId, data}
-        // console.log(`[socket] sending to user ${userId}:`, message);
         this.io.to(`user:${userId}`).emit('message', message);
     }
 

@@ -9,6 +9,7 @@ import { NotificationContent, NotificationData } from "../../models/notification
 import { DayTimeScheduler } from "../schedulers/day-time-scheduler";
 import NotificationManager from "../../controllers/notification-manager";
 import NotificationTemplateManager from "../../controllers/notification-template-manager";
+import Logger, { LogType } from "../../utils/logger";
 
 export interface ClearInboxTimedReminderContext extends VariantContext {
     lastSent?: Date;
@@ -25,13 +26,13 @@ export class ClearInboxTimedReminder extends NotificationVariant<InboxPanelData,
     async getContent(data: NotificationData): Promise<NotificationContent | null> {
         const template = await NotificationTemplateManager.getTemplateById(data.templateId);
         if (!template || !template.active || template.schedulerData.type != this.schedulerType || template.variantData.type !== this.variantType) {
-            console.error('template not found or inactive:', data.templateId);
+            Logger.logUser(data.userId, LogType.UNCLASSIFIED, 'template not found or inactive:', data.templateId);
             return null;
         }
 
         const entityData = await NotificationTemplateManager.getEntityData(template.userId, template.targetEntityType, data.entityId) as InboxPanelData;
         if (!entityData || entityData.inboxCount === 0) {
-            console.log('inbox is empty, no reminder needed.');
+            Logger.logUser(data.userId, LogType.UNCLASSIFIED, 'inbox is empty, no reminder needed.');
             return null;
         }
 
@@ -45,7 +46,7 @@ export class ClearInboxTimedReminder extends NotificationVariant<InboxPanelData,
         if (!template || !template.active || template.schedulerData.type != this.schedulerType || template.variantData.type !== this.variantType) return;
 
         if (!entity || entity.inboxCount === 0) {
-            console.log('inbox is empty, skipping schedule.');
+            Logger.logUser(userId, LogType.UNCLASSIFIED, 'inbox is empty, skipping schedule.');
             return;
         }
 

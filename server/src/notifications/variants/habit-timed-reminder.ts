@@ -1,7 +1,7 @@
 import { NotificationVariant, VariantContext } from "../../models/notification-variant";
 import {
-    Habit,
-    HabitData, HabitEntryStatus,
+    HabitData,
+    HabitEntryStatus,
     HabitId,
     NotificationSchedulerType,
     NotificationTemplateData,
@@ -16,6 +16,7 @@ import HabitManager from "../../controllers/habit-manager";
 import UserManager from "../../controllers/user-manager";
 import DateUtils from "../../utils/date-utils";
 import HabitEntryManager from "../../controllers/habit-entry-manager";
+import Logger, { LogType } from "../../utils/logger";
 
 export interface HabitTimedReminderContext extends VariantContext {
     lastSent?: Date;
@@ -28,14 +29,14 @@ export class HabitTimedReminder extends NotificationVariant<HabitData, HabitTime
     async getContent(data: NotificationData): Promise<NotificationContent | null> {
         const template = await NotificationTemplateManager.getTemplateById(data.templateId);
         if (!template || !template.active || template.schedulerData.type != this.schedulerType || template.variantData.type !== this.variantType) {
-            console.error('Template not found or inactive:', data.templateId);
+            Logger.logUser(data.userId, LogType.UNCLASSIFIED, 'template not found or inactive:', data.templateId);
             return null;
         }
 
         const habitId = data.entityId as HabitId;
         const habit = await HabitManager.getInstance().getById(habitId);
         if (!habit) {
-            console.error('Habit not found for template:', data.templateId);
+            Logger.logUser(data.userId, LogType.UNCLASSIFIED, 'habit not found for template:', data.templateId);
             return null;
         }
 
@@ -43,7 +44,7 @@ export class HabitTimedReminder extends NotificationVariant<HabitData, HabitTime
         const todayDateOnlyString = DateUtils.toLocalDateOnlyString(new Date(), timezone);
         const status = await HabitEntryManager.getInstance().getStatusByDate(habitId, todayDateOnlyString);
         if (status === HabitEntryStatus.COMPLETED) {
-            console.log(`Habit ${habitId} already completed for today.`);
+            Logger.logUser(data.userId, LogType.UNCLASSIFIED, `habit ${habitId} already completed for today.`);
             return null;
         }
 
@@ -61,7 +62,7 @@ export class HabitTimedReminder extends NotificationVariant<HabitData, HabitTime
         // const habit = await HabitManager.getInstance().getById(habitId);
         const habit = entity;
         if (!habit) {
-            console.error('Habit not found for template:', template._id);
+            Logger.logUser(userId, LogType.UNCLASSIFIED, 'habit not found for template:', template._id);
             return;
         }
 

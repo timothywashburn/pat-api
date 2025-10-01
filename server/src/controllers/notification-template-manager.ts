@@ -15,6 +15,7 @@ import { ThoughtModel } from "../models/mongo/thought-data";
 import NotificationManager from "./notification-manager";
 import { HabitModel } from "../models/mongo/habit-data";
 import { assertNever } from "../utils/misc";
+import Logger, { LogType } from "../utils/logger";
 
 class NotificationTemplateManager {
     static async getTemplateById(templateId: NotificationTemplateId): Promise<NotificationTemplateData | null> {
@@ -248,14 +249,15 @@ class NotificationTemplateManager {
         const variant = NotificationManager.getVariant(template.variantData.type);
 
         if (template.targetLevel == NotificationTemplateLevel.PARENT) {
-            console.log(`🌐 Template is a parent template (${template.targetId})`);
+            Logger.logUser(template.userId, LogType.UNCLASSIFIED, `📌 loading parent template (${template._id})`);
 
             const entities = await NotificationTemplateManager.getEntitiesForParent(template.userId, template.targetEntityType, template.targetId);
-            console.log(`📊 Found ${entities.length} entities for parent template ${template.userId}`);
+            Logger.logUser(template.userId, LogType.UNCLASSIFIED, `📊 found ${entities.length} ` +
+                `${entities.length ? 'entities' : 'entity'} for parent template ${template.userId}`);
 
             for (const entity of entities) {
                 try {
-                    console.log(`📅 Scheduling parent template for ${template.targetEntityType} ${entity._id}`);
+                    Logger.logUser(template.userId, LogType.UNCLASSIFIED, `📅 scheduling template for ${template.targetEntityType} ${entity._id}`);
                     await variant.attemptSchedule(template.userId, template, entity, {
                         template: template,
                         entity: entity,
@@ -265,11 +267,11 @@ class NotificationTemplateManager {
                 }
             }
         } else if (template.targetLevel == NotificationTemplateLevel.ENTITY) {
-            console.log(`📌 Template is specific to entity (${template.targetEntityType})`);
+            Logger.logUser(template.userId, LogType.UNCLASSIFIED, `📌 loading entity template (${template._id})`);
 
             const entityData = await NotificationTemplateManager.getEntityData(template.userId, template.targetEntityType, template.targetId);
             if (entityData) {
-                console.log(`📅 Scheduling specific template for ${template.targetEntityType} ${template.targetId}`);
+                Logger.logUser(template.userId, LogType.UNCLASSIFIED, `📅 scheduling template for ${template.targetEntityType} ${template.targetId}`);
                 await variant.attemptSchedule(template.userId, template, entityData, {
                     templateId: template._id,
                 });

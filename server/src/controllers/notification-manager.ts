@@ -26,6 +26,7 @@ import NotificationSender, { FETCH_INTERVAL } from "./notification-sender";
 import { HabitDue } from "../notifications/variants/habit-due";
 import { HabitTimedReminder } from "../notifications/variants/habit-timed-reminder";
 import { ClearInboxTimedReminder } from "../notifications/variants/clear-inbox-timed-reminder";
+import Logger, { LogType } from "../utils/logger";
 
 export type NotificationId = string & { readonly __brand: "NotificationId" };
 
@@ -66,12 +67,13 @@ export default class NotificationManager {
         const templateDocs = await NotificationTemplateModel.find({ active: true });
         const templates: NotificationTemplateData[] = templateDocs.map(doc => doc.toObject());
 
-        console.log(`📋 Found ${templates.length} active notification templates`);
+        Logger.logSystem(LogType.UNCLASSIFIED, `📋 found ${templates.length} active notification templates, loading them...`);
         // await Promise.all(
         //     templates.map(template => NotificationTemplateManager.onNewTemplate(template))
         // );
         // easier to debug
         for (let template of templates) await NotificationTemplateManager.onNewTemplate(template);
+        Logger.logSystem(LogType.UNCLASSIFIED, `📋 notification templates loaded`);
     }
 
     static registerSchedulers() {
@@ -122,11 +124,11 @@ export default class NotificationManager {
         await client.zadd('global:notifications', data.scheduledTime, notificationID);
 
         if (date.getTime() - new Date().getTime() < FETCH_INTERVAL * 2) {
-            console.log(`notification ${notificationID} is due soon, queuing immediately`);
+            Logger.logUser(data.userId, LogType.UNCLASSIFIED, `notification ${notificationID} is due soon, queuing immediately`);
             await this.sender.queueNotification(notificationID, data);
         }
 
-        console.log(`scheduled notification ${notificationID} for user ${data.userId} at ${date.toLocaleString()} (${data.scheduledTime})`);
+        Logger.logUser(data.userId, LogType.UNCLASSIFIED, `scheduled notification ${notificationID} at ${date.toISOString()} (${data.scheduledTime})`);
     }
 
     static async removeNotification(id: NotificationId): Promise<void> {
