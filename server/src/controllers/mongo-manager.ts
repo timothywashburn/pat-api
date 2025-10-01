@@ -1,4 +1,5 @@
 import mongoose from "mongoose";
+import Logger from "../utils/logger";
 
 export default class MongoManager {
     private static instance: MongoManager;
@@ -8,11 +9,11 @@ export default class MongoManager {
 
     async init(): Promise<void> {
         if (this.initialized) return;
-        console.log("connecting to mongodb server");
+        Logger.logSystem("connecting to mongodb server");
 
         try {
             await mongoose.connect(process.env.MONGODB_URI!);
-            console.log('Connected to MongoDB');
+            Logger.logSystem('connected to MongoDB');
 
             mongoose.connection.on('error', err => {
                 console.error('MongoDB error:', err);

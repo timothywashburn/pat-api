@@ -1,14 +1,16 @@
 import {ProgramConfigModel} from "../models/mongo/program-config";
 import { ProgramConfigData } from "@timothyw/pat-common";
+import Logger from "../utils/logger";
 
 export default class ConfigManager {
     private static configCache: ProgramConfigData | null;
 
     static async init(): Promise<void> {
+        Logger.logSystem('initializing config manager');
         if (await ProgramConfigModel.findOne()) {
-            console.log('found existing config');
+            Logger.logSystem('found existing config');
         } else {
-            console.log('creating new config');
+            Logger.logSystem('creating new config');
             await new ProgramConfigModel().save();
         }
 

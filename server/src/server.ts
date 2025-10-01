@@ -9,8 +9,9 @@ import { createServer } from 'http';
 import SocketManager from "./controllers/socket-manager";
 import NotificationManager from "./controllers/notification-manager";
 import RedisManager from "./controllers/redis-manager";
+import Logger from "./utils/logger";
 
-console.log("starting server");
+Logger.logSystem("starting server");
 
 config({ path: resolve(__dirname, '../../.env') });
 
