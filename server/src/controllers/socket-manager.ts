@@ -57,18 +57,18 @@ export default class SocketManager {
         });
 
         this.io.on('connection', (socket: Socket) => {
-            const userId = socket.data.userId;
+            const userId = socket.data.userId as UserId;
             Logger.logUser(userId, LogType.SOCKET, `client connected - id: ${socket.id} user: ${userId}`);
 
             socket.join(`user:${userId}`);
 
             socket.on(SocketMessageType.SERVER_HEARTBEAT, (message: SocketMessage<ServerHeartbeatData>) => {
-                Logger.logUser(userId.userId, LogType.SOCKET, `heartbeat from ${socket.id} at ${message.data.timestamp}`);
+                Logger.logUser(userId, LogType.SOCKET, `heartbeat from ${socket.id} at ${message.data.timestamp}`);
                 this.emitToUser(socket.data.userId, SocketMessageType.CLIENT_HEARTBEAT_ACK);
             });
 
             socket.on(SocketMessageType.SERVER_VERIFY_EMAIL_CHECK, async (_message) => {
-                Logger.logUser(userId.userId, LogType.SOCKET, `verify email check from ${socket.id}`);
+                Logger.logUser(userId, LogType.SOCKET, `verify email check from ${socket.id}`);
 
                 let emailVerified = await AuthManager.getInstance().isVerified(socket.data.authId);
                 let data: ClientVerifyEmailResponseData = {
@@ -78,7 +78,7 @@ export default class SocketManager {
             });
 
             socket.on('disconnect', (reason) => {
-                Logger.logUser(userId.userId, LogType.SOCKET, `client disconnected - id: ${socket.id} user: ${userId} reason: ${reason}`);
+                Logger.logUser(userId, LogType.SOCKET, `client disconnected - id: ${socket.id} user: ${userId} reason: ${reason}`);
             });
         });
 

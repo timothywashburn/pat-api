@@ -55,6 +55,8 @@ class NotificationTemplateManager {
     }
 
     static async getEntitiesForParent(userId: UserId, entityType: NotificationEntityType, parentId: string): Promise<any[]> {
+        // TODO: not sure whether I want to keep the data stored in this field the same but this is stupid
+        parentId = parentId.split(`${entityType}_`)[1];
         try {
             switch (entityType) {
                 case NotificationEntityType.AGENDA_ITEM:
@@ -249,11 +251,11 @@ class NotificationTemplateManager {
         const variant = NotificationManager.getVariant(template.variantData.type);
 
         if (template.targetLevel == NotificationTemplateLevel.PARENT) {
-            Logger.logUser(template.userId, LogType.UNCLASSIFIED, `📌 loading parent template (${template._id})`);
+            Logger.logUser(template.userId, LogType.UNCLASSIFIED, `📌 loading parent template (${template.variantData.type}, ${template._id})`);
 
             const entities = await NotificationTemplateManager.getEntitiesForParent(template.userId, template.targetEntityType, template.targetId);
             Logger.logUser(template.userId, LogType.UNCLASSIFIED, `📊 found ${entities.length} ` +
-                `${entities.length ? 'entities' : 'entity'} for parent template ${template.userId}`);
+                `${entities.length == 1 ? 'entity' : 'entities'} for parent template ${template.userId}`);
 
             for (const entity of entities) {
                 try {
@@ -267,7 +269,7 @@ class NotificationTemplateManager {
                 }
             }
         } else if (template.targetLevel == NotificationTemplateLevel.ENTITY) {
-            Logger.logUser(template.userId, LogType.UNCLASSIFIED, `📌 loading entity template (${template._id})`);
+            Logger.logUser(template.userId, LogType.UNCLASSIFIED, `📌 loading entity template (${template.variantData.type}, ${template._id})`);
 
             const entityData = await NotificationTemplateManager.getEntityData(template.userId, template.targetEntityType, template.targetId);
             if (entityData) {

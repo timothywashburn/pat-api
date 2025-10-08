@@ -94,10 +94,10 @@ export class HabitDue extends NotificationVariant<HabitData, HabitIncompleteCont
         const template = await NotificationTemplateManager.getTemplateById(data.templateId);
         if (!template || !template.active || template.schedulerData.type != this.schedulerType || template.variantData.type !== this.variantType) return;
 
-        const habitId = template.targetId as HabitId;
+        const habitId = data.entityId as HabitId;
         const habit = await HabitManager.getInstance().getById(habitId);
         if (!habit) {
-            Logger.logUser(data.userId, LogType.UNCLASSIFIED, 'habit not found for template (onPostSend):', template._id);
+            Logger.logUser(data.userId, LogType.UNCLASSIFIED, `habit ${habitId} not found for template (onPostSend): ${template._id}`);
             return;
         }
 
