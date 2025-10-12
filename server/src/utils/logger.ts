@@ -3,6 +3,7 @@ import chalk from "chalk";
 
 export enum LogType {
     SOCKET = "socket",
+    DISCORD = "discord",
     NOTIFICATIONS = "notifications",
 
     UNCLASSIFIED = "unclassified",

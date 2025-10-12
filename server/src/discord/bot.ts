@@ -1,10 +1,11 @@
 import {
     APIApplicationCommand,
+    AutocompleteInteraction,
     Client,
-    REST,
     CommandInteraction,
+    GatewayIntentBits,
     Interaction,
-    GatewayIntentBits, AutocompleteInteraction
+    REST
 } from 'discord.js';
 import { Routes } from 'discord-api-types/v10';
 import Command from "./models/command";
@@ -16,6 +17,7 @@ import ListEmailsCommand from "./commands/authedemails/list-emails-command";
 import AddEmailCommand from "./commands/authedemails/add-email-command";
 import RemoveEmailCommand from "./commands/authedemails/remove-email-command";
 import TestCommand from "./commands/test-command";
+import Logger, { LogType } from "../utils/logger";
 
 export default class Bot {
     private client: Client;
@@ -36,7 +38,7 @@ export default class Bot {
             await this.loadCommands();
 
             await this.client.login(ConfigManager.getConfig().discord.token);
-            console.log(`logged in as ${this.client.user?.tag}`);
+            Logger.logSystem(LogType.DISCORD, `logged in as ${this.client.user?.tag}`);
 
             DiscordLogger.getInstance().setClient(this.client);
 
@@ -93,14 +95,14 @@ export default class Bot {
         try {
             const commandData = this.commands.map(command => command.data.toJSON());
 
-            console.log(`refreshing ${commandData.length} application commands`);
+            Logger.logSystem(LogType.DISCORD, `refreshing ${commandData.length} application commands`);
 
             const data = await rest.put(
                 Routes.applicationGuildCommands(discordConfig.clientId, discordConfig.guildId),
                 { body: commandData },
             ) as APIApplicationCommand[];
 
-            console.log(`successfully reloaded ${data.length} application commands`);
+            Logger.logSystem(LogType.DISCORD, `successfully reloaded ${data.length} application commands`);
         } catch (error) {
             console.error('error reloading commands:', error);
             throw error;

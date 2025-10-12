@@ -43,8 +43,8 @@ config({ path: resolve(__dirname, '../../.env') });
     });
 
     try {
-        // const bot = new Bot();
-        // await bot.start();
+        const bot = new Bot();
+        await bot.start();
     } catch (error) {
         console.error('Failed to initialize Discord bot', error);
     }
