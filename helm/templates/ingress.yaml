@@ -2,7 +2,6 @@ apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
   name: pat-ingress
-  namespace: {{ .Values.namespace }}
   annotations: {}
 spec:
   ingressClassName: {{ .Values.ingress.ingressClassName }}

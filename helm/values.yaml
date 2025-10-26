@@ -10,8 +10,6 @@ ingress:
   host: pat.timothyw.dev
   ingressClassName: traefik
 
-namespace: pat
-
 mongodb:
   port: "30019"
   storage:
