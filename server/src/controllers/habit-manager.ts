@@ -10,10 +10,8 @@ import {
 } from "@timothyw/pat-common";
 import DateUtils from "../utils/date-utils";
 import UserManager from "./user-manager";
-import { addDays, isBefore, startOfDay } from "date-fns";
 import { AuthInfo } from "../api/types";
 import { updateDocument } from "../utils/db-doc-utils";
-import { toZonedTime } from "date-fns-tz";
 import { TZDate } from "@date-fns/tz";
 
 export default class HabitManager {
@@ -31,11 +29,15 @@ export default class HabitManager {
     async create(userId: UserId, data: CreateHabitRequest): Promise<HabitData> {
         const user = await UserManager.getInstance().getById(userId);
         if (!user) throw new Error('User not found');
+
+        const highestSortOrder = await this.getHighestSortOrder(userId);
         const habit = new HabitModel({
             userId,
             ...data,
             firstDay: DateUtils.toLocalDateOnlyString(new Date(), user.timezone || 'America/Los_Angeles'),
+            sortOrder: data.sortOrder ?? highestSortOrder + 1
         });
+
         const doc = await habit.save();
         return doc.toObject();
     }
@@ -154,5 +156,10 @@ export default class HabitManager {
             missedDays,
             completionRate: Math.round(completionRate * 100) / 100
         };
+    }
+
+    async getHighestSortOrder(userId: UserId): Promise<number> {
+        const highestHabit = await HabitModel.findOne({ userId }).sort({ sortOrder: -1 }).lean();
+        return highestHabit ? highestHabit.sortOrder : 0;
     }
 }

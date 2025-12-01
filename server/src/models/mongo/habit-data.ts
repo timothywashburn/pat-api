@@ -49,7 +49,11 @@ const habitSchema = new Schema<HabitData>({
             },
             message: 'firstDay must be in YYYY-MM-DD format'
         }
-    }
+    },
+    sortOrder: {
+        type: Number,
+        required: true,
+    },
 }, {
     timestamps: true,
 });

@@ -9,7 +9,7 @@ export async function runUpdateHabitTest(context: TestContext) {
     }
 
     const data = {
-        name: 'First Habit',
+        name: 'habit 1 with updated name',
         description: 'First Item\nSecond Item\nThird Item\nFourth Item',
         rolloverTime: '23:00'
 

@@ -39,6 +39,7 @@ import { runUpdateHabitTest } from "./unit/api/habits/update-habit.test";
 import { runCreateHabitEntriesTest } from "./unit/api/habits/create-habit-entries.test";
 import { runDeleteHabitEntryTest } from "./unit/api/habits/delete-habit-entry.test";
 import { runDeleteHabitTest } from "./unit/api/habits/delete-habit.test";
+import { runPopulateHabitEntriesTest } from "./unit/api/habits/populate-habit-entries.test";
 import { runVersionTest } from "./unit/api/misc/version.test";
 import { runCreatePersonNotesTest } from "./unit/api/person/create-person-notes.test";
 import { runGetPersonNotesTest } from "./unit/api/person/get-person-notes.test";
@@ -127,6 +128,7 @@ const tests: Test[] = [
     { name: 'create habit entries', run: runCreateHabitEntriesTest },
     { name: 'delete habit entry', run: runDeleteHabitEntryTest },
     { name: 'delete habit', run: runDeleteHabitTest },
+    { name: 'populate habit entries', run: runPopulateHabitEntriesTest },
 
     { name: 'create notification templates', run: runCreateNotificationTemplatesTest }
 ];
