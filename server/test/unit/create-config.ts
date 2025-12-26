@@ -20,8 +20,7 @@ export async function runCreateConfigTest(context: TestContext) {
         },
         expo: {
             token: process.env.EXPO_TOKEN
-        },
-        redisUrl: process.env.REDIS_URL
+        }
     });
 
     if (!config) throw new Error('failed to setup discord config');

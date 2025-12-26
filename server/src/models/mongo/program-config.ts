@@ -66,11 +66,6 @@ const programConfigSchema = new Schema({
             required: true,
             default: 'expo_token'
         }
-    },
-    redisUrl: {
-        type: String,
-        required: true,
-        default: 'redis_url'
     }
 }, {
     timestamps: true,

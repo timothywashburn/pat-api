@@ -19,7 +19,7 @@ export default class RedisManager {
     }
 
     private async connect(): Promise<void> {
-        this.client = new Redis(ConfigManager.getConfig().redisUrl);
+        this.client = new Redis(process.env.REDIS_URL!);
 
         this.client.on('error', (err) => {
             console.error('Redis Client Error', err);
