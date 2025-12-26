@@ -35,7 +35,7 @@ export default class HabitManager {
             userId,
             ...data,
             firstDay: DateUtils.toLocalDateOnlyString(new Date(), user.timezone || 'America/Los_Angeles'),
-            sortOrder: data.sortOrder ?? highestSortOrder + 1
+            sortOrder: highestSortOrder + 1
         });
 
         const doc = await habit.save();
