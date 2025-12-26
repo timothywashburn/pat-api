@@ -5,4 +5,4 @@ metadata:
   labels:
     app: mongodb
 data:
-  database-name: "planner-and-tracker"
+  MONGO_INITDB_DATABASE: "planner-and-tracker"

@@ -19,43 +19,16 @@ spec:
       - name: dockerhub-registry
       containers:
       - name: server
-        image: {{ .Values.image.registry }}/pat-api:{{ .Values.image.server.tag }}
-        imagePullPolicy: {{ .Values.image.pullPolicy }}
+        image: {{ .Values.image.server.name }}:{{ .Values.image.server.tag | default "latest" }}
+        imagePullPolicy: Always
         ports:
         - containerPort: 3000
         env:
         - name: NODE_ENV
           value: "production"
-        - name: MONGODB_URI
-          valueFrom:
-            secretKeyRef:
-              name: pat-secrets
-              key: MONGODB_URI
-        - name: JWT_SECRET
-          valueFrom:
-            secretKeyRef:
-              name: pat-secrets
-              key: JWT_SECRET
-        - name: REFRESH_SECRET
-          valueFrom:
-            secretKeyRef:
-              name: pat-secrets
-              key: REFRESH_SECRET
-        - name: API_URL
-          valueFrom:
-            secretKeyRef:
-              name: pat-secrets
-              key: API_URL
-        - name: MONGODB_PASSWORD
-          valueFrom:
-            secretKeyRef:
-              name: pat-secrets
-              key: MONGODB_PASSWORD
-        - name: REDIS_PASSWORD
-          valueFrom:
-            secretKeyRef:
-              name: pat-secrets
-              key: REDIS_PASSWORD
+        envFrom:
+        - secretRef:
+            name: env-vars
         resources:
           requests:
             memory: "128Mi"

@@ -21,19 +21,11 @@ spec:
         - containerPort: 6379
         args:
         - redis-server
-        - --appendonly
-        - "yes"
         - --requirepass
         - $(REDIS_PASSWORD)
-        env:
-        - name: REDIS_PASSWORD
-          valueFrom:
-            secretKeyRef:
-              name: pat-secrets
-              key: REDIS_PASSWORD
-        volumeMounts:
-        - name: redis-storage
-          mountPath: /data
+        envFrom:
+        - secretRef:
+            name: redis-secret
         resources:
           requests:
             memory: "64Mi"
@@ -41,7 +33,3 @@ spec:
           limits:
             memory: "128Mi"
             cpu: "100m"
-      volumes:
-      - name: redis-storage
-        persistentVolumeClaim:
-          claimName: redis-pvc
