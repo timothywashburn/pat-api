@@ -2,8 +2,6 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: server
-  labels:
-    app: server
 spec:
   replicas: 1
   revisionHistoryLimit: 3
