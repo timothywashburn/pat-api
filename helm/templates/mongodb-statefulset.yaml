@@ -13,6 +13,10 @@ spec:
       labels:
         app: mongodb
     spec:
+      volumes:
+      - name: mongodb-data
+        persistentVolumeClaim:
+          claimName: mongodb-pvc
       containers:
       - name: mongodb
         image: mongo:8.2
@@ -34,11 +38,3 @@ spec:
           limits:
             memory: "512Mi"
             cpu: "500m"
-  volumeClaimTemplates:
-  - metadata:
-      name: mongodb-data
-    spec:
-      accessModes: ["ReadWriteOnce"]
-      resources:
-        requests:
-          storage: {{ .Values.mongodb.storage.size }}
