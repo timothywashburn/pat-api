@@ -5,11 +5,11 @@ import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
 import { StreamableHTTPServerTransport } from '@modelcontextprotocol/sdk/server/streamableHttp.js';
 import { isInitializeRequest } from '@modelcontextprotocol/sdk/types.js';
 import { requireBearerAuth } from '@modelcontextprotocol/sdk/server/auth/middleware/bearerAuth.js';
-import { getOAuthProtectedResourceMetadataUrl } from '@modelcontextprotocol/sdk/server/auth/router.js';
 import { registerAgendaItemTools } from './tools/agenda-items';
 import { registerAgendaSettingsTools } from './tools/agenda-settings';
 import { PatOAuthProvider } from '../oauth/oauth-provider';
 import Logger, { LogType } from '../utils/logger';
+import { getOAuthProtectedResourceMetadataUrl } from '@modelcontextprotocol/sdk/server/auth/router.js';
 
 export default class McpManager {
     private static instance: McpManager;
@@ -46,7 +46,6 @@ export default class McpManager {
         }));
         this.router.use(express.json());
 
-        // Public endpoint for OAuth metadata discovery
         this.router.get('/.well-known/oauth-protected-resource', (req: Request, res: Response) => {
             res.json({
                 resource: resourceServerUrl.toString(),
@@ -56,13 +55,13 @@ export default class McpManager {
             });
         });
 
-        // Apply bearer auth to MCP protocol endpoints only
         const authMiddleware = requireBearerAuth({
             verifier: oauthProvider,
             resourceMetadataUrl: getOAuthProtectedResourceMetadataUrl(resourceServerUrl),
+            // resourceMetadataUrl: `${issuerUrl.toString()}/.well-known/oauth-protected-resource`,
         });
 
-        this.router.post('/', authMiddleware, async (req: Request, res: Response) => {
+        this.router.post('/', async (req: Request, res: Response) => {
             try {
                 const sessionId = req.headers['mcp-session-id'] as string | undefined;
                 let transport: StreamableHTTPServerTransport;
