@@ -45,16 +45,20 @@ config({ path: resolve(__dirname, '../../.env') });
     app.use(express.json());
     app.use(express.urlencoded({ extended: true }));
 
-    app.use(mcpAuthRouter({
+    // Mount OAuth endpoints under /mcp prefix (so /mcp/authorize, /mcp/token, etc.)
+    const oauthBasePath = '/mcp';
+    const oauthBaseUrl = new URL(oauthBasePath, baseUrl);
+
+    app.use(oauthBasePath, mcpAuthRouter({
         provider: oauthProvider,
-        issuerUrl: baseUrl,
-        baseUrl: baseUrl,
+        issuerUrl: oauthBaseUrl,
+        baseUrl: oauthBaseUrl,
         resourceServerUrl: mcpResourceUrl,
         scopesSupported: ['agenda:read', 'agenda:write'],
         resourceName: 'Pat MCP Server',
     }));
 
-    app.use(createCompleteAuthorizationRouter(oauthProvider));
+    app.use(oauthBasePath, createCompleteAuthorizationRouter(oauthProvider));
 
     app.use(ApiManager.getInstance().getRouter());
     app.use('/mcp', McpManager.initialize(oauthProvider, mcpResourceUrl, baseUrl).getRouter());
