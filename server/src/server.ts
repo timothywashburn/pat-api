@@ -30,6 +30,18 @@ config({ path: resolve(__dirname, '../../.env') });
     const app = express();
     const server = createServer(app);
 
+    // Trust proxy headers from Traefik (1 hop) for rate limiting and IP detection
+    app.set('trust proxy', 1);
+
+    // Debug logging for all requests
+    app.use((req, res, next) => {
+        Logger.logSystem(LogType.UNCLASSIFIED, `[REQUEST] ${req.method} ${req.path}`);
+        Logger.logSystem(LogType.UNCLASSIFIED, `[HEADERS] ${JSON.stringify(req.headers)}`);
+        Logger.logSystem(LogType.UNCLASSIFIED, `[IP] ${req.ip} [IPs] ${JSON.stringify(req.ips)}`);
+        Logger.logSystem(LogType.UNCLASSIFIED, `[QUERY] ${JSON.stringify(req.query)}`);
+        next();
+    });
+
     // Allow requests from web client
     app.use(cors({
         origin: process.env.WEB_URL!,
@@ -45,23 +57,40 @@ config({ path: resolve(__dirname, '../../.env') });
     app.use(express.json());
     app.use(express.urlencoded({ extended: true }));
 
-    // Mount OAuth endpoints under /mcp prefix (so /mcp/authorize, /mcp/token, etc.)
-    const oauthBasePath = '/mcp';
-    const oauthBaseUrl = new URL(oauthBasePath, baseUrl);
+    // Debug middleware for /token endpoint
+    app.use('/token', (req, res, next) => {
+        console.log('[TOKEN DEBUG] Request body:', req.body);
+        console.log('[TOKEN DEBUG] Headers:', req.headers);
+        next();
+    });
 
-    app.use(oauthBasePath, mcpAuthRouter({
+    // Serve static files for mobile app deep linking
+    app.use('/.well-known', express.static(resolve(__dirname, '../public/.well-known')));
+
+    // OAuth router MUST be mounted at root (SDK requirement)
+    // It serves /authorize, /token, /register, /revoke, /.well-known/oauth-authorization-server
+    app.use(mcpAuthRouter({
         provider: oauthProvider,
-        issuerUrl: oauthBaseUrl,
-        baseUrl: oauthBaseUrl,
+        issuerUrl: baseUrl,
+        baseUrl: baseUrl,
         resourceServerUrl: mcpResourceUrl,
         scopesSupported: ['agenda:read', 'agenda:write'],
         resourceName: 'Pat MCP Server',
     }));
 
-    app.use(oauthBasePath, createCompleteAuthorizationRouter(oauthProvider));
+    app.use(createCompleteAuthorizationRouter(oauthProvider));
 
     app.use(ApiManager.getInstance().getRouter());
     app.use('/mcp', McpManager.initialize(oauthProvider, mcpResourceUrl, baseUrl).getRouter());
+
+    // Error handler MUST be last
+    app.use((err: any, req: any, res: any, next: any) => {
+        console.error('[EXPRESS ERROR]', req.method, req.path, err.message);
+        console.error('[EXPRESS ERROR STACK]', err.stack);
+        if (!res.headersSent) {
+            res.status(err.status || 500).json({ error: err.message });
+        }
+    });
 
     const port = 3000;
     server.listen(port, () => {

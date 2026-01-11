@@ -104,29 +104,46 @@ export class PatOAuthProvider implements OAuthServerProvider {
         params: AuthorizationParams,
         res: Response
     ): Promise<void> {
-        const pendingId = randomUUID();
-        await this.storePendingAuth(pendingId, client, params);
+        try {
+            console.log('[AUTHORIZE] Starting authorization flow', {
+                clientId: client.client_id,
+                clientName: client.client_name,
+                redirectUri: params.redirectUri,
+                scopes: params.scopes,
+                webUrl: process.env.WEB_URL
+            });
 
-        const consentUrl = new URL('/oauth/consent', process.env.WEB_URL!);
-        consentUrl.searchParams.set('pending_id', pendingId);
-        consentUrl.searchParams.set('client_name', client.client_name || 'Unknown');
-        consentUrl.searchParams.set('scopes', (params.scopes || []).join(','));
-        consentUrl.searchParams.set('redirect_uri', params.redirectUri);
-        if (params.state) {
-            consentUrl.searchParams.set('state', params.state);
+            const pendingId = randomUUID();
+            await this.storePendingAuth(pendingId, client, params);
+
+            const consentUrl = new URL('/oauth/consent', process.env.WEB_URL!);
+            consentUrl.searchParams.set('pending_id', pendingId);
+            consentUrl.searchParams.set('client_name', client.client_name || 'Unknown');
+            consentUrl.searchParams.set('scopes', (params.scopes || []).join(','));
+            consentUrl.searchParams.set('redirect_uri', params.redirectUri);
+            if (params.state) {
+                consentUrl.searchParams.set('state', params.state);
+            }
+
+            console.log('[AUTHORIZE] Redirecting to consent page:', consentUrl.toString());
+            res.redirect(consentUrl.toString());
+        } catch (error) {
+            console.error('[AUTHORIZE] Error during authorization:', error);
+            throw error;
         }
-
-        res.redirect(consentUrl.toString());
     }
 
     async challengeForAuthorizationCode(
         client: OAuthClientInformationFull,
         authorizationCode: string
     ): Promise<string> {
+        console.log('[PKCE CHALLENGE] Looking up code:', authorizationCode);
         const code = await OAuthAuthorizationCodeModel.findById(authorizationCode).lean();
         if (!code || code.clientId !== client.client_id) {
+            console.error('[PKCE CHALLENGE] Code not found or client mismatch');
             throw new InvalidGrantError('Invalid authorization code');
         }
+        console.log('[PKCE CHALLENGE] Returning challenge:', code.codeChallenge);
         return code.codeChallenge;
     }
 
@@ -137,29 +154,65 @@ export class PatOAuthProvider implements OAuthServerProvider {
         redirectUri?: string,
         resource?: URL
     ): Promise<OAuthTokens> {
+        console.log('[TOKEN EXCHANGE] Starting token exchange', {
+            clientId: client.client_id,
+            clientName: client.client_name,
+            authorizationCode,
+            redirectUri,
+            resource: resource?.toString(),
+        });
+
         const code = await OAuthAuthorizationCodeModel.findById(authorizationCode);
         if (!code) {
+            console.error('[TOKEN EXCHANGE] Authorization code not found:', authorizationCode);
             throw new InvalidGrantError('Invalid authorization code');
         }
+        console.log('[TOKEN EXCHANGE] Code found', {
+            clientId: code.clientId,
+            userId: code.userId,
+            redirectUri: code.redirectUri,
+            resource: code.resource,
+            expiresAt: code.expiresAt,
+        });
+
         if (code.clientId !== client.client_id) {
+            console.error('[TOKEN EXCHANGE] Client ID mismatch', {
+                expected: code.clientId,
+                actual: client.client_id,
+            });
             throw new InvalidGrantError('Authorization code was not issued to this client');
         }
         if (new Date() > code.expiresAt) {
+            console.error('[TOKEN EXCHANGE] Authorization code expired');
             await OAuthAuthorizationCodeModel.deleteOne({ _id: authorizationCode });
             throw new InvalidGrantError('Authorization code expired');
         }
 
-        if (redirectUri && redirectUri !== code.redirectUri) throw new InvalidGrantError('Redirect URI mismatch');
+        if (redirectUri && redirectUri !== code.redirectUri) {
+            console.error('[TOKEN EXCHANGE] Redirect URI mismatch', {
+                expected: code.redirectUri,
+                actual: redirectUri,
+            });
+            throw new InvalidGrantError('Redirect URI mismatch');
+        }
 
         const resourceStr = resource?.toString();
-        if (resourceStr && code.resource && resourceStr !== code.resource)
+        if (resourceStr && code.resource && resourceStr !== code.resource) {
+            console.error('[TOKEN EXCHANGE] Resource mismatch', {
+                expected: code.resource,
+                actual: resourceStr,
+            });
             throw new InvalidGrantError('Resource mismatch: token exchange resource must match authorization request');
+        }
 
         // Use the resource from the authorization code (what was originally requested)
         const finalResource = code.resource;
         if (!finalResource) {
+            console.error('[TOKEN EXCHANGE] Authorization code missing resource indicator');
             throw new InvalidGrantError('Authorization code missing resource indicator');
         }
+
+        console.log('[TOKEN EXCHANGE] Validation passed, creating tokens');
 
         await OAuthAuthorizationCodeModel.deleteOne({ _id: authorizationCode });
 
@@ -189,6 +242,11 @@ export class PatOAuthProvider implements OAuthServerProvider {
                 expiresAt: refreshExpiresAt,
             },
         ]);
+
+        console.log('[TOKEN EXCHANGE] Tokens created successfully', {
+            userId: code.userId,
+            scopes: code.scopes,
+        });
 
         return {
             access_token: accessToken,

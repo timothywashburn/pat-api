@@ -22,7 +22,7 @@ export default class McpManager {
 
         this.router = Router();
         this.server = new McpServer({
-            name: 'pat-agenda',
+            name: 'pat',
             version: '1.0.0',
         }, {
             capabilities: {
@@ -61,7 +61,7 @@ export default class McpManager {
             // resourceMetadataUrl: `${issuerUrl.toString()}/.well-known/oauth-protected-resource`,
         });
 
-        this.router.post('/', async (req: Request, res: Response) => {
+        this.router.post('/', authMiddleware, async (req: Request, res: Response) => {
             try {
                 const sessionId = req.headers['mcp-session-id'] as string | undefined;
                 let transport: StreamableHTTPServerTransport;

@@ -9,8 +9,13 @@ function generateSecureClientSecret(): string {
 
 export class MongoOAuthClientsStore implements OAuthRegisteredClientsStore {
     async getClient(clientId: string): Promise<OAuthClientInformationFull | undefined> {
+        console.log('[OAUTH CLIENT STORE] Looking up client:', clientId);
         const client = await OAuthClientModel.findById(clientId).lean();
-        if (!client) return undefined;
+        if (!client) {
+            console.log('[OAUTH CLIENT STORE] Client not found:', clientId);
+            return undefined;
+        }
+        console.log('[OAUTH CLIENT STORE] Client found:', { id: client._id, name: client.clientName });
 
         return {
             client_id: client._id,
@@ -32,8 +37,11 @@ export class MongoOAuthClientsStore implements OAuthRegisteredClientsStore {
         const issuedAt = Math.floor(Date.now() / 1000);
         const authMethod = metadata.token_endpoint_auth_method;
 
+        // Only generate secret if auth method requires it (NOT for PKCE 'none')
         let clientSecret = metadata.client_secret;
-        if (!clientSecret) clientSecret = generateSecureClientSecret();
+        if (!clientSecret && authMethod !== 'none') {
+            clientSecret = generateSecureClientSecret();
+        }
 
         const client = new OAuthClientModel({
             _id: clientId,
