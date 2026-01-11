@@ -16,7 +16,8 @@ export const completeItemEndpoint: ApiEndpoint<CompleteAgendaItemRequest, Comple
         try {
             const data = completeAgendaItemRequestSchema.parse(req.body);
             const itemId = req.params.itemId as ItemId;
-            const item = await ItemManager.getInstance().setCompleted(itemId, data.completed);
+            const userId = req.patAuth!.userId!;
+            const item = await ItemManager.getInstance().setCompleted(userId, itemId, data.completed);
 
             if (!item) {
                 res.status(404).json({
@@ -34,7 +35,7 @@ export const completeItemEndpoint: ApiEndpoint<CompleteAgendaItemRequest, Comple
             let message = 'Failed to update item completion status';
 
             if (error instanceof z.ZodError) {
-                message = error.errors[0].message;
+                message = error.issues[0].message;
             }
 
             res.status(400).json({

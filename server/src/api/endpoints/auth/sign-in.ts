@@ -32,7 +32,7 @@ export const signInEndpoint: ApiEndpoint<SignInRequest, SignInResponse> = {
             let message = 'Sign in failed';
 
             if (error instanceof z.ZodError) {
-                message = error.errors[0].message;
+                message = error.issues[0].message;
             }
 
             res.status(400).json({

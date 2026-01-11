@@ -5,7 +5,6 @@ import {
     UpdateThoughtRequest,
     UserId
 } from "@timothyw/pat-common";
-import { AuthInfo } from "../api/types";
 import { updateDocument } from "../utils/db-doc-utils";
 
 export default class ThoughtManager {
@@ -29,11 +28,11 @@ export default class ThoughtManager {
     }
 
     update(
-        auth: AuthInfo,
+        userId: UserId,
         thoughtId: ThoughtId,
         updates: UpdateThoughtRequest
     ): Promise<ThoughtData | null> {
-        return updateDocument(auth, ThoughtModel, thoughtId, updates);
+        return updateDocument(userId, ThoughtModel, thoughtId, updates);
     }
 
     // update(thoughtId: ThoughtId, updates: {

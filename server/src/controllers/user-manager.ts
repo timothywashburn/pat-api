@@ -7,7 +7,6 @@ import {
     UserData,
     UserId
 } from "@timothyw/pat-common";
-import { AuthInfo } from "../api/types";
 import { updateDocument } from "../utils/db-doc-utils";
 import { ThoughtModel } from "../models/mongo/thought-data";
 
@@ -52,11 +51,10 @@ export default class UserManager {
     }
 
     update(
-        auth: AuthInfo,
         userId: UserId,
         updates: UpdateUserRequest
     ): Promise<UserData | null> {
-        return updateDocument(auth, UserConfigModel, userId, updates);
+        return updateDocument(userId, UserConfigModel, userId, updates);
     }
 
     // async update(userId: UserId, updates: UpdateUserRequest): Promise<UserData | null> {

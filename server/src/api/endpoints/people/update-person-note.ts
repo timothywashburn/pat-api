@@ -18,7 +18,7 @@ export const updatePersonNoteEndpoint: ApiEndpoint<UpdatePersonNoteRequest, Upda
             const data = updatePersonNoteRequestSchema.parse(req.body);
             const personNoteId = req.params.personNoteId as PersonNoteId;
 
-            const personNote = await PersonNoteManager.getInstance().update(req.auth!, personNoteId, data);
+            const personNote = await PersonNoteManager.getInstance().update(req.patAuth!.userId, personNoteId, data);
 
             if (!personNote) {
                 res.status(404).json({ success: false, error: 'Person note not found' });
@@ -32,7 +32,7 @@ export const updatePersonNoteEndpoint: ApiEndpoint<UpdatePersonNoteRequest, Upda
         } catch (error) {
             let message = 'Failed to update person note';
             if (error instanceof z.ZodError) {
-                message = error.errors[0].message;
+                message = error.issues[0].message;
             }
             res.status(400).json({ success: false, error: message });
         }

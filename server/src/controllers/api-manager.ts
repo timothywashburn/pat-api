@@ -181,7 +181,7 @@ export default class ApiManager {
 
         Logger.logUser(decoded.userId, LogType.UNCLASSIFIED, `${req.method} ${req.path}`);
 
-        req.auth = decoded;
+        req.patAuth = decoded;
         next();
     };
 
@@ -190,7 +190,7 @@ export default class ApiManager {
         res: ApiResponse<any>,
         next
     ): Promise<void> => {
-        const auth = await AuthDataModel.findById(req.auth?.authId);
+        const auth = await AuthDataModel.findById(req.patAuth?.authId);
         if (!auth) {
             res.status(403).json({
                 success: false,

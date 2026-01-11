@@ -21,7 +21,7 @@ export type ApiResponseBody<TRes = unknown> = ApiSuccessResponse<TRes> | ApiErro
 
 export interface ApiRequest<TReq> extends Request {
     body: TReq;
-    auth?: AuthInfo;
+    patAuth?: AuthInfo;
 }
 
 export interface ApiResponse<TRes> extends Response {

@@ -41,7 +41,7 @@ export const createAccountEndpoint: ApiEndpoint<CreateAccountRequest, CreateAcco
             let message = 'Failed to create account';
 
             if (error instanceof z.ZodError) {
-                message = error.errors[0].message;
+                message = error.issues[0].message;
             } else if (error instanceof Error) {
                 message = error.message;
             }

@@ -28,7 +28,7 @@ export const refreshAuthEndpoint: ApiEndpoint<RefreshAuthRequest, RefreshAuthRes
             let message = 'Token refresh failed';
 
             if (error instanceof z.ZodError) {
-                message = error.errors[0].message;
+                message = error.issues[0].message;
             }
 
             res.status(400).json({

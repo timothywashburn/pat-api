@@ -18,7 +18,7 @@ export const updateListItemEndpoint: ApiEndpoint<UpdateListItemRequest, UpdateLi
             const listItemId = req.params.listItemId as ListItemId;
             const data = updateListItemRequestSchema.parse(req.body);
 
-            const listItem = await ListItemManager.getInstance().update(req.auth!, listItemId, data);
+            const listItem = await ListItemManager.getInstance().update(req.patAuth!.userId, listItemId, data);
 
             if (!listItem) {
                 res.status(404).json({
@@ -37,7 +37,7 @@ export const updateListItemEndpoint: ApiEndpoint<UpdateListItemRequest, UpdateLi
             let message = 'Failed to update list item';
 
             if (error instanceof z.ZodError) {
-                message = error.errors[0].message;
+                message = error.issues[0].message;
             }
 
             res.status(400).json({

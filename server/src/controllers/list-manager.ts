@@ -7,7 +7,6 @@ import {
 } from "@timothyw/pat-common";
 import { ListModel } from "../models/mongo/list-data";
 import ListItemManager from "./list-item-manager";
-import { AuthInfo } from "../api/types";
 import { updateDocument } from "../utils/db-doc-utils";
 
 export default class ListManager {
@@ -36,11 +35,11 @@ export default class ListManager {
     }
 
     update(
-        auth: AuthInfo,
+        userId: UserId,
         listId: ListId,
         updates: UpdateListRequest
     ): Promise<ListData | null> {
-        return updateDocument(auth, ListModel, listId, updates);
+        return updateDocument(userId, ListModel, listId, updates);
     }
 
     async delete(listId: ListId): Promise<boolean> {

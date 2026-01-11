@@ -8,7 +8,7 @@ export const getListItemsEndpoint: ApiEndpoint<undefined, GetListItemsResponse> 
     auth: 'verifiedEmail',
     handler: async (req, res) => {
         try {
-            const listItems = await ListItemManager.getInstance().getAllByUser(req.auth!.userId!);
+            const listItems = await ListItemManager.getInstance().getAllByUser(req.patAuth!.userId!);
 
             res.json({
                 success: true,

@@ -14,7 +14,7 @@ export const createNotificationTemplateEndpoint: ApiEndpoint<CreateNotificationT
     auth: 'verifiedEmail',
     handler: async (req, res) => {
         try {
-            const userId = req.auth!.userId!;
+            const userId = req.patAuth!.userId!;
             const data = createNotificationTemplateRequestSchema.parse(req.body);
 
             const template = await NotificationTemplateManager.create(
@@ -54,7 +54,7 @@ export const createNotificationTemplateEndpoint: ApiEndpoint<CreateNotificationT
             let status = 500;
 
             if (error instanceof z.ZodError) {
-                message = error.errors[0].message;
+                message = error.issues[0].message;
                 status = 400;
             }
 

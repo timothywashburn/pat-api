@@ -15,7 +15,7 @@ export const createListEndpoint: ApiEndpoint<CreateListRequest, CreateListRespon
     handler: async (req, res) => {
         try {
             const data = createListRequestSchema.parse(req.body);
-            const userId = req.auth!.userId!;
+            const userId = req.patAuth!.userId!;
 
             const list = await ListManager.getInstance().create(userId, {
                 name: data.name,
@@ -30,7 +30,7 @@ export const createListEndpoint: ApiEndpoint<CreateListRequest, CreateListRespon
             let message = 'Failed to create list';
 
             if (error instanceof z.ZodError) {
-                message = error.errors[0].message;
+                message = error.issues[0].message;
             }
 
             res.status(400).json({

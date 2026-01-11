@@ -20,7 +20,7 @@ export const getNotificationTemplatesEndpoint: ApiEndpoint<undefined, GetNotific
             };
             
             const templates = await NotificationTemplateManager.getEffectiveTemplates(
-                req.auth!.userId!,
+                req.patAuth!.userId!,
                 targetLevel,
                 targetEntityType,
                 targetId

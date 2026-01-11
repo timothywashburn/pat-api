@@ -28,7 +28,7 @@ export const getUserEndpoint: ApiEndpoint<undefined, GetUserResponse> = {
     auth: 'authenticated',
     handler: async (req, res) => {
         try {
-            const user = await UserManager.getInstance().getById(req.auth!.userId!);
+            const user = await UserManager.getInstance().getById(req.patAuth!.userId!);
 
             if (!user) {
                 res.status(404).json({

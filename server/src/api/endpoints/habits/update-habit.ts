@@ -16,7 +16,7 @@ export const updateHabitEndpoint: ApiEndpoint<UpdateHabitRequest, UpdateHabitRes
     handler: async (req, res) => {
         try {
             const data = updateHabitRequestSchema.parse(req.body);
-            const userId = req.auth!.userId!;
+            const userId = req.patAuth!.userId!;
             const habitId = req.params.habitId as HabitId;
 
             if (!habitId) {
@@ -27,7 +27,7 @@ export const updateHabitEndpoint: ApiEndpoint<UpdateHabitRequest, UpdateHabitRes
                 return;
             }
 
-            const updatedHabit = await HabitManager.getInstance().update(req.auth!, habitId, data);
+            const updatedHabit = await HabitManager.getInstance().update(req.patAuth!.userId, habitId, data);
 
             if (!updatedHabit) {
                 res.status(404).json({
@@ -51,7 +51,7 @@ export const updateHabitEndpoint: ApiEndpoint<UpdateHabitRequest, UpdateHabitRes
             let message = 'Failed to update habit';
 
             if (error instanceof z.ZodError) {
-                message = error.errors[0].message;
+                message = error.issues[0].message;
             }
 
             res.status(400).json({

@@ -1,7 +1,6 @@
 import { CreateAgendaItemRequest, AgendaItemData, ItemId, UpdateAgendaItemRequest, UserId } from "@timothyw/pat-common";
 import { ItemModel } from "../models/mongo/item-data";
 import { updateDocument } from "../utils/db-doc-utils";
-import { AuthInfo } from "../api/types";
 
 export default class ItemManager {
     private static instance: ItemManager;
@@ -45,11 +44,11 @@ export default class ItemManager {
     }
 
     update(
-        auth: AuthInfo,
+        userId: UserId,
         itemId: ItemId,
         updates: UpdateAgendaItemRequest
     ): Promise<AgendaItemData | null> {
-        return updateDocument<AgendaItemData, UpdateAgendaItemRequest>(auth, ItemModel, itemId, updates);
+        return updateDocument<AgendaItemData, UpdateAgendaItemRequest>(userId, ItemModel, itemId, updates);
     }
 
     // update(
@@ -79,11 +78,11 @@ export default class ItemManager {
     //     );
     // }
 
-    async setCompleted(itemId: ItemId, completed: boolean) {
-        return ItemModel.findByIdAndUpdate(
-            itemId,
-            {$set: {completed}},
-            {new: true}
+    async setCompleted(userId: UserId, itemId: ItemId, completed: boolean) {
+        return ItemModel.findOneAndUpdate(
+            { _id: itemId, userId },
+            { $set: { completed } },
+            { new: true }
         ).lean();
     }
 
@@ -103,8 +102,8 @@ export default class ItemManager {
         return result.modifiedCount;
     }
 
-    delete(itemId: ItemId): Promise<boolean> {
-        return ItemModel.deleteOne({ _id: itemId })
+    delete(userId: UserId, itemId: ItemId): Promise<boolean> {
+        return ItemModel.deleteOne({ _id: itemId, userId })
             .then(result => result.deletedCount > 0);
     }
 

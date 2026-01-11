@@ -11,7 +11,7 @@ export const updateUserEndpoint: ApiEndpoint<UpdateUserRequest, UpdateUserRespon
     handler: async (req, res) => {
         try {
             const data: UpdateUserRequest = updateUserRequestSchema.parse(req.body);
-            const userId = req.auth!.userId!;
+            const userId = req.patAuth!.userId!;
 
             const currentUser = await UserManager.getInstance().getById(userId);
             if (!currentUser) {
@@ -46,7 +46,7 @@ export const updateUserEndpoint: ApiEndpoint<UpdateUserRequest, UpdateUserRespon
                 }
             }
 
-            const updatedUser = await UserManager.getInstance().update(req.auth!, userId, data);
+            const updatedUser = await UserManager.getInstance().update(userId, data);
             if (!updatedUser) {
                 res.status(404).json({
                     success: false,
@@ -63,8 +63,8 @@ export const updateUserEndpoint: ApiEndpoint<UpdateUserRequest, UpdateUserRespon
             let message = 'Failed to update user configuration';
 
             if (error instanceof z.ZodError) {
-                console.log('[config] validation error:', error.errors);
-                message = error.errors[0].message;
+                console.log('[config] validation error:', error.issues);
+                message = error.issues[0].message;
             } else {
                 console.error('[config] unexpected error:', error);
             }

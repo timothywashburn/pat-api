@@ -15,7 +15,7 @@ export const getEntitySyncEndpoint: ApiEndpoint<GetEntitySyncRequest, GetEntityS
     handler: async (req, res) => {
         try {
             const data = getEntitySyncRequestSchema.parse(req.query);
-            const userId = req.auth!.userId!;
+            const userId = req.patAuth!.userId!;
 
             const syncState = await NotificationTemplateManager.getEntitySyncState(userId, data.entityType, data.entityId);
 
@@ -30,7 +30,7 @@ export const getEntitySyncEndpoint: ApiEndpoint<GetEntitySyncRequest, GetEntityS
             let status = 500;
 
             if (error instanceof z.ZodError) {
-                message = error.errors[0].message;
+                message = error.issues[0].message;
                 status = 400;
             }
 

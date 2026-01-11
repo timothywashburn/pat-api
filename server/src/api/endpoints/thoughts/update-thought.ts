@@ -18,7 +18,7 @@ export const updateThoughtEndpoint: ApiEndpoint<UpdateThoughtRequest, UpdateThou
             const data = updateThoughtRequestSchema.parse(req.body);
             const thoughtId = req.params.thoughtId as ThoughtId;
 
-            const thought = await ThoughtManager.getInstance().update(req.auth!, thoughtId, data);
+            const thought = await ThoughtManager.getInstance().update(req.patAuth!.userId, thoughtId, data);
 
             if (!thought) {
                 res.status(404).json({ success: false, error: 'Thought not found' });
@@ -32,7 +32,7 @@ export const updateThoughtEndpoint: ApiEndpoint<UpdateThoughtRequest, UpdateThou
         } catch (error) {
             let message = 'Failed to update thought';
             if (error instanceof z.ZodError) {
-                message = error.errors[0].message;
+                message = error.issues[0].message;
             }
             res.status(400).json({ success: false, error: message });
         }

@@ -9,7 +9,7 @@ export const deleteHabitEndpoint: ApiEndpoint<undefined, DeleteHabitResponse> = 
     auth: 'verifiedEmail',
     handler: async (req, res) => {
         try {
-            const userId = req.auth!.userId!;
+            const userId = req.patAuth!.userId!;
             const habitId = req.params.habitId;
 
             if (!habitId) {

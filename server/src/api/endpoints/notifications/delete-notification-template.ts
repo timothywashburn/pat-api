@@ -12,7 +12,7 @@ export const deleteNotificationTemplateEndpoint: ApiEndpoint<undefined, DeleteNo
 
             const deleted = await NotificationTemplateManager.delete(
                 templateId,
-                req.auth!.userId!
+                req.patAuth!.userId!
             );
 
             if (!deleted) {
