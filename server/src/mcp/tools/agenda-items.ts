@@ -43,37 +43,32 @@ export function registerAgendaItemTools(server: McpServer) {
     );
 
     server.registerTool(
-        'create_agenda_item',
+        'create_agenda_items',
         {
-            description: 'Create a new agenda item',
+            description: 'Create one or more agenda items',
             inputSchema: z.object({
-                name: z.string().min(1).describe('Name/title of the item (required)'),
-                dueDate: z.string().optional().describe('Due date in ISO 8601 format'),
-                notes: z.string().optional().describe('Additional notes'),
-                urgent: z.boolean().optional().describe('Mark as urgent'),
-                category: z.string().optional().describe('Category (should exist in user settings)'),
-                type: z.string().optional().describe('Type (should exist in user settings)'),
+                items: z.array(z.object({
+                    name: z.string().min(1).describe('Name/title of the item'),
+                    dueDate: z.string().optional().describe('Due date in ISO 8601 format'),
+                    notes: z.string().optional().describe('Additional notes'),
+                    urgent: z.boolean().optional().describe('Mark as urgent'),
+                    category: z.string().optional().describe('Category (should exist in user settings)'),
+                    type: z.string().optional().describe('Type (should exist in user settings)'),
+                })).min(1).describe('Array of items to create (pass array of 1 item for single creation)'),
             }),
         },
         async (args: any, extra) => {
             const userId = getUserIdFromAuth(extra.authInfo);
 
             try {
-                const item = await ItemManager.getInstance().create(userId, {
-                    name: args.name,
-                    dueDate: args.dueDate,
-                    notes: args.notes,
-                    urgent: args.urgent,
-                    category: args.category,
-                    type: args.type,
-                });
-
+                const items = await ItemManager.getInstance().createMany(userId, args.items);
                 return {
                     content: [{
                         type: 'text' as const,
                         text: JSON.stringify({
                             success: true,
-                            item: Serializer.serialize(item),
+                            count: items.length,
+                            items: items.map(item => Serializer.serialize(item)),
                         }, null, 2),
                     }],
                 };
@@ -83,7 +78,7 @@ export function registerAgendaItemTools(server: McpServer) {
                         type: 'text' as const,
                         text: JSON.stringify({
                             success: false,
-                            error: error instanceof Error ? error.message : 'Failed to create item',
+                            error: error instanceof Error ? error.message : 'Failed to create item(s)',
                         }),
                     }],
                     isError: true,
@@ -93,110 +88,119 @@ export function registerAgendaItemTools(server: McpServer) {
     );
 
     server.registerTool(
-        'update_agenda_item',
+        'update_agenda_items',
         {
-            description: 'Update an existing agenda item',
+            description: 'Update one or more existing agenda items',
             inputSchema: z.object({
-                itemId: z.string().describe('ID of the item to update (required)'),
-                name: z.string().min(1).optional().describe('New name/title'),
-                dueDate: z.string().nullish().describe('New due date (ISO 8601), or null to remove'),
-                notes: z.string().nullish().describe('New notes, or null to remove'),
-                urgent: z.boolean().optional().describe('Urgent flag'),
-                category: z.string().nullish().describe('New category, or null to remove'),
-                type: z.string().nullish().describe('New type, or null to remove'),
+                items: z.array(z.object({
+                    itemId: z.string().describe('ID of the item to update'),
+                    name: z.string().min(1).optional().describe('New name/title'),
+                    dueDate: z.string().nullish().describe('New due date (ISO 8601), or null to remove'),
+                    notes: z.string().nullish().describe('New notes, or null to remove'),
+                    urgent: z.boolean().optional().describe('Urgent flag'),
+                    category: z.string().nullish().describe('New category, or null to remove'),
+                    type: z.string().nullish().describe('New type, or null to remove'),
+                })).min(1).describe('Array of items to update (pass array of 1 item for single update)'),
             }),
         },
         async (args: any, extra) => {
             const userId = getUserIdFromAuth(extra.authInfo);
-            const itemId = args.itemId as ItemId;
 
-            const updates: Record<string, unknown> = {};
-            if (args.name !== undefined) updates.name = args.name;
-            if (args.dueDate !== undefined) updates.dueDate = args.dueDate;
-            if (args.notes !== undefined) updates.notes = args.notes;
-            if (args.urgent !== undefined) updates.urgent = args.urgent;
-            if (args.category !== undefined) updates.category = args.category;
-            if (args.type !== undefined) updates.type = args.type;
+            const updateRequests = args.items.map((item: any) => {
+                const updates: Record<string, unknown> = {};
+                if (item.name !== undefined) updates.name = item.name;
+                if (item.dueDate !== undefined) updates.dueDate = item.dueDate;
+                if (item.notes !== undefined) updates.notes = item.notes;
+                if (item.urgent !== undefined) updates.urgent = item.urgent;
+                if (item.category !== undefined) updates.category = item.category;
+                if (item.type !== undefined) updates.type = item.type;
 
-            const item = await ItemManager.getInstance().update(
-                userId,
-                itemId,
-                updates
-            );
-
-            if (!item) {
                 return {
-                    content: [{ type: 'text' as const, text: JSON.stringify({ success: false, error: 'Item not found' }) }],
-                    isError: true,
+                    itemId: item.itemId as ItemId,
+                    updates
                 };
-            }
+            });
+
+            const results = await ItemManager.getInstance().updateMany(userId, updateRequests);
 
             return {
                 content: [{
                     type: 'text' as const,
-                    text: JSON.stringify({ success: true, item: Serializer.serialize(item) }, null, 2),
+                    text: JSON.stringify({
+                        success: true,
+                        count: results.length,
+                        results: results.map(r => ({
+                            itemId: r.itemId,
+                            success: r.success,
+                            ...(r.item ? { item: Serializer.serialize(r.item) } : { error: 'Item not found' })
+                        })),
+                    }, null, 2),
                 }],
             };
         }
     );
 
     server.registerTool(
-        'complete_agenda_item',
+        'complete_agenda_items',
         {
-            description: 'Mark an agenda item as complete or incomplete',
+            description: 'Mark one or more agenda items as complete or incomplete',
             inputSchema: z.object({
-                itemId: z.string().describe('ID of the item (required)'),
+                itemIds: z.array(z.string()).min(1).describe('Array of item IDs (pass array of 1 ID for single operation)'),
                 completed: z.boolean().describe('true to complete, false to uncomplete (required)'),
             }),
         },
         async (args: any, extra) => {
             const userId = getUserIdFromAuth(extra.authInfo);
 
-            const item = await ItemManager.getInstance().setCompleted(
+            const results = await ItemManager.getInstance().setCompletedMany(
                 userId,
-                args.itemId as ItemId,
+                args.itemIds as ItemId[],
                 args.completed
             );
-
-            if (!item) {
-                return {
-                    content: [{ type: 'text' as const, text: JSON.stringify({ success: false, error: 'Item not found or access denied' }) }],
-                    isError: true,
-                };
-            }
 
             return {
                 content: [{
                     type: 'text' as const,
-                    text: JSON.stringify({ success: true, item: Serializer.serialize(item) }, null, 2),
+                    text: JSON.stringify({
+                        success: true,
+                        count: results.length,
+                        results: results.map(r => ({
+                            itemId: r.itemId,
+                            success: r.success,
+                            ...(r.item ? { item: Serializer.serialize(r.item) } : { error: 'Item not found or access denied' })
+                        })),
+                    }, null, 2),
                 }],
             };
         }
     );
 
     server.registerTool(
-        'delete_agenda_item',
+        'delete_agenda_items',
         {
-            description: 'Delete an agenda item',
+            description: 'Delete one or more agenda items',
             inputSchema: z.object({
-                itemId: z.string().describe('ID of the item to delete (required)'),
+                itemIds: z.array(z.string()).min(1).describe('Array of item IDs to delete (pass array of 1 ID for single deletion)'),
             }),
         },
         async (args: any, extra) => {
             const userId = getUserIdFromAuth(extra.authInfo);
 
-            const deleted = await ItemManager.getInstance().delete(userId, args.itemId as ItemId);
+            const results = await ItemManager.getInstance().deleteManyItems(userId, args.itemIds as ItemId[]);
 
             return {
                 content: [{
                     type: 'text' as const,
                     text: JSON.stringify({
-                        success: deleted,
-                        itemId: args.itemId,
-                        ...(deleted ? {} : { error: 'Item not found or access denied' }),
-                    }),
+                        success: true,
+                        count: results.length,
+                        results: results.map(r => ({
+                            itemId: r.itemId,
+                            success: r.success,
+                            ...(r.success ? {} : { error: 'Item not found or access denied' })
+                        })),
+                    }, null, 2),
                 }],
-                isError: !deleted,
             };
         }
     );

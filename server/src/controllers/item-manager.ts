@@ -20,6 +20,19 @@ export default class ItemManager {
         return doc.toObject();
     }
 
+    async createMany(userId: UserId, dataArray: CreateAgendaItemRequest[]): Promise<AgendaItemData[]> {
+        const items = dataArray.map(data => ({
+            userId,
+            ...data,
+            completed: false,
+            urgent: data.urgent ?? false,
+            category: data.category ?? null,
+            type: data.type ?? null
+        }));
+        const docs = await ItemModel.insertMany(items);
+        return docs.map(doc => doc.toObject());
+    }
+
     getById(itemId: ItemId): Promise<AgendaItemData | null> {
         return ItemModel.findById(itemId).lean();
     }
@@ -49,6 +62,23 @@ export default class ItemManager {
         updates: UpdateAgendaItemRequest
     ): Promise<AgendaItemData | null> {
         return updateDocument<AgendaItemData, UpdateAgendaItemRequest>(userId, ItemModel, itemId, updates);
+    }
+
+    async updateMany(
+        userId: UserId,
+        items: Array<{ itemId: ItemId; updates: UpdateAgendaItemRequest }>
+    ): Promise<Array<{ itemId: ItemId; item: AgendaItemData | null; success: boolean }>> {
+        const results = await Promise.all(
+            items.map(async ({ itemId, updates }) => {
+                const item = await this.update(userId, itemId, updates);
+                return {
+                    itemId,
+                    item,
+                    success: item !== null
+                };
+            })
+        );
+        return results;
     }
 
     // update(
@@ -86,6 +116,24 @@ export default class ItemManager {
         ).lean();
     }
 
+    async setCompletedMany(
+        userId: UserId,
+        itemIds: ItemId[],
+        completed: boolean
+    ): Promise<Array<{ itemId: ItemId; item: AgendaItemData | null; success: boolean }>> {
+        const results = await Promise.all(
+            itemIds.map(async (itemId) => {
+                const item = await this.setCompleted(userId, itemId, completed);
+                return {
+                    itemId,
+                    item,
+                    success: item !== null
+                };
+            })
+        );
+        return results;
+    }
+
     async clearItemCategory(userId: UserId, category: string): Promise<number> {
         const result = await ItemModel.updateMany(
             { userId, category },
@@ -105,6 +153,22 @@ export default class ItemManager {
     delete(userId: UserId, itemId: ItemId): Promise<boolean> {
         return ItemModel.deleteOne({ _id: itemId, userId })
             .then(result => result.deletedCount > 0);
+    }
+
+    async deleteManyItems(
+        userId: UserId,
+        itemIds: ItemId[]
+    ): Promise<Array<{ itemId: ItemId; success: boolean }>> {
+        const results = await Promise.all(
+            itemIds.map(async (itemId) => {
+                const success = await this.delete(userId, itemId);
+                return {
+                    itemId,
+                    success
+                };
+            })
+        );
+        return results;
     }
 
     deleteAllForUser(userId: UserId): Promise<number> {
