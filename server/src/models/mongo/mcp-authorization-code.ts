@@ -1,6 +1,6 @@
 import { Schema, model } from 'mongoose';
 
-export interface OAuthAuthorizationCodeData {
+export interface MCPAuthorizationCodeData {
     _id: string;
     clientId: string;
     userId: string;
@@ -13,7 +13,7 @@ export interface OAuthAuthorizationCodeData {
     createdAt: Date;
 }
 
-const schema = new Schema<OAuthAuthorizationCodeData>({
+const schema = new Schema<MCPAuthorizationCodeData>({
     _id: { type: String, required: true },
     clientId: { type: String, required: true },
     userId: { type: String, required: true },
@@ -25,6 +25,6 @@ const schema = new Schema<OAuthAuthorizationCodeData>({
     expiresAt: { type: Date, required: true, index: { expires: 0 } },
 }, { timestamps: true });
 
-export const OAuthAuthorizationCodeModel = model<OAuthAuthorizationCodeData>(
-    'OAuthAuthorizationCode', schema, 'oauth_authorization_codes'
+export const MCPAuthorizationCodeModel = model<MCPAuthorizationCodeData>(
+    'MCPAuthorizationCode', schema, 'mcp_authorization_codes'
 );

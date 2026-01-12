@@ -1,6 +1,6 @@
 import { Schema, model } from 'mongoose';
 
-export interface OAuthClientData {
+export interface MCPOAuthClientData {
     _id: string;
     clientSecret?: string;
     clientSecretExpiresAt?: number;
@@ -13,7 +13,7 @@ export interface OAuthClientData {
     updatedAt: Date;
 }
 
-const oauthClientSchema = new Schema<OAuthClientData>({
+const oauthClientSchema = new Schema<MCPOAuthClientData>({
     _id: { type: String, required: true },
     clientSecret: String,
     clientSecretExpiresAt: Number,
@@ -24,4 +24,4 @@ const oauthClientSchema = new Schema<OAuthClientData>({
     tokenEndpointAuthMethod: { type: String, default: 'none' },
 }, { timestamps: true });
 
-export const OAuthClientModel = model<OAuthClientData>('OAuthClient', oauthClientSchema, 'oauth_clients');
+export const MCPOAuthClientModel = model<MCPOAuthClientData>('MCPOAuthClient', oauthClientSchema, 'mcp_oauth_clients');

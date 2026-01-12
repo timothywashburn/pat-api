@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import AuthManager from '../controllers/auth-manager';
+import AuthManager from '../../controllers/auth-manager';
 import { PatOAuthProvider } from './oauth-provider';
 
 export function createCompleteAuthorizationRouter(oauthProvider: PatOAuthProvider): Router {
@@ -7,7 +7,7 @@ export function createCompleteAuthorizationRouter(oauthProvider: PatOAuthProvide
 
     router.post('/oauth/complete-authorization', async (req, res) => {
         try {
-            const { pending_id, email, password } = req.body;
+            const { pending_id } = req.body;
 
             if (!pending_id) {
                 res.status(400).json({
@@ -18,8 +18,6 @@ export function createCompleteAuthorizationRouter(oauthProvider: PatOAuthProvide
             }
 
             let userId;
-
-            // Check for Bearer token authentication (preferred mode)
             const authHeader = req.headers.authorization;
 
             if (authHeader?.startsWith('Bearer ')) {
@@ -35,20 +33,6 @@ export function createCompleteAuthorizationRouter(oauthProvider: PatOAuthProvide
                 }
 
                 userId = decoded.userId;
-            }
-            // Fallback: Support legacy email/password mode for backward compatibility
-            else if (email && password) {
-                const authResult = await AuthManager.getInstance().signIn(email, password);
-
-                if (!authResult) {
-                    res.status(401).json({
-                        success: false,
-                        error: 'Invalid email or password'
-                    });
-                    return;
-                }
-
-                userId = authResult.user._id;
             }
             else {
                 res.status(400).json({

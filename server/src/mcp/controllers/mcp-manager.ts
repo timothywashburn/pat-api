@@ -5,10 +5,10 @@ import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
 import { StreamableHTTPServerTransport } from '@modelcontextprotocol/sdk/server/streamableHttp.js';
 import { isInitializeRequest } from '@modelcontextprotocol/sdk/types.js';
 import { requireBearerAuth } from '@modelcontextprotocol/sdk/server/auth/middleware/bearerAuth.js';
-import { registerAgendaItemTools } from './tools/agenda-items';
-import { registerAgendaSettingsTools } from './tools/agenda-settings';
+import { registerAgendaItemTools } from '../tools/agenda-items';
+import { registerAgendaSettingsTools } from '../tools/agenda-settings';
 import { PatOAuthProvider } from '../oauth/oauth-provider';
-import Logger, { LogType } from '../utils/logger';
+import Logger, { LogType } from '../../utils/logger';
 import { getOAuthProtectedResourceMetadataUrl } from '@modelcontextprotocol/sdk/server/auth/router.js';
 
 export default class McpManager {

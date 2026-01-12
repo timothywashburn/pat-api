@@ -1,7 +1,7 @@
 import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
 import { z } from 'zod';
 import UserManager from '../../controllers/user-manager';
-import { getUserIdFromAuth } from '../types';
+import { getUserIdFromAuth } from '../utils/mcp-utils';
 
 export function registerAgendaSettingsTools(server: McpServer) {
 

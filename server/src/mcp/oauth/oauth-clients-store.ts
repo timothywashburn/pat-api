@@ -1,6 +1,6 @@
 import { OAuthRegisteredClientsStore } from '@modelcontextprotocol/sdk/server/auth/clients.js';
 import { OAuthClientInformationFull } from '@modelcontextprotocol/sdk/shared/auth.js';
-import { OAuthClientModel } from '../models/mongo/oauth-client';
+import { MCPOAuthClientModel } from '../../models/mongo/mcp-oauth-client';
 import { randomUUID, randomBytes } from 'crypto';
 
 function generateSecureClientSecret(): string {
@@ -10,7 +10,7 @@ function generateSecureClientSecret(): string {
 export class MongoOAuthClientsStore implements OAuthRegisteredClientsStore {
     async getClient(clientId: string): Promise<OAuthClientInformationFull | undefined> {
         console.log('[OAUTH CLIENT STORE] Looking up client:', clientId);
-        const client = await OAuthClientModel.findById(clientId).lean();
+        const client = await MCPOAuthClientModel.findById(clientId).lean();
         if (!client) {
             console.log('[OAUTH CLIENT STORE] Client not found:', clientId);
             return undefined;
@@ -43,7 +43,7 @@ export class MongoOAuthClientsStore implements OAuthRegisteredClientsStore {
             clientSecret = generateSecureClientSecret();
         }
 
-        const client = new OAuthClientModel({
+        const client = new MCPOAuthClientModel({
             _id: clientId,
             clientSecret,
             clientSecretExpiresAt: metadata.client_secret_expires_at,

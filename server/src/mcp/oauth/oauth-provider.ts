@@ -6,10 +6,10 @@ import { AuthInfo } from '@modelcontextprotocol/sdk/server/auth/types.js';
 import { checkResourceAllowed } from '@modelcontextprotocol/sdk/shared/auth-utils.js';
 import { InvalidTokenError, InvalidGrantError, InvalidScopeError } from '@modelcontextprotocol/sdk/server/auth/errors.js';
 import { MongoOAuthClientsStore } from './oauth-clients-store';
-import { OAuthAuthorizationCodeModel } from '../models/mongo/oauth-authorization-code';
-import { OAuthTokenModel } from '../models/mongo/oauth-token';
+import { MCPAuthorizationCodeModel } from '../../models/mongo/mcp-authorization-code';
+import { MCPOAuthTokenModel } from '../../models/mongo/mcp-oauth-token';
 import { UserId } from '@timothyw/pat-common';
-import RedisManager from '../controllers/redis-manager';
+import RedisManager from '../../controllers/redis-manager';
 
 interface SerializablePendingAuth {
     clientId: string;
@@ -76,7 +76,7 @@ export class PatOAuthProvider implements OAuthServerProvider {
 
         const code = generateSecureToken();
 
-        await new OAuthAuthorizationCodeModel({
+        await new MCPAuthorizationCodeModel({
             _id: code,
             clientId: pending.clientId,
             userId: userId.toString(),
@@ -138,7 +138,7 @@ export class PatOAuthProvider implements OAuthServerProvider {
         authorizationCode: string
     ): Promise<string> {
         console.log('[PKCE CHALLENGE] Looking up code:', authorizationCode);
-        const code = await OAuthAuthorizationCodeModel.findById(authorizationCode).lean();
+        const code = await MCPAuthorizationCodeModel.findById(authorizationCode).lean();
         if (!code || code.clientId !== client.client_id) {
             console.error('[PKCE CHALLENGE] Code not found or client mismatch');
             throw new InvalidGrantError('Invalid authorization code');
@@ -162,7 +162,7 @@ export class PatOAuthProvider implements OAuthServerProvider {
             resource: resource?.toString(),
         });
 
-        const code = await OAuthAuthorizationCodeModel.findById(authorizationCode);
+        const code = await MCPAuthorizationCodeModel.findById(authorizationCode);
         if (!code) {
             console.error('[TOKEN EXCHANGE] Authorization code not found:', authorizationCode);
             throw new InvalidGrantError('Invalid authorization code');
@@ -184,7 +184,7 @@ export class PatOAuthProvider implements OAuthServerProvider {
         }
         if (new Date() > code.expiresAt) {
             console.error('[TOKEN EXCHANGE] Authorization code expired');
-            await OAuthAuthorizationCodeModel.deleteOne({ _id: authorizationCode });
+            await MCPAuthorizationCodeModel.deleteOne({ _id: authorizationCode });
             throw new InvalidGrantError('Authorization code expired');
         }
 
@@ -205,7 +205,6 @@ export class PatOAuthProvider implements OAuthServerProvider {
             throw new InvalidGrantError('Resource mismatch: token exchange resource must match authorization request');
         }
 
-        // Use the resource from the authorization code (what was originally requested)
         const finalResource = code.resource;
         if (!finalResource) {
             console.error('[TOKEN EXCHANGE] Authorization code missing resource indicator');
@@ -214,7 +213,7 @@ export class PatOAuthProvider implements OAuthServerProvider {
 
         console.log('[TOKEN EXCHANGE] Validation passed, creating tokens');
 
-        await OAuthAuthorizationCodeModel.deleteOne({ _id: authorizationCode });
+        await MCPAuthorizationCodeModel.deleteOne({ _id: authorizationCode });
 
         const accessToken = generateSecureToken();
         const refreshToken = generateSecureToken();
@@ -222,7 +221,7 @@ export class PatOAuthProvider implements OAuthServerProvider {
         const accessExpiresAt = new Date(Date.now() + 60 * 60 * 1000);
         const refreshExpiresAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000);
 
-        await OAuthTokenModel.insertMany([
+        await MCPOAuthTokenModel.insertMany([
             {
                 _id: accessToken,
                 type: 'access',
@@ -263,7 +262,7 @@ export class PatOAuthProvider implements OAuthServerProvider {
         scopes?: string[],
         resource?: URL
     ): Promise<OAuthTokens> {
-        const token = await OAuthTokenModel.findOne({
+        const token = await MCPOAuthTokenModel.findOne({
             _id: refreshToken,
             type: 'refresh',
             clientId: client.client_id,
@@ -289,7 +288,7 @@ export class PatOAuthProvider implements OAuthServerProvider {
         const newAccessToken = generateSecureToken();
         const accessExpiresAt = new Date(Date.now() + 60 * 60 * 1000);
 
-        await new OAuthTokenModel({
+        await new MCPOAuthTokenModel({
             _id: newAccessToken,
             type: 'access',
             clientId: client.client_id,
@@ -308,7 +307,7 @@ export class PatOAuthProvider implements OAuthServerProvider {
     }
 
     async verifyAccessToken(token: string): Promise<AuthInfo> {
-        const tokenData = await OAuthTokenModel.findOne({
+        const tokenData = await MCPOAuthTokenModel.findOne({
             _id: token,
             type: 'access',
         }).lean();
@@ -341,7 +340,7 @@ export class PatOAuthProvider implements OAuthServerProvider {
         client: OAuthClientInformationFull,
         request: OAuthTokenRevocationRequest
     ): Promise<void> {
-        await OAuthTokenModel.deleteOne({
+        await MCPOAuthTokenModel.deleteOne({
             _id: request.token,
             clientId: client.client_id,
         });

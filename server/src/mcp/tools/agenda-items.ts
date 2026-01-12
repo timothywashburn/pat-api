@@ -1,7 +1,7 @@
 import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
 import { z } from 'zod';
 import ItemManager from '../../controllers/item-manager';
-import { getUserIdFromAuth } from '../types';
+import { getUserIdFromAuth } from '../utils/mcp-utils';
 import { Serializer, ItemId } from '@timothyw/pat-common';
 
 export function registerAgendaItemTools(server: McpServer) {

@@ -1,6 +1,6 @@
 import { Schema, model } from 'mongoose';
 
-export interface OAuthTokenData {
+export interface MCPOAuthTokenData {
     _id: string;
     type: 'access' | 'refresh';
     clientId: string;
@@ -11,7 +11,7 @@ export interface OAuthTokenData {
     createdAt: Date;
 }
 
-const schema = new Schema<OAuthTokenData>({
+const schema = new Schema<MCPOAuthTokenData>({
     _id: { type: String, required: true },
     type: { type: String, enum: ['access', 'refresh'], required: true },
     clientId: { type: String, required: true, index: true },
@@ -23,4 +23,4 @@ const schema = new Schema<OAuthTokenData>({
 
 schema.index({ userId: 1, clientId: 1 });
 
-export const OAuthTokenModel = model<OAuthTokenData>('OAuthToken', schema, 'oauth_tokens');
+export const MCPOAuthTokenModel = model<MCPOAuthTokenData>('MCPOAuthToken', schema, 'mcp_oauth_tokens');
