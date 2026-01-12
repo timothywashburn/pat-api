@@ -2,7 +2,9 @@ import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
 import { z } from 'zod';
 import ItemManager from '../../controllers/item-manager';
 import { getUserIdFromAuth } from '../utils/mcp-utils';
-import { Serializer, ItemId } from '@timothyw/pat-common';
+import { Serializer, ItemId, UpdateAgendaItemRequest } from '@timothyw/pat-common';
+import UserManager from '../../controllers/user-manager';
+import { TZDate } from '@date-fns/tz';
 
 export function registerAgendaItemTools(server: McpServer) {
 
@@ -61,7 +63,15 @@ export function registerAgendaItemTools(server: McpServer) {
             const userId = getUserIdFromAuth(extra.authInfo);
 
             try {
-                const items = await ItemManager.getInstance().createMany(userId, args.items);
+                const user = await UserManager.getInstance().getById(userId);
+                const timezone = user!.timezone;
+
+                const itemsWithParsedDates = args.items.map((item: any) => ({
+                    ...item,
+                    dueDate: item.dueDate ? new TZDate(item.dueDate, timezone) : undefined
+                }));
+
+                const items = await ItemManager.getInstance().createMany(userId, itemsWithParsedDates);
                 return {
                     content: [{
                         type: 'text' as const,
@@ -106,10 +116,15 @@ export function registerAgendaItemTools(server: McpServer) {
         async (args: any, extra) => {
             const userId = getUserIdFromAuth(extra.authInfo);
 
+            const user = await UserManager.getInstance().getById(userId);
+            const timezone = user!.timezone;
+
             const updateRequests = args.items.map((item: any) => {
-                const updates: Record<string, unknown> = {};
+                const updates: UpdateAgendaItemRequest = {};
                 if (item.name !== undefined) updates.name = item.name;
-                if (item.dueDate !== undefined) updates.dueDate = item.dueDate;
+                if (item.dueDate !== undefined) {
+                    updates.dueDate = item.dueDate === null ? null : new TZDate(item.dueDate, timezone).toString();
+                }
                 if (item.notes !== undefined) updates.notes = item.notes;
                 if (item.urgent !== undefined) updates.urgent = item.urgent;
                 if (item.category !== undefined) updates.category = item.category;
