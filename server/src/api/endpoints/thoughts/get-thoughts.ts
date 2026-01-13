@@ -8,7 +8,7 @@ export const getThoughtsEndpoint: ApiEndpoint<undefined, GetThoughtsResponse> = 
     auth: 'verifiedEmail',
     handler: async (req, res) => {
         try {
-            const thoughts = await ThoughtManager.getInstance().getAllByUser(req.auth!.userId!);
+            const thoughts = await ThoughtManager.getInstance().getAllByUser(req.patAuth!.userId!);
             res.json({
                 success: true,
                 thoughts: thoughts.map(thought => Serializer.serialize(thought))

@@ -7,7 +7,6 @@ import {
     CreatePersonRequest, CreatePersonNoteRequest
 } from "@timothyw/pat-common";
 import { PersonNoteModel } from "../models/mongo/person-note-data";
-import { AuthInfo } from "../api/types";
 import { updateDocument } from "../utils/db-doc-utils";
 import PersonManager from "./person-manager";
 
@@ -32,11 +31,11 @@ export default class PersonNoteManager {
     }
 
     update(
-        auth: AuthInfo,
+        userId: UserId,
         personNoteId: PersonNoteId,
         updates: UpdatePersonNoteRequest
     ): Promise<PersonNoteData | null> {
-        return updateDocument(auth, PersonNoteModel, personNoteId, updates);
+        return updateDocument(userId, PersonNoteModel, personNoteId, updates);
     }
 
     delete(personNoteId: PersonNoteId): Promise<boolean> {

@@ -18,7 +18,7 @@ export const updatePersonEndpoint: ApiEndpoint<UpdatePersonRequest, UpdatePerson
             const data = updatePersonRequestSchema.parse(req.body);
             const personId = req.params.personId as PersonId;
 
-            const person = await PersonManager.getInstance().update(req.auth!, personId, data);
+            const person = await PersonManager.getInstance().update(req.patAuth!.userId, personId, data);
 
             if (!person) {
                 res.status(404).json({ success: false, error: 'Person not found' });
@@ -32,7 +32,7 @@ export const updatePersonEndpoint: ApiEndpoint<UpdatePersonRequest, UpdatePerson
         } catch (error) {
             let message = 'Failed to update person';
             if (error instanceof z.ZodError) {
-                message = error.errors[0].message;
+                message = error.issues[0].message;
             }
             res.status(400).json({ success: false, error: message });
         }

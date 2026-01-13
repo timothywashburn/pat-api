@@ -8,7 +8,7 @@ export const getItemsEndpoint: ApiEndpoint<undefined, GetAgendaItemsResponse> = 
     auth: 'verifiedEmail',
     handler: async (req, res) => {
         try {
-            const items = await ItemManager.getInstance().getAllByUser(req.auth!.userId!);
+            const items = await ItemManager.getInstance().getAllByUser(req.patAuth!.userId!);
 
             res.json({
                 success: true,

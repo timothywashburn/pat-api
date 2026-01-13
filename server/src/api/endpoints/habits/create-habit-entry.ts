@@ -19,7 +19,7 @@ export const createHabitEntryEndpoint: ApiEndpoint<CreateHabitEntryRequest, Crea
     handler: async (req, res) => {
         try {
             const data = createHabitEntryRequestSchema.parse(req.body);
-            const userId = req.auth!.userId!;
+            const userId = req.patAuth!.userId!;
             const habitId = req.params.habitId;
 
             if (!habitId) {
@@ -84,7 +84,7 @@ export const createHabitEntryEndpoint: ApiEndpoint<CreateHabitEntryRequest, Crea
             let message = 'Failed to create habit entry';
 
             if (error instanceof z.ZodError) {
-                message = error.errors[0].message;
+                message = error.issues[0].message;
             }
 
             res.status(400).json({

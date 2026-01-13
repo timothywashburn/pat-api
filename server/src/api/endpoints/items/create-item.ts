@@ -17,7 +17,7 @@ export const createItemEndpoint: ApiEndpoint<CreateAgendaItemRequest, CreateAgen
     handler: async (req, res) => {
         try {
             const data = createAgendaItemRequestSchema.parse(req.body);
-            const userId = req.auth!.userId!;
+            const userId = req.patAuth!.userId!;
 
             const item = await ItemManager.getInstance().create(userId, {
                 name: data.name,
@@ -52,7 +52,7 @@ export const createItemEndpoint: ApiEndpoint<CreateAgendaItemRequest, CreateAgen
             let message = 'Failed to create item';
 
             if (error instanceof z.ZodError) {
-                message = error.errors[0].message;
+                message = error.issues[0].message;
             }
 
             res.status(400).json({

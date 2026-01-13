@@ -1,0 +1,20 @@
+{
+  "applinks": {
+    "apps": [],
+    "details": [
+      {
+        "appID": "2MSZNNJ354.dev.timothyw.patapp",
+        "paths": [
+          "/app",
+          "/habits"
+        ]
+      }
+    ]
+  },
+  "activitycontinuation": {
+    "apps": ["2MSZNNJ354.dev.timothyw.patapp"]
+  },
+  "webcredentials": {
+    "apps": ["2MSZNNJ354.dev.timothyw.patapp"]
+  }
+}

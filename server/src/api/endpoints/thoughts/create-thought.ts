@@ -15,7 +15,7 @@ export const createThoughtEndpoint: ApiEndpoint<CreateThoughtRequest, CreateThou
     handler: async (req, res) => {
         try {
             const data = createThoughtRequestSchema.parse(req.body);
-            const userId = req.auth!.userId!;
+            const userId = req.patAuth!.userId!;
 
             const thought = await ThoughtManager.getInstance().create(userId, {
                 content: data.content
@@ -28,7 +28,7 @@ export const createThoughtEndpoint: ApiEndpoint<CreateThoughtRequest, CreateThou
         } catch (error) {
             let message = 'Failed to create thought';
             if (error instanceof z.ZodError) {
-                message = error.errors[0].message;
+                message = error.issues[0].message;
             }
             res.status(400).json({ success: false, error: message });
         }

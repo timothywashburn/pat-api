@@ -6,7 +6,6 @@ import {
     UserId
 } from "@timothyw/pat-common";
 import { PersonModel } from "../models/mongo/person-data";
-import { AuthInfo } from "../api/types";
 import { updateDocumentWithPopulate } from "../utils/db-doc-utils";
 
 export default class PersonManager {
@@ -48,11 +47,11 @@ export default class PersonManager {
     }
 
     async update(
-        auth: AuthInfo,
+        userId: UserId,
         personId: PersonId,
         updates: UpdatePersonRequest
     ): Promise<Person | null> {
-        const person = await updateDocumentWithPopulate(auth, PersonModel, personId, updates);
+        const person = await updateDocumentWithPopulate(userId, PersonModel, personId, updates);
         if (!person) return null;
         
         const populatedPerson = await person.populate('noteIds');

@@ -14,7 +14,7 @@ export const setEntitySyncEndpoint: ApiEndpoint<SetEntitySyncRequest, SetEntityS
     handler: async (req, res) => {
         try {
             const data = setEntitySyncRequestSchema.parse(req.body);
-            const userId = req.auth!.userId!;
+            const userId = req.patAuth!.userId!;
 
             if (data.synced) {
                 // enable sync: delete individual templates and inherit from parent
@@ -45,7 +45,7 @@ export const setEntitySyncEndpoint: ApiEndpoint<SetEntitySyncRequest, SetEntityS
             let status = 500;
 
             if (error instanceof z.ZodError) {
-                message = error.errors[0].message;
+                message = error.issues[0].message;
                 status = 400;
             }
 

@@ -20,7 +20,7 @@ export const updateNotificationTemplateEndpoint: ApiEndpoint<UpdateNotificationT
 
             const template = await NotificationTemplateManager.update(
                 templateId,
-                req.auth!.userId!,
+                req.patAuth!.userId!,
                 updates
             );
 
@@ -43,7 +43,7 @@ export const updateNotificationTemplateEndpoint: ApiEndpoint<UpdateNotificationT
             let status = 500;
 
             if (error instanceof z.ZodError) {
-                message = error.errors[0].message;
+                message = error.issues[0].message;
                 status = 400;
             }
 

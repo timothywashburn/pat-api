@@ -8,7 +8,7 @@ spec:
     - websecure
   routes:
     - kind: Rule
-      match: Host(`{{ .Values.ingress.host }}`) && PathPrefix(`/api`)
+      match: Host(`{{ .Values.ingress.host }}`) && (PathPrefix(`/api`) || PathPrefix(`/mcp`) || Path(`/oauth/complete-authorization`) || Path(`/authorize`) || Path(`/token`) || Path(`/register`) || Path(`/revoke`) || PathPrefix(`/.well-known/`))
       priority: 20
       services:
         - name: server-service

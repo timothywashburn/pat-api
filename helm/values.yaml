@@ -7,3 +7,6 @@ mongodb:
   storage:
     volumeName: ""
     size: 1Gi
+
+redis:
+  port:

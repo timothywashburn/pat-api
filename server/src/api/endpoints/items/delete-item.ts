@@ -10,9 +10,9 @@ export const deleteItemEndpoint: ApiEndpoint<undefined, DeleteAgendaItemResponse
     handler: async (req, res) => {
         try {
             const itemId = req.params.itemId as ItemId;
-            const userId = req.auth!.userId!;
+            const userId = req.patAuth!.userId!;
 
-            const deleted = await ItemManager.getInstance().delete(itemId);
+            const deleted = await ItemManager.getInstance().delete(userId, itemId);
             if (!deleted) {
                 res.status(404).json({
                     success: false,

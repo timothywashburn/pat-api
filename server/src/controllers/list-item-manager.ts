@@ -7,7 +7,6 @@ import {
     ListType
 } from "@timothyw/pat-common";
 import { ListItemModel } from "../models/mongo/list-item-data";
-import { AuthInfo } from "../api/types";
 import { updateDocument } from "../utils/db-doc-utils";
 import ListManager from "./list-manager";
 
@@ -39,11 +38,11 @@ export default class ListItemManager {
     }
 
     update(
-        auth: AuthInfo,
+        userId: UserId,
         listItemId: ListItemId,
         updates: UpdateAgendaItemRequest
     ): Promise<ListItemData | null> {
-        return updateDocument(auth, ListItemModel, listItemId, updates);
+        return updateDocument(userId, ListItemModel, listItemId, updates);
     }
 
     async setCompleted(listItemId: ListItemId, completed: boolean): Promise<ListItemData | null> {

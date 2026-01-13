@@ -10,7 +10,6 @@ import {
 } from "@timothyw/pat-common";
 import DateUtils from "../utils/date-utils";
 import UserManager from "./user-manager";
-import { AuthInfo } from "../api/types";
 import { updateDocument } from "../utils/db-doc-utils";
 import { TZDate } from "@date-fns/tz";
 
@@ -75,11 +74,11 @@ export default class HabitManager {
     }
 
     update(
-        auth: AuthInfo,
+        userId: UserId,
         habitId: HabitId,
         updates: UpdateHabitRequest
     ): Promise<HabitData | null> {
-        return updateDocument(auth, HabitModel, habitId, updates);
+        return updateDocument(userId, HabitModel, habitId, updates);
     }
 
     async delete(habitId: string, userId: string): Promise<boolean> {

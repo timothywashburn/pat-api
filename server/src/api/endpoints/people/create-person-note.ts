@@ -15,7 +15,7 @@ export const createPersonNoteEndpoint: ApiEndpoint<CreatePersonNoteRequest, Crea
     handler: async (req, res) => {
         try {
             const data = createPersonNoteRequestSchema.parse(req.body);
-            const userId = req.auth!.userId!;
+            const userId = req.patAuth!.userId!;
 
             const personNote = await PersonNoteManager.getInstance().create(userId, data);
 
@@ -26,7 +26,7 @@ export const createPersonNoteEndpoint: ApiEndpoint<CreatePersonNoteRequest, Crea
         } catch (error) {
             let message = 'Failed to create person note';
             if (error instanceof z.ZodError) {
-                message = error.errors[0].message;
+                message = error.issues[0].message;
             }
             res.status(400).json({ success: false, error: message });
         }

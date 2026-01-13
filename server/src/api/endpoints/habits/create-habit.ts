@@ -17,7 +17,7 @@ export const createHabitEndpoint: ApiEndpoint<CreateHabitRequest, CreateHabitRes
     handler: async (req, res) => {
         try {
             const data = createHabitRequestSchema.parse(req.body);
-            const userId = req.auth!.userId!;
+            const userId = req.patAuth!.userId!;
 
             const habit = await HabitManager.getInstance().create(userId, data);
             const habitWithEntries = await HabitManager.getInstance().getByIdWithEntries(habit._id.toString());
@@ -36,7 +36,7 @@ export const createHabitEndpoint: ApiEndpoint<CreateHabitRequest, CreateHabitRes
             let message = 'Failed to create habit';
 
             if (error instanceof z.ZodError) {
-                message = error.errors[0].message;
+                message = error.issues[0].message;
             }
 
             res.status(400).json({

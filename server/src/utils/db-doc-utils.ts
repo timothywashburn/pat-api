@@ -1,5 +1,5 @@
 import { Document, Model, UpdateQuery } from 'mongoose';
-import { AuthInfo } from "../api/types";
+import { UserId } from '@timothyw/pat-common';
 
 function flattenObject(obj: any, prefix = ''): Record<string, any> {
     const flattened: Record<string, any> = {};
@@ -18,7 +18,7 @@ function flattenObject(obj: any, prefix = ''): Record<string, any> {
 }
 
 export async function updateDocument<T, U extends object>(
-    auth: AuthInfo,
+    userId: UserId,
     model: Model<T>,
     id: string,
     updates: U
@@ -43,7 +43,7 @@ export async function updateDocument<T, U extends object>(
     return model.findOneAndUpdate(
         {
             _id: id,
-            ...(auth.userId === id ? {} : { userId: auth.userId })
+            ...(userId === id ? {} : { userId })
         },
         updateOperation,
         { new: true }
@@ -51,7 +51,7 @@ export async function updateDocument<T, U extends object>(
 }
 
 export async function updateDocumentWithPopulate<T>(
-    auth: AuthInfo,
+    userId: UserId,
     model: Model<T>,
     id: string,
     updates: Partial<T>
@@ -74,7 +74,7 @@ export async function updateDocumentWithPopulate<T>(
     if (Object.keys(unset).length > 0) updateOperation.$unset = unset;
 
     return model.findOneAndUpdate(
-        { _id: id, userId: auth.userId },
+        { _id: id, userId },
         updateOperation,
         { new: true }
     );

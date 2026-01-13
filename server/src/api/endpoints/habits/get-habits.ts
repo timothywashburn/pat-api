@@ -8,7 +8,7 @@ export const getHabitsEndpoint: ApiEndpoint<undefined, GetHabitsResponse> = {
     auth: 'verifiedEmail',
     handler: async (req, res) => {
         try {
-            const habits = await HabitManager.getInstance().getAllByUserWithEntries(req.auth!.userId!);
+            const habits = await HabitManager.getInstance().getAllByUserWithEntries(req.patAuth!.userId!);
 
             res.json({
                 success: true,

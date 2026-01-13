@@ -1,7 +1,6 @@
 import { CreateAgendaItemRequest, AgendaItemData, ItemId, UpdateAgendaItemRequest, UserId } from "@timothyw/pat-common";
 import { ItemModel } from "../models/mongo/item-data";
 import { updateDocument } from "../utils/db-doc-utils";
-import { AuthInfo } from "../api/types";
 
 export default class ItemManager {
     private static instance: ItemManager;
@@ -19,6 +18,19 @@ export default class ItemManager {
         });
         const doc = await todo.save();
         return doc.toObject();
+    }
+
+    async createMany(userId: UserId, dataArray: CreateAgendaItemRequest[]): Promise<AgendaItemData[]> {
+        const items = dataArray.map(data => ({
+            userId,
+            ...data,
+            completed: false,
+            urgent: data.urgent ?? false,
+            category: data.category ?? null,
+            type: data.type ?? null
+        }));
+        const docs = await ItemModel.insertMany(items);
+        return docs.map(doc => doc.toObject());
     }
 
     getById(itemId: ItemId): Promise<AgendaItemData | null> {
@@ -45,11 +57,28 @@ export default class ItemManager {
     }
 
     update(
-        auth: AuthInfo,
+        userId: UserId,
         itemId: ItemId,
         updates: UpdateAgendaItemRequest
     ): Promise<AgendaItemData | null> {
-        return updateDocument<AgendaItemData, UpdateAgendaItemRequest>(auth, ItemModel, itemId, updates);
+        return updateDocument<AgendaItemData, UpdateAgendaItemRequest>(userId, ItemModel, itemId, updates);
+    }
+
+    async updateMany(
+        userId: UserId,
+        items: Array<{ itemId: ItemId; updates: UpdateAgendaItemRequest }>
+    ): Promise<Array<{ itemId: ItemId; item: AgendaItemData | null; success: boolean }>> {
+        const results = await Promise.all(
+            items.map(async ({ itemId, updates }) => {
+                const item = await this.update(userId, itemId, updates);
+                return {
+                    itemId,
+                    item,
+                    success: item !== null
+                };
+            })
+        );
+        return results;
     }
 
     // update(
@@ -79,12 +108,30 @@ export default class ItemManager {
     //     );
     // }
 
-    async setCompleted(itemId: ItemId, completed: boolean) {
-        return ItemModel.findByIdAndUpdate(
-            itemId,
-            {$set: {completed}},
-            {new: true}
+    async setCompleted(userId: UserId, itemId: ItemId, completed: boolean) {
+        return ItemModel.findOneAndUpdate(
+            { _id: itemId, userId },
+            { $set: { completed } },
+            { new: true }
         ).lean();
+    }
+
+    async setCompletedMany(
+        userId: UserId,
+        itemIds: ItemId[],
+        completed: boolean
+    ): Promise<Array<{ itemId: ItemId; item: AgendaItemData | null; success: boolean }>> {
+        const results = await Promise.all(
+            itemIds.map(async (itemId) => {
+                const item = await this.setCompleted(userId, itemId, completed);
+                return {
+                    itemId,
+                    item,
+                    success: item !== null
+                };
+            })
+        );
+        return results;
     }
 
     async clearItemCategory(userId: UserId, category: string): Promise<number> {
@@ -103,9 +150,25 @@ export default class ItemManager {
         return result.modifiedCount;
     }
 
-    delete(itemId: ItemId): Promise<boolean> {
-        return ItemModel.deleteOne({ _id: itemId })
+    delete(userId: UserId, itemId: ItemId): Promise<boolean> {
+        return ItemModel.deleteOne({ _id: itemId, userId })
             .then(result => result.deletedCount > 0);
+    }
+
+    async deleteManyItems(
+        userId: UserId,
+        itemIds: ItemId[]
+    ): Promise<Array<{ itemId: ItemId; success: boolean }>> {
+        const results = await Promise.all(
+            itemIds.map(async (itemId) => {
+                const success = await this.delete(userId, itemId);
+                return {
+                    itemId,
+                    success
+                };
+            })
+        );
+        return results;
     }
 
     deleteAllForUser(userId: UserId): Promise<number> {

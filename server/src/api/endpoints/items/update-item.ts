@@ -16,10 +16,10 @@ export const updateItemEndpoint: ApiEndpoint<UpdateAgendaItemRequest, UpdateAgen
     handler: async (req, res) => {
         try {
             const data = updateAgendaItemRequestSchema.parse(req.body);
-            const userId = req.auth!.userId!;
+            const userId = req.patAuth!.userId!;
             const itemId = req.params.itemId as ItemId;
 
-            const item = await ItemManager.getInstance().update(req.auth!, itemId, {
+            const item = await ItemManager.getInstance().update(req.patAuth!.userId, itemId, {
                 name: data.name,
                 dueDate: data.dueDate,
                 notes: data.notes,
@@ -47,7 +47,7 @@ export const updateItemEndpoint: ApiEndpoint<UpdateAgendaItemRequest, UpdateAgen
             let message = 'Failed to update item';
 
             if (error instanceof z.ZodError) {
-                message = error.errors[0].message;
+                message = error.issues[0].message;
             }
 
             res.status(400).json({

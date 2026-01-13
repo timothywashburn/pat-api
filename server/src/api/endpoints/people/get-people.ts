@@ -8,7 +8,7 @@ export const getPeopleEndpoint: ApiEndpoint<undefined, GetPeopleResponse> = {
     auth: 'verifiedEmail',
     handler: async (req, res) => {
         try {
-            const people = await PersonManager.getInstance().getAllByUser(req.auth!.userId!);
+            const people = await PersonManager.getInstance().getAllByUser(req.patAuth!.userId!);
             res.json({
                 success: true,
                 people: people.map(person => Serializer.serialize(person))

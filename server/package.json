@@ -10,6 +10,7 @@
   },
   "dependencies": {
     "@date-fns/tz": "^1.4.1",
+    "@modelcontextprotocol/sdk": "^1.25.2",
     "@timothyw/pat-common": "^1.0.163",
     "@types/uuid": "^10.0.0",
     "bcrypt": "^5.1.1",
@@ -28,7 +29,7 @@
     "node-mailjet": "^6.0.6",
     "socket.io": "^4.8.1",
     "uuid": "^11.1.0",
-    "zod": "^3.23.8"
+    "zod": "^4.3.5"
   },
   "devDependencies": {
     "@types/axios": "^0.9.36",

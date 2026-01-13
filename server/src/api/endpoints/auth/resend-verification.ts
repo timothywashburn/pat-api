@@ -8,7 +8,7 @@ export const resendVerificationEndpoint: ApiEndpoint<undefined, ResendVerificati
     auth: 'authenticated',
     handler: async (req, res) => {
         try {
-            const sent = await AuthManager.getInstance().resendVerificationEmail(req.auth!.authId);
+            const sent = await AuthManager.getInstance().resendVerificationEmail(req.patAuth!.authId);
 
             if (!sent) {
                 res.status(400).json({

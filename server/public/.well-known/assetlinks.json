@@ -1,0 +1,12 @@
+[
+  {
+    "relation": ["delegate_permission/common.handle_all_urls"],
+    "target": {
+      "namespace": "android_app",
+      "package_name": "dev.timothyw.patapp",
+      "sha256_cert_fingerprints": [
+        "1B:1A:EE:B2:6A:C8:7C:B1:B5:E0:6B:83:98:5B:9F:10:C3:6A:0E:6A:1D:25:EE:8A:CC:22:47:0B:8A:6A:1E:48"
+      ]
+    }
+  }
+]
