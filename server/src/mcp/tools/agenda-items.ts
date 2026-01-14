@@ -4,7 +4,7 @@ import ItemManager from '../../controllers/item-manager';
 import { getUserIdFromAuth } from '../utils/mcp-utils';
 import { Serializer, ItemId, UpdateAgendaItemRequest } from '@timothyw/pat-common';
 import UserManager from '../../controllers/user-manager';
-import { TZDate } from '@date-fns/tz';
+import DateUtils from '../../utils/date-utils';
 
 export function registerAgendaItemTools(server: McpServer) {
 
@@ -68,7 +68,7 @@ export function registerAgendaItemTools(server: McpServer) {
 
                 const itemsWithParsedDates = args.items.map((item: any) => ({
                     ...item,
-                    dueDate: item.dueDate ? new TZDate(item.dueDate, timezone) : undefined
+                    dueDate: item.dueDate ? DateUtils.parseISOAsLocalTime(item.dueDate, timezone) : undefined
                 }));
 
                 const items = await ItemManager.getInstance().createMany(userId, itemsWithParsedDates);
@@ -123,7 +123,7 @@ export function registerAgendaItemTools(server: McpServer) {
                 const updates: UpdateAgendaItemRequest = {};
                 if (item.name !== undefined) updates.name = item.name;
                 if (item.dueDate !== undefined) {
-                    updates.dueDate = item.dueDate === null ? null : new TZDate(item.dueDate, timezone).toString();
+                    updates.dueDate = item.dueDate === null ? null : DateUtils.parseISOAsLocalTime(item.dueDate, timezone).toString();
                 }
                 if (item.notes !== undefined) updates.notes = item.notes;
                 if (item.urgent !== undefined) updates.urgent = item.urgent;
