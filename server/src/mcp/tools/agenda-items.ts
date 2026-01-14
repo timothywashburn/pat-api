@@ -4,7 +4,7 @@ import ItemManager from '../../controllers/item-manager';
 import { getUserIdFromAuth } from '../utils/mcp-utils';
 import { Serializer, ItemId, UpdateAgendaItemRequest } from '@timothyw/pat-common';
 import UserManager from '../../controllers/user-manager';
-import { TZDate } from '@date-fns/tz';
+import DateUtils from '../../utils/date-utils';
 
 export function registerAgendaItemTools(server: McpServer) {
 
@@ -66,24 +66,10 @@ export function registerAgendaItemTools(server: McpServer) {
                 const user = await UserManager.getInstance().getById(userId);
                 const timezone = user!.timezone;
 
-                console.log('[MCP Create] User timezone:', timezone);
-
-                const itemsWithParsedDates = args.items.map((item: any) => {
-                    if (item.dueDate) {
-                        console.log('[MCP Create] Input dueDate string:', item.dueDate);
-                        const tzDate = new TZDate(item.dueDate, timezone);
-                        console.log('[MCP Create] TZDate created:', tzDate.toString());
-                        console.log('[MCP Create] TZDate ISO:', tzDate.toISOString());
-                        return {
-                            ...item,
-                            dueDate: tzDate
-                        };
-                    }
-                    return {
-                        ...item,
-                        dueDate: undefined
-                    };
-                });
+                const itemsWithParsedDates = args.items.map((item: any) => ({
+                    ...item,
+                    dueDate: item.dueDate ? DateUtils.parseISOAsLocalTime(item.dueDate, timezone) : undefined
+                }));
 
                 const items = await ItemManager.getInstance().createMany(userId, itemsWithParsedDates);
                 return {
@@ -137,7 +123,7 @@ export function registerAgendaItemTools(server: McpServer) {
                 const updates: UpdateAgendaItemRequest = {};
                 if (item.name !== undefined) updates.name = item.name;
                 if (item.dueDate !== undefined) {
-                    updates.dueDate = item.dueDate === null ? null : new TZDate(item.dueDate, timezone).toString();
+                    updates.dueDate = item.dueDate === null ? null : DateUtils.parseISOAsLocalTime(item.dueDate, timezone).toString();
                 }
                 if (item.notes !== undefined) updates.notes = item.notes;
                 if (item.urgent !== undefined) updates.urgent = item.urgent;
