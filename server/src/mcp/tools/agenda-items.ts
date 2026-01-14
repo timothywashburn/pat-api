@@ -66,10 +66,24 @@ export function registerAgendaItemTools(server: McpServer) {
                 const user = await UserManager.getInstance().getById(userId);
                 const timezone = user!.timezone;
 
-                const itemsWithParsedDates = args.items.map((item: any) => ({
-                    ...item,
-                    dueDate: item.dueDate ? new TZDate(item.dueDate, timezone) : undefined
-                }));
+                console.log('[MCP Create] User timezone:', timezone);
+
+                const itemsWithParsedDates = args.items.map((item: any) => {
+                    if (item.dueDate) {
+                        console.log('[MCP Create] Input dueDate string:', item.dueDate);
+                        const tzDate = new TZDate(item.dueDate, timezone);
+                        console.log('[MCP Create] TZDate created:', tzDate.toString());
+                        console.log('[MCP Create] TZDate ISO:', tzDate.toISOString());
+                        return {
+                            ...item,
+                            dueDate: tzDate
+                        };
+                    }
+                    return {
+                        ...item,
+                        dueDate: undefined
+                    };
+                });
 
                 const items = await ItemManager.getInstance().createMany(userId, itemsWithParsedDates);
                 return {
