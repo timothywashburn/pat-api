@@ -18,7 +18,7 @@ import { createCompleteAuthorizationRouter } from './mcp/oauth/complete-authoriz
 
 Logger.logSystem(LogType.UNCLASSIFIED, "starting server");
 
-config({ path: resolve(__dirname, '../../.env') });
+config({ path: resolve(__dirname, '../.env') });
 
 (async () => {
     await MongoManager.getInstance().init();
